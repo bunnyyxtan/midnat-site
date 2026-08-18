@@ -1,0 +1,307 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+  --font-display: var(--app-font-display);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Base Light Mode */
+:root {
+  --button-outline: rgba(0, 0, 0, 0.1);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.08);
+
+  --background: 42 30% 94%;
+  --foreground: 40 16% 8%;
+  --border: 40 15% 82%;
+  --card: 42 30% 97%;
+  --card-foreground: 40 16% 8%;
+  --card-border: 40 15% 84%;
+  --sidebar: 42 30% 97%;
+  --sidebar-foreground: 40 16% 8%;
+  --sidebar-border: 40 15% 82%;
+  --sidebar-primary: 40 45% 34%;
+  --sidebar-primary-foreground: 42 30% 96%;
+  --sidebar-accent: 42 20% 90%;
+  --sidebar-accent-foreground: 40 16% 8%;
+  --sidebar-ring: 40 45% 34%;
+  --popover: 42 30% 97%;
+  --popover-foreground: 40 16% 8%;
+  --popover-border: 40 15% 82%;
+
+  --primary: 40 45% 34%;
+  --primary-foreground: 42 30% 96%;
+  --secondary: 42 20% 89%;
+  --secondary-foreground: 40 16% 8%;
+  --muted: 42 20% 88%;
+  --muted-foreground: 40 10% 38%;
+  --accent: 42 20% 89%;
+  --accent-foreground: 40 16% 8%;
+  --destructive: 13 50% 40%;
+  --destructive-foreground: 42 30% 96%;
+  --input: 40 15% 82%;
+  --ring: 40 45% 34%;
+
+  --chart-1: 139 25% 36%;
+  --chart-2: 13 50% 44%;
+  --chart-3: 40 45% 40%;
+  --chart-4: 40 10% 45%;
+  --chart-5: 40 16% 12%;
+
+  /* Text selection: soft mint ground, Dark Evergreen ink (brand handshake pairing) */
+  --selection: 167 50% 84%;
+  --selection-foreground: 158 96% 10%;
+
+  /* One sans family, loaded in index.html. Satoshi 400/500/700 covers body
+     and the display scale; the mono is for small labels and tabular figures
+     only. Adding a family here means adding it to the <link> as well, or it
+     silently renders as a system fallback. */
+  --app-font-sans: 'Satoshi', sans-serif;
+  --app-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --app-font-display: 'Satoshi', sans-serif;
+  --radius: 0rem;
+
+  /* Shared button/badge border tokens (used by ui/button.tsx and ui/badge.tsx) */
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+
+}
+
+/* Primary Dark Mode */
+.dark {
+  --button-outline: rgba(233, 227, 213, 0.12);
+  --badge-outline: rgba(233, 227, 213, 0.06);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(233, 227, 213, 0.04);
+  --elevate-2: rgba(233, 227, 213, 0.09);
+
+  --background: 40 16% 4%;
+  --foreground: 42 33% 88%;
+  --border: 40 12% 13%;
+
+  --card: 38 18% 6%;
+  --card-foreground: 42 33% 88%;
+  --card-border: 40 12% 14%;
+
+  --sidebar: 40 16% 4%;
+  --sidebar-foreground: 42 33% 88%;
+  --sidebar-border: 40 12% 13%;
+  --sidebar-primary: 40 42% 58%;
+  --sidebar-primary-foreground: 40 16% 4%;
+  --sidebar-accent: 38 14% 9%;
+  --sidebar-accent-foreground: 42 33% 88%;
+  --sidebar-ring: 40 42% 58%;
+
+  --popover: 38 18% 7%;
+  --popover-foreground: 42 33% 88%;
+  --popover-border: 40 12% 16%;
+
+  --primary: 40 42% 58%;
+  --primary-foreground: 40 16% 4%;
+  --secondary: 38 14% 10%;
+  --secondary-foreground: 42 33% 88%;
+  --muted: 38 14% 9%;
+  --muted-foreground: 41 15% 58%;
+  --accent: 38 14% 11%;
+  --accent-foreground: 42 33% 88%;
+
+  --destructive: 13 44% 58%;
+  --destructive-foreground: 40 16% 4%;
+
+  --input: 40 12% 14%;
+  --ring: 40 42% 58%;
+
+  --chart-1: 139 20% 58%;
+  --chart-2: 13 44% 58%;
+  --chart-3: 40 42% 58%;
+  --chart-4: 41 15% 58%;
+  --chart-5: 42 33% 88%;
+
+  /* Text selection: accent green #3CA56E ground, midnight ink */
+  --selection: 149 47% 44%;
+  --selection-foreground: 160 20% 3%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  ::selection {
+    background-color: hsl(var(--selection));
+    color: hsl(var(--selection-foreground));
+  }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  html, body { overflow-x: clip; }
+  body { @apply font-sans antialiased bg-background text-foreground; }
+}
+
+@layer utilities {
+  input[type='search']::-webkit-search-cancel-button { @apply hidden; }
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+  .no-default-hover-elevate {}
+  .no-default-active-elevate {}
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+  }
+  .border.toggle-elevate::before { inset: -1px; }
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: 999;
+  }
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+  }
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+  }
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+    inset: -1px;
+  }
+}
+
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.ambient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    130% 90% at 50% -15%,
+    hsl(142 22% 8%) 0%,
+    hsl(142 18% 4%) 48%,
+    hsl(40 16% 3%) 100%
+  );
+  opacity: calc(1 - var(--night, 0) * 0.7);
+  transition: opacity 120ms linear;
+}
+.ambient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(88% 52% at 50% 122%, hsl(142 46% 12%) 0%, transparent 60%);
+  opacity: calc(var(--night, 0) * var(--night, 0));
+  transition: opacity 120ms linear;
+}
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.14;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.tnum {
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+

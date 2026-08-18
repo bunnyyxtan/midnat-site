@@ -1,0 +1,792 @@
+/* =========================================================================
+   MIDNAT public document system
+   =========================================================================
+   The shared design system for every public page that is not the landing:
+   docs, whitepaper, legal, contracts, security, verify, status, brand.
+
+   It is built entirely on the landing's --ln-* tokens, so both themes work
+   without a second palette, and it adds only what a DOCUMENT needs and a
+   marketing page does not: a real type scale, measures, tables, callouts,
+   anchors, a sidebar, a table of contents and print rules.
+
+   LAWS OBEYED HERE
+     - No card soup. Cards are for objects, not for paragraphs.
+     - Purpose-specific widths: legal reads at 72 characters, specification
+       tables get room, nothing is stretched to fill a 1440px window.
+     - Documents print as documents.
+     - Dark glass sits a step LIGHTER than the ground, never darker.
+     - Nothing rests at opacity 0 on first paint.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. Document ground
+   The landing's ground is theatre: four big radial blooms that carry the
+   hero. A document needs the same sky, quieter, so the reading surface stays
+   calm across 3,000px of scrolling. Specificity is deliberate: the dark
+   theme selector is (0,2,0), so light overrides must match it.
+   ------------------------------------------------------------------------- */
+
+.landing-container.pub-ground {
+  --ln-ground-radials:
+    radial-gradient(1100px 700px at 12% 0%, rgba(209, 242, 235, 0.5), transparent 62%),
+    radial-gradient(1300px 800px at 88% 12%, rgba(80, 200, 120, 0.06), transparent 66%),
+    radial-gradient(1200px 900px at 50% 100%, rgba(11, 110, 79, 0.05), transparent 62%);
+  background-attachment: fixed;
+}
+
+.landing-container[data-theme='dark'].pub-ground {
+  --ln-ground-radials:
+    radial-gradient(1100px 700px at 12% 0%, rgba(74, 222, 140, 0.13), transparent 62%),
+    radial-gradient(1300px 800px at 88% 12%, rgba(60, 165, 110, 0.12), transparent 66%),
+    radial-gradient(1200px 900px at 50% 100%, rgba(74, 222, 140, 0.1), transparent 62%);
+}
+
+/* -------------------------------------------------------------------------
+   2. Widths. Each has one job.
+   ------------------------------------------------------------------------- */
+
+.pub-width-prose {
+  max-width: 46rem; /* 736px: long-form legal and narrative */
+}
+.pub-width-doc {
+  max-width: 78rem; /* 1248px: docs grid, sidebar + column + toc */
+}
+.pub-width-wide {
+  max-width: 78rem; /* 1248px: parameter tables and specification grids */
+}
+.pub-width-full {
+  max-width: 90rem; /* 1440px: the landing and the footer only */
+}
+.pub-measure {
+  max-width: 72ch;
+}
+
+/* -------------------------------------------------------------------------
+   3. Type scale. A document scale, not a marketing scale.
+   ------------------------------------------------------------------------- */
+
+.pub-eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ln-ink-soft);
+}
+
+.pub-display {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  color: var(--ln-ink);
+  text-wrap: balance;
+}
+
+.pub-display-sm {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.875rem, 3.6vw, 2.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--ln-ink);
+  text-wrap: balance;
+}
+
+.pub-h2 {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.018em;
+  color: var(--ln-ink);
+}
+
+.pub-h3 {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--ln-ink);
+}
+
+.pub-h4 {
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--ln-ink);
+}
+
+.pub-lead {
+  font-size: 1.25rem;
+  line-height: 1.55;
+  font-weight: 400;
+  letter-spacing: -0.011em;
+  color: var(--ln-ink-body);
+  text-wrap: pretty;
+}
+
+.pub-body {
+  font-size: 1.0625rem;
+  line-height: 1.72;
+  color: var(--ln-ink-body);
+  text-wrap: pretty;
+}
+
+.pub-small {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--ln-ink-soft);
+}
+
+.pub-mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+   4. Prose block: the reading rhythm for a document body.
+   ------------------------------------------------------------------------- */
+
+.pub-prose > * + * {
+  margin-top: 1.15em;
+}
+.pub-prose p,
+.pub-prose li {
+  font-size: 1.0625rem;
+  line-height: 1.72;
+  color: var(--ln-ink-body);
+  text-wrap: pretty;
+  max-width: 78ch; /* running text keeps a measure even when the column is wide */
+}
+.pub-prose strong {
+  font-weight: 700;
+  color: var(--ln-ink);
+}
+.pub-prose ul,
+.pub-prose ol {
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.pub-prose ul {
+  list-style: none;
+  padding-left: 0;
+}
+.pub-prose ul > li {
+  position: relative;
+  padding-left: 1.35rem;
+}
+.pub-prose ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0.25rem;
+  top: 0.72em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: var(--ln-accent);
+  opacity: 0.55;
+}
+.pub-prose ol {
+  list-style: decimal;
+}
+.pub-prose ol > li::marker {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.8125rem;
+  color: var(--ln-ink-soft);
+}
+.pub-prose a {
+  color: var(--ln-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ln-accent) 45%, transparent);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  transition: color 0.16s ease, text-decoration-color 0.16s ease;
+}
+.pub-prose a:hover {
+  color: var(--ln-accent);
+  text-decoration-color: var(--ln-accent);
+}
+.pub-prose code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.85em;
+  padding: 0.12em 0.36em;
+  border-radius: 4px;
+  border: 1px solid var(--ln-hairline-soft);
+  background: var(--ln-glass-bg);
+  color: var(--ln-ink);
+  word-break: break-word;
+}
+
+/* -------------------------------------------------------------------------
+   5. Links and hairlines
+   ------------------------------------------------------------------------- */
+
+.pub-link {
+  color: var(--ln-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ln-accent) 45%, transparent);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  transition: color 0.16s ease, text-decoration-color 0.16s ease;
+}
+.pub-link:hover {
+  color: var(--ln-accent);
+  text-decoration-color: var(--ln-accent);
+}
+.pub-link-quiet {
+  color: var(--ln-ink-body);
+  text-decoration: none;
+  transition: color 0.16s ease;
+}
+.pub-link-quiet:hover {
+  color: var(--ln-accent);
+}
+.pub-rule {
+  height: 1px;
+  width: 100%;
+  background: var(--ln-hairline);
+  border: 0;
+}
+.pub-rule-soft {
+  height: 1px;
+  width: 100%;
+  background: var(--ln-hairline-soft);
+  border: 0;
+}
+
+/* -------------------------------------------------------------------------
+   6. Anchored headings. The link mark appears on hover and on focus, and it
+   never reflows the heading.
+   ------------------------------------------------------------------------- */
+
+.pub-anchor {
+  position: relative;
+  scroll-margin-top: 6.5rem;
+}
+.pub-anchor-link {
+  position: absolute;
+  left: -1.4rem;
+  top: 0.12em;
+  opacity: 0;
+  color: var(--ln-accent);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.9em;
+  text-decoration: none;
+  transition: opacity 0.16s ease;
+}
+.pub-anchor:hover .pub-anchor-link,
+.pub-anchor-link:focus-visible {
+  opacity: 1;
+}
+@media (max-width: 1023px) {
+  .pub-anchor-link {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   7. Tables. Specification tables are the backbone of this site: they must
+   read like a datasheet, not like a web component.
+   ------------------------------------------------------------------------- */
+
+.pub-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  border: 1px solid var(--ln-glass-border);
+  background: var(--ln-glass-bg);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  box-shadow: var(--ln-glass-drop-sm);
+}
+.pub-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: left;
+}
+.pub-table caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0.9rem 1.1rem 0;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ln-ink-soft);
+}
+.pub-table th {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ln-ink-soft);
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--ln-hairline);
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+.pub-table td {
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--ln-hairline-soft);
+  color: var(--ln-ink-body);
+  vertical-align: top;
+}
+.pub-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.pub-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--ln-accent) 5%, transparent);
+}
+.pub-table .pub-td-num {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ln-ink);
+}
+.pub-table .pub-td-key {
+  color: var(--ln-ink);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Key / value rows for object detail, where a table would be overkill. */
+.pub-kv {
+  display: grid;
+  grid-template-columns: minmax(9rem, 14rem) minmax(0, 1fr);
+  gap: 0.55rem 1.5rem;
+}
+.pub-kv dt {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ln-ink-soft);
+  padding-top: 0.22em;
+}
+.pub-kv dd {
+  font-size: 0.9375rem;
+  color: var(--ln-ink-body);
+  margin: 0;
+}
+@media (max-width: 639px) {
+  .pub-kv {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem 0;
+  }
+  .pub-kv dd {
+    margin-bottom: 0.9rem;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   8. Callouts. Three tones, no more: a note, a caution, and a limitation
+   (the one that says what MIDNAT does NOT do).
+   ------------------------------------------------------------------------- */
+
+.pub-callout {
+  position: relative;
+  border-radius: 12px;
+  padding: 1rem 1.15rem 1rem 1.35rem;
+  border: 1px solid var(--ln-glass-border);
+  background: var(--ln-glass-bg);
+  backdrop-filter: blur(16px) saturate(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
+  box-shadow: var(--ln-glass-drop-sm);
+  overflow: hidden;
+}
+.pub-callout::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--ln-accent);
+  opacity: 0.75;
+}
+.pub-callout-caution::before {
+  background: var(--ln-ink);
+  opacity: 0.55;
+}
+.pub-callout-limit::before {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--ln-ink) 0 3px,
+    transparent 3px 6px
+  );
+  opacity: 0.5;
+}
+.pub-callout-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ln-ink-soft);
+  margin-bottom: 0.4rem;
+}
+
+/* -------------------------------------------------------------------------
+   9. Status badges. Exactly the vocabulary the truth policy allows.
+   ------------------------------------------------------------------------- */
+
+.pub-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--ln-hairline);
+  background: var(--ln-glass-bg);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ln-ink-body);
+  white-space: nowrap;
+}
+.pub-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.pub-badge-live {
+  color: var(--ln-accent);
+  border-color: color-mix(in srgb, var(--ln-accent) 40%, transparent);
+  background: color-mix(in srgb, var(--ln-accent) 10%, transparent);
+}
+.pub-badge-neutral {
+  color: var(--ln-ink-body);
+}
+.pub-badge-quiet {
+  color: var(--ln-ink-soft);
+  border-style: dashed;
+}
+
+/* -------------------------------------------------------------------------
+   10. Code and address blocks
+   ------------------------------------------------------------------------- */
+
+.pub-code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid var(--ln-glass-border);
+  background: var(--ln-glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--ln-ink);
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+.pub-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--ln-hairline);
+  border-radius: 6px;
+  padding: 0.16rem 0.4rem;
+  color: var(--ln-ink-soft);
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+.pub-copy-btn:hover {
+  color: var(--ln-accent);
+  border-color: color-mix(in srgb, var(--ln-accent) 45%, transparent);
+}
+
+/* -------------------------------------------------------------------------
+   11. Docs chrome: sidebar, table of contents, breadcrumbs
+   ------------------------------------------------------------------------- */
+
+.pub-docs-grid {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+/* Tables and diagrams may use the whole docs column; running text may not.
+   Reading measure stays fixed while the column grows. */
+.pub-docs-grid .pub-prose p,
+.pub-docs-grid .pub-prose li,
+.pub-docs-grid .pub-lead {
+  max-width: 68ch;
+}
+@media (min-width: 1280px) {
+  .pub-docs-grid {
+    grid-template-columns: 15rem minmax(0, 1fr) 13rem;
+  }
+}
+@media (max-width: 1023px) {
+  .pub-docs-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+.pub-sticky {
+  position: sticky;
+  top: 6rem;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.pub-sticky::-webkit-scrollbar {
+  width: 4px;
+}
+.pub-sticky::-webkit-scrollbar-thumb {
+  background: var(--ln-hairline);
+  border-radius: 2px;
+}
+
+.pub-side-group + .pub-side-group {
+  margin-top: 1.6rem;
+}
+.pub-side-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ln-ink-soft);
+  margin-bottom: 0.6rem;
+}
+.pub-side-link {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  padding: 0.34rem 0.6rem;
+  margin-left: -0.6rem;
+  border-radius: 7px;
+  color: var(--ln-ink-body);
+  text-decoration: none;
+  transition: color 0.16s ease, background 0.16s ease;
+}
+.pub-side-link:hover {
+  color: var(--ln-ink);
+  background: color-mix(in srgb, var(--ln-accent) 8%, transparent);
+}
+.pub-side-link[aria-current='page'] {
+  color: var(--ln-ink);
+  font-weight: 500;
+  background: color-mix(in srgb, var(--ln-accent) 12%, transparent);
+  box-shadow: inset 2px 0 0 var(--ln-accent);
+}
+
+.pub-toc-link {
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  padding: 0.26rem 0 0.26rem 0.7rem;
+  border-left: 1px solid var(--ln-hairline);
+  color: var(--ln-ink-soft);
+  text-decoration: none;
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+.pub-toc-link:hover {
+  color: var(--ln-ink);
+}
+.pub-toc-link[data-depth='3'] {
+  padding-left: 1.5rem;
+  font-size: 0.78125rem;
+}
+.pub-toc-link[data-active='true'] {
+  color: var(--ln-ink);
+  border-left-color: var(--ln-accent);
+}
+
+/* -------------------------------------------------------------------------
+   12. Object cards. Used for real objects (a contract, a market, a document),
+   never as decoration around a paragraph.
+   ------------------------------------------------------------------------- */
+
+.pub-card {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid var(--ln-glass-border);
+  background: var(--ln-glass-bg);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  box-shadow: var(--ln-glass-drop-sm);
+  padding: 1.25rem;
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+a.pub-card:hover,
+.pub-card-interactive:hover {
+  border-color: var(--ln-glass-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--ln-glass-drop);
+}
+
+/* -------------------------------------------------------------------------
+   12b. Footer identity. The wordmark closes the page at display scale, so its
+   size is bound to the identity column rather than to the viewport: a fixed
+   5.5rem overran its track between lg and xl and collided with the PRODUCT
+   column. The container query keeps the lockup at ~93% of whatever the column
+   is, so the gutter beside it is real at every width; the clamp is the
+   fallback where container units are unsupported. Never reintroduce a fixed
+   font size here.
+   ------------------------------------------------------------------------- */
+
+.pub-footer-identity {
+  container-type: inline-size;
+}
+
+.pub-footer-wordmark {
+  font-size: clamp(2.5rem, 5.6vw, 5.5rem);
+}
+.pub-footer-wordmark-sm {
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+}
+
+@supports (width: 1cqw) {
+  .pub-footer-wordmark {
+    font-size: min(5.5rem, 21cqw);
+  }
+  .pub-footer-wordmark-sm {
+    font-size: min(3.5rem, 21cqw);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   12c. Footer legibility. The engraved plate is brightest exactly where the
+   small print sits — the water reflections run along the bottom of the plate —
+   and mono type at 11px in ink-soft dissolved into them (owner report with a
+   screenshot). The plate stays: a scrim in the page's own ground colour rises
+   under the closing rails so the type has a ground, and the rails themselves
+   were raised off ink-soft. Never put small print back over bare plate.
+   ------------------------------------------------------------------------- */
+
+/* The fallback triple matters: an undefined custom property inside rgba()
+   invalidates the whole gradient and drops the scrim entirely, which is the
+   exact bug this rule exists to prevent. It is the light ground, because that
+   is what .landing-container is before a theme is applied. */
+.pub-footer-scrim {
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--ln-plate-scrim-rgb, 237, 248, 243), 0) 0%,
+    rgba(var(--ln-plate-scrim-rgb, 237, 248, 243), 0.35) 34%,
+    rgba(var(--ln-plate-scrim-rgb, 237, 248, 243), 0.78) 66%,
+    rgba(var(--ln-plate-scrim-rgb, 237, 248, 243), 0.94) 88%,
+    rgba(var(--ln-plate-scrim-rgb, 237, 248, 243), 0.96) 100%
+  );
+}
+
+/* The closing rails: meta links, colophon, status line, network badge. Body
+   ink over the scrim, not soft ink over an etching. */
+.pub-footer-rail {
+  color: var(--ln-ink-body);
+}
+
+/* -------------------------------------------------------------------------
+   13. Focus, selection, motion
+   ------------------------------------------------------------------------- */
+
+.landing-container :focus-visible {
+  outline: 2px solid var(--ln-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.pub-skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 200;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  background: var(--ln-btn-bg);
+  color: var(--ln-btn-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: top 0.18s ease;
+}
+.pub-skip:focus {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-card,
+  a.pub-card:hover,
+  .pub-card-interactive:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   14. Print. A document prints as a document: no chrome, no glass, no grain,
+   ink on paper, and external links carry their address.
+   ------------------------------------------------------------------------- */
+
+@media print {
+  .pub-no-print,
+  .landing-grain,
+  .pub-sticky,
+  .pub-toc,
+  .pub-sidebar,
+  .pub-nav,
+  .pub-footer {
+    display: none !important;
+  }
+  .landing-container,
+  .landing-container[data-theme='dark'] {
+    background: #ffffff !important;
+    --ln-ink: #101010;
+    --ln-ink-body: #1c1c1c;
+    --ln-ink-soft: #4a4a4a;
+    --ln-hairline: rgba(0, 0, 0, 0.22);
+    --ln-hairline-soft: rgba(0, 0, 0, 0.12);
+    --ln-glass-border: rgba(0, 0, 0, 0.25);
+    --ln-glass-bg: transparent;
+    --ln-accent: #0b6e4f;
+  }
+  .pub-card,
+  .pub-callout,
+  .pub-table-scroll,
+  .pub-code {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    break-inside: avoid;
+  }
+  .pub-width-prose,
+  .pub-width-doc,
+  .pub-width-wide,
+  .pub-width-full {
+    max-width: none;
+  }
+  .pub-anchor {
+    break-after: avoid;
+  }
+  .pub-print-urls a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.7em;
+    color: #4a4a4a;
+    word-break: break-all;
+  }
+  .pub-page-break {
+    break-before: page;
+  }
+  @page {
+    margin: 18mm 16mm;
+  }
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIDNAT | Stock Perpetuals, Always Open</title>
+    <meta name="description" content="Trade US equity perpetuals 24/7 on X Layer. USDT0 collateral, zero gas, oracle-verified pricing. No closing bells." />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#101815" />
+    <meta property="og:site_name" content="MIDNAT" />
+    <meta property="og:title" content="MIDNAT | Stock Perpetuals, Always Open" />
+    <meta property="og:description" content="Trade US equity perpetuals 24/7 on X Layer. USDT0 collateral, zero gas, oracle-verified pricing." />
+    <meta property="og:type" content="website" />
+    <!-- Static og:url and canonical so social crawlers that do not execute
+         JavaScript (Discord, Slack, Twitter card validator) see a resolvable
+         URL. The React usePageMeta hook overrides both at runtime for deep
+         routes; this fallback covers the root and any page that loads before
+         the bundle fires. -->
+    <meta property="og:url" content="https://midnat.xyz/" />
+    <link rel="canonical" href="https://midnat.xyz/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="MIDNAT | Stock Perpetuals, Always Open" />
+    <meta name="twitter:description" content="Trade US equity perpetuals 24/7 on X Layer. USDT0 collateral, zero gas, oracle-verified pricing." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!--
+      Typography loads here, not through an @import inside the bundled CSS.
+      An @import is only discovered after that stylesheet has downloaded and
+      parsed, so the fonts start a round trip late and the first paint lands in
+      a system fallback: the exact "it looks basic" symptom. In the initial HTML
+      both font requests start in parallel with the stylesheet instead.
+
+      Satoshi ships 400/500/700 because the display scale is set in 700. Without
+      that weight the browser synthesises a fake bold, which is what a smeared,
+      cheap looking headline actually is. JetBrains Mono is the only other
+      family the design contract allows; a family named in CSS but missing from
+      these links renders as a system fallback with no error anywhere.
+    -->
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
