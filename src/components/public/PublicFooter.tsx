@@ -127,6 +127,8 @@ export function PublicFooter({ variant = 'document' }: { variant?: 'full' | 'doc
                       {link.external ? (
                         <a
                           href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-[0.9375rem] font-medium text-[color:var(--ln-ink-body)] no-underline hover:text-[color:var(--ln-accent)] transition-colors"
                           data-testid={`footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
                         >

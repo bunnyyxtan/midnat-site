@@ -671,3 +671,44 @@ describe('the name is written the way the brand page says it is written', () => 
     expect(WRONG.test(html), 'the tab title or a share card spells the mark wrong').toBe(false);
   });
 });
+
+describe('a link into the app opens the app, not over the page you were reading', () => {
+  /**
+   * The landing is what the reader came for; replacing it with the terminal
+   * loses their place and their scroll position. Every route into the app
+   * opens in a new tab, and each one severs window.opener so the opened tab
+   * cannot reach back into the page that launched it.
+   */
+  const appAnchors = (text: string) =>
+    (text.match(/<a\b[\s\S]*?>/g) ?? ([] as string[])).filter((tag) => tag.includes('appHref('));
+
+  const opensSafely = (tag: string) => {
+    expect(tag).toContain('target="_blank"');
+    expect(tag).toMatch(/rel="(?=[^"]*noopener)(?=[^"]*noreferrer)[^"]*"/);
+  };
+
+  it('opens every appHref anchor in a new tab, with the opener severed', () => {
+    // Found by scanning, not by a list kept by hand: a new call site is
+    // covered the moment it is written.
+    const found = SOURCES.flatMap((s) => appAnchors(s.text).map((tag) => ({ where: s.rel, tag })));
+    expect(found.length).toBeGreaterThanOrEqual(5);
+    for (const { where, tag } of found) {
+      expect(tag, where).toContain('target="_blank"');
+      expect(tag, where).toMatch(/rel="(?=[^"]*noopener)(?=[^"]*noreferrer)[^"]*"/);
+    }
+  });
+
+  it('holds the footer app links to the same rule, which reach appHref indirectly', () => {
+    // The footer never names appHref. It renders whatever site-map marked
+    // external, and site-map marks exactly the app routes that way. The first
+    // assertion is what keeps the second one meaningful.
+    const siteMap = SOURCES.find((s) => s.rel.endsWith(join('lib', 'site-map.ts')))!.text;
+    const externals = siteMap.match(/^.*external: true.*$/gm) ?? ([] as string[]);
+    expect(externals.length).toBeGreaterThan(0);
+    for (const line of externals) expect(line).toContain('appHref(');
+
+    const footer = SOURCES.find((s) => s.rel.endsWith('PublicFooter.tsx'))!.text;
+    const branch = footer.slice(footer.indexOf('{link.external ? ('));
+    opensSafely((branch.match(/<a\b[\s\S]*?>/) ?? [''])[0]);
+  });
+});
