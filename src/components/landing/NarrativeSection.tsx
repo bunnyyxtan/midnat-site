@@ -4,16 +4,18 @@ import { Reveal } from './Reveal';
 import etchMeridian from '../../assets/landing/etch-meridian.webp';
 import { useMarketRegime } from '@/lib/reference-feed';
 
+type Clock = { time: string; zone: string };
+
 export function NarrativeSection() {
   const shouldReduceMotion = useReducedMotion();
   const containerRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  
-  const [timeState, setTimeState] = useState({
-    utc: '',
-    tokyoTime: '',
-    londonTime: '',
-    nyTime: ''
+
+  const [clocks, setClocks] = useState<Record<'utc' | 'tokyo' | 'london' | 'ny', Clock>>({
+    utc: { time: '', zone: 'UTC' },
+    tokyo: { time: '', zone: '' },
+    london: { time: '', zone: '' },
+    ny: { time: '', zone: '' }
   });
 
   /**
@@ -23,6 +25,11 @@ export function NarrativeSection() {
    * not Tokyo's session, not London's, and blind to holidays. The one session
    * MIDNAT genuinely tracks is the US cash session, and the engine publishes
    * its own regime, so that is the only session badge shown.
+   *
+   * Tokyo and London therefore carry their UTC offset, not a badge. They used
+   * to sit in the badge slot reading "LOCAL", which is not a market state and
+   * read as an unfinished placeholder next to a real one. An offset earns that
+   * space: it is the reason the four clocks disagree.
    */
   const marketState = useMarketRegime();
   const usSession =
@@ -33,23 +40,32 @@ export function NarrativeSection() {
         : 'CLOSED';
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      
-      const getFormattedTime = (timeZone: string) => {
-        return now.toLocaleTimeString('en-US', { timeZone, hour12: false, hour: '2-digit', minute: '2-digit' });
-      };
+    const readClock = (timeZone: string): Clock => {
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone,
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'shortOffset'
+      }).formatToParts(new Date());
+      const at = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+      // shortOffset spells the zone GMT+9 / GMT-4 / GMT. Everything else on this
+      // page counts in UTC, so the label is spelled the same way here.
+      const zone = at('timeZoneName').replace('GMT', 'UTC');
+      return { time: `${at('hour')}:${at('minute')}`, zone: zone || 'UTC' };
+    };
 
-      setTimeState({
-        utc: getFormattedTime('UTC') + ' UTC',
-        tokyoTime: getFormattedTime('Asia/Tokyo'),
-        londonTime: getFormattedTime('Europe/London'),
-        nyTime: getFormattedTime('America/New_York')
+    const update = () => {
+      setClocks({
+        utc: readClock('UTC'),
+        tokyo: readClock('Asia/Tokyo'),
+        london: readClock('Europe/London'),
+        ny: readClock('America/New_York')
       });
     };
-    
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
+
+    update();
+    const interval = setInterval(update, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -173,43 +189,49 @@ export function NarrativeSection() {
               
               <div className="flex flex-wrap items-center gap-6 relative z-10">
                 
-                <div className="bg-[var(--ln-glass-bg-strong)] backdrop-blur-xl border border-[var(--ln-glass-border)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip">
+                <div className="bg-[var(--ln-glass-bg-flat-strong)] border border-[var(--ln-glass-border)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip">
                   <span className="opacity-60 font-mono text-[10px] uppercase tracking-widest font-semibold">Tokyo</span>
-                  <div className="flex items-center gap-2 font-mono text-xs font-medium">
-                    <span className="opacity-90">{timeState.tokyoTime || '--:--'}</span>
-                    <span className="px-1.5 py-0.5 rounded-sm bg-[color:var(--ln-hairline-soft)] opacity-70">LOCAL</span>
+                  <div className="flex items-baseline gap-2 font-mono text-xs font-medium">
+                    <span className="opacity-90 tabular-nums">{clocks.tokyo.time || '--:--'}</span>
+                    <span className="opacity-50 text-[10px] tracking-wide">{clocks.tokyo.zone}</span>
                   </div>
                 </div>
 
-                <div className="bg-[var(--ln-glass-bg-strong)] backdrop-blur-xl border border-[var(--ln-glass-border)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip">
+                <div className="bg-[var(--ln-glass-bg-flat-strong)] border border-[var(--ln-glass-border)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip">
                   <span className="opacity-60 font-mono text-[10px] uppercase tracking-widest font-semibold">London</span>
-                  <div className="flex items-center gap-2 font-mono text-xs font-medium">
-                    <span className="opacity-90">{timeState.londonTime || '--:--'}</span>
-                    <span className="px-1.5 py-0.5 rounded-sm bg-[color:var(--ln-hairline-soft)] opacity-70">LOCAL</span>
+                  <div className="flex items-baseline gap-2 font-mono text-xs font-medium">
+                    <span className="opacity-90 tabular-nums">{clocks.london.time || '--:--'}</span>
+                    <span className="opacity-50 text-[10px] tracking-wide">{clocks.london.zone}</span>
                   </div>
                 </div>
 
-                <div className="bg-[var(--ln-glass-bg-strong)] backdrop-blur-xl border border-[var(--ln-glass-border)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip">
+                <div className="bg-[var(--ln-glass-bg-flat-strong)] border border-[var(--ln-glass-border)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip">
                   <span className="opacity-60 font-mono text-[10px] uppercase tracking-widest font-semibold">New York</span>
                   <div
-                    className="flex items-center gap-2 font-mono text-xs font-medium"
+                    className="flex items-baseline gap-2 font-mono text-xs font-medium"
                     title={marketState?.headline ?? undefined}
                   >
-                    <span className="opacity-90">{timeState.nyTime || '--:--'}</span>
-                    <span
-                      className={`px-1.5 py-0.5 rounded-sm ${usSession === 'OPEN' ? 'bg-[color:var(--ln-chip-open-bg)] text-[color:var(--ln-chip-open-text)]' : 'bg-[color:var(--ln-hairline-soft)] opacity-70'}`}
-                      data-testid="narrative-us-session"
-                    >
-                      {usSession === 'OPEN' ? 'CASH OPEN' : usSession === 'CLOSED' ? 'CASH CLOSED' : 'LOCAL'}
-                    </span>
+                    <span className="opacity-90 tabular-nums">{clocks.ny.time || '--:--'}</span>
+                    <span className="opacity-50 text-[10px] tracking-wide">{clocks.ny.zone}</span>
+                    {/* No badge until the engine has told us which way the session
+                        is. A guess here would be the page inventing a market state. */}
+                    {usSession !== null && (
+                      <span
+                        className={`px-1.5 py-0.5 rounded-sm ${usSession === 'OPEN' ? 'bg-[color:var(--ln-chip-open-bg)] text-[color:var(--ln-chip-open-text)]' : 'bg-[color:var(--ln-hairline-soft)] opacity-70'}`}
+                        data-testid="narrative-us-session"
+                      >
+                        {usSession === 'OPEN' ? 'CASH OPEN' : 'CASH CLOSED'}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div className="bg-[var(--ln-glass-bg-strong)] backdrop-blur-xl border border-[color:var(--ln-glass-border-hover)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip-live relative overflow-hidden">
+                <div className="bg-[var(--ln-glass-bg-flat-strong)] border border-[color:var(--ln-glass-border-hover)] px-5 py-3 flex flex-col gap-1.5 rounded-xl landing-glass-chip-live relative overflow-hidden">
                   <div className="absolute inset-0 bg-[color:var(--ln-accent)] opacity-5 mix-blend-multiply pointer-events-none" />
                   <span className="text-[color:var(--ln-accent-hot)] font-mono text-[10px] uppercase tracking-widest font-semibold relative z-10">MIDNAT</span>
-                  <div className="flex items-center gap-2 font-mono text-xs font-medium relative z-10">
-                    <span className="opacity-90">{timeState.utc || '--:-- UTC'}</span>
+                  <div className="flex items-baseline gap-2 font-mono text-xs font-medium relative z-10">
+                    <span className="opacity-90 tabular-nums">{clocks.utc.time || '--:--'}</span>
+                    <span className="opacity-50 text-[10px] tracking-wide">UTC</span>
                     <span className="px-2 py-0.5 rounded-sm bg-[color:var(--ln-chip-open-bg)] text-[color:var(--ln-chip-open-text)] font-bold">ALWAYS OPEN</span>
                   </div>
                 </div>

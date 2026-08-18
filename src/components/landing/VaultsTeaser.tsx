@@ -61,7 +61,7 @@ export function VaultsTeaser() {
             <div className="relative z-10 w-full flex flex-col md:flex-row">
 
               {/* Copy Panel - readable measure, never strangled */}
-              <div className="w-full md:w-[52%] lg:w-1/2 px-8 py-14 md:px-12 md:py-16 lg:px-16 lg:py-20 flex flex-col justify-center landing-glass-tier-2 border-0 border-r border-[color:var(--ln-glass-border)] rounded-none z-20">
+              <div className="w-full md:w-[52%] lg:w-1/2 px-8 py-14 md:px-12 md:py-16 lg:px-16 lg:py-20 flex flex-col justify-center landing-glass-tier-2 landing-glass-flat-panel border-0 border-r border-[color:var(--ln-glass-border)] rounded-none z-20">
                 <div className="flex flex-wrap items-center gap-3 mb-8">
                   <span className="text-[11px] font-mono uppercase tracking-widest opacity-50 font-medium">MIDNAT Vaults</span>
                   <span
@@ -112,7 +112,7 @@ export function VaultsTeaser() {
                 </svg>
 
                 {/* Core orb */}
-                <div className="w-32 h-32 rounded-full border border-[color:var(--ln-glass-border)] flex items-center justify-center relative z-10 bg-[var(--ln-glass-bg)] backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
+                <div className="w-32 h-32 rounded-full border border-[color:var(--ln-glass-border)] flex items-center justify-center relative z-10 bg-[var(--ln-glass-bg-flat)] shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
                   {/* intentionally theme-independent: the orb core stays a light coin so the denomination reads on the luminous field in both themes */}
                   <div className="w-16 h-16 rounded-full bg-[#F6FAF6] text-[#0A0F1A] flex items-center justify-center shadow-inner">
                     <span className="font-mono text-[11px] font-bold tracking-widest">USD</span>
@@ -123,7 +123,7 @@ export function VaultsTeaser() {
             </div>
 
             {/* Step Ledger - in flow, below the content row */}
-            <div className="border-t border-[color:var(--ln-glass-border)] bg-[var(--ln-glass-bg-caption)] backdrop-blur-lg z-20 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[color:var(--ln-glass-border)] w-full relative">
+            <div className="border-t border-[color:var(--ln-glass-border)] bg-[var(--ln-glass-bg-flat)] z-20 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[color:var(--ln-glass-border)] w-full relative">
               {steps.map((step) => (
                 <div key={step.index} className="px-8 py-8 md:px-10 flex flex-col gap-2">
                   <div className="flex items-baseline gap-3">

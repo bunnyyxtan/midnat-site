@@ -95,7 +95,13 @@ export function PublicNav() {
               .landing-primary-btn is unlayered CSS and its display beats Tailwind's
               layered `hidden` utility, so `hidden` on the anchor does nothing. */}
           <span className="hidden sm:block">
-            <a href={appHref()} className="landing-primary-btn landing-primary-btn-sm" data-testid="pub-nav-launch">
+            <a
+              href={appHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="landing-primary-btn landing-primary-btn-sm"
+              data-testid="pub-nav-launch"
+            >
               <span>Launch app</span>
               <ArrowRight size={15} strokeWidth={2.5} className="landing-primary-btn-arrow" />
             </a>
@@ -131,7 +137,12 @@ export function PublicNav() {
               title="Legal"
               links={[{ label: 'Legal hub', href: '/legal' }, ...LEGAL.slice(0, 4).map((l) => ({ label: l.title, href: legalHref(l.slug) }))]}
             />
-            <a href={appHref()} className="landing-primary-btn w-full justify-center">
+            <a
+              href={appHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="landing-primary-btn w-full justify-center"
+            >
               <span>Launch app</span>
               <ArrowRight size={16} strokeWidth={2.5} className="landing-primary-btn-arrow" />
             </a>

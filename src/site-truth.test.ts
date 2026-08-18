@@ -607,6 +607,29 @@ describe('the landing page draws only what it read', () => {
     expect(badges.length).toBeGreaterThan(0);
     expect(narrative).not.toMatch(/tokyoStatus|londonStatus/);
   });
+
+  it('never fills the status slot with a word that is not a market state', () => {
+    // Tokyo and London used to sit under "LOCAL" in the same slot where New
+    // York says CASH OPEN. Read side by side, that is not a second kind of
+    // market state, it is an unfinished placeholder. Each clock carries its
+    // UTC offset instead, which is the reason the four times disagree.
+    // The rule is about what the page renders, so it reads the code with the
+    // comments removed. A gate that also scans prose fires on the paragraph
+    // explaining the gate, and the cure for that is never to widen the rule.
+    const code = narrative
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/(^|[^:])\/\/.*$/gm, '$1');
+    expect(code).not.toMatch(/\bLOCAL\b/);
+    expect(code).toContain("timeZoneName: 'shortOffset'");
+  });
+
+  it('shows no session badge at all while the engine regime is unknown', () => {
+    // A badge rendered before the engine has answered would be the page
+    // inventing a market state, which is the failure this section exists to
+    // avoid. Absence is the honest render.
+    expect(narrative).toContain("regime === 'UNKNOWN'");
+    expect(narrative).toContain('usSession !== null &&');
+  });
 });
 
 describe('the name is written the way the brand page says it is written', () => {

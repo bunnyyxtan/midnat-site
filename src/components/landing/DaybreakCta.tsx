@@ -98,7 +98,13 @@ export function DaybreakCta() {
           </Reveal>
 
           <Reveal delay={0.5}>
-            <a href={appHref()} data-testid="cta-start-trading" className="landing-primary-btn">
+            <a
+              href={appHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="cta-start-trading"
+              className="landing-primary-btn"
+            >
               Start trading
               <ArrowRight size={18} className="landing-primary-btn-arrow" />
             </a>
@@ -110,7 +116,7 @@ export function DaybreakCta() {
       {/* Mono Caption Row Bottom */}
       <div className="w-full mt-auto relative z-20">
         <div className="w-full max-w-[1440px] mx-auto px-6 md:px-12">
-          <div className="relative border-t border-[color:var(--ln-glass-border)] bg-[var(--ln-glass-bg)] backdrop-blur-xl flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-[color:var(--ln-glass-border)] rounded-t-3xl border-x">
+          <div className="relative border-t border-[color:var(--ln-glass-border)] bg-[var(--ln-glass-bg-flat)] flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-[color:var(--ln-glass-border)] rounded-t-3xl border-x">
             {/* horizon accent: green concentration where the sun sits */}
             <div
               className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-px w-3/5 max-w-[900px] h-px pointer-events-none"

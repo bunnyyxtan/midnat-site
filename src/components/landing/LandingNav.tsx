@@ -52,8 +52,12 @@ export function LandingNav({ theme, toggleTheme }: { theme?: 'light' | 'dark', t
               background: scrolled ? 'var(--ln-overlay-bg)' : 'var(--ln-glass-bg)',
               borderColor: 'var(--ln-glass-border)',
               boxShadow: 'inset 0 1px 1px var(--ln-glass-inner-light), inset 0 -1px 1px var(--ln-glass-inner-dark), var(--ln-glass-drop)',
-              backdropFilter: 'blur(32px)',
-              WebkitBackdropFilter: 'blur(32px)',
+              /* The pill is on screen for the entire scroll, so its blur is the one
+                 backdrop pass the page pays on every frame. Once the page leaves the
+                 top the fill is already near-opaque and the blur buys nothing, so it
+                 is dropped there. At rest, floating over the hero, it stays. */
+              backdropFilter: scrolled ? 'none' : 'blur(32px)',
+              WebkitBackdropFilter: scrolled ? 'none' : 'blur(32px)',
             }}
           >
             {/* Below sm the pill would run wider than a 320px screen, so the two
@@ -79,6 +83,8 @@ export function LandingNav({ theme, toggleTheme }: { theme?: 'light' | 'dark', t
 
         <a
           href={appHref()}
+          target="_blank"
+          rel="noopener noreferrer"
           aria-hidden={scrolled}
           tabIndex={scrolled ? -1 : 0}
           className={`landing-primary-btn landing-primary-btn-sm flex-shrink-0 md:justify-self-end ${

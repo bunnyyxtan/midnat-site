@@ -109,7 +109,13 @@ export function HeroSection() {
         </Reveal>
         
         <Reveal delay={0.2} inView={false} className="pt-4">
-          <a href={appHref()} data-testid="hero-start-trading" className="landing-primary-btn">
+          <a
+            href={appHref()}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="hero-start-trading"
+            className="landing-primary-btn"
+          >
             Start trading
             <ArrowRight size={18} className="landing-primary-btn-arrow" />
           </a>

@@ -27,6 +27,13 @@
   --ln-glass-bg-strong: rgba(244, 251, 248, 0.45);
   --ln-glass-bg-tier2: rgba(244, 251, 248, 0.26);
   --ln-glass-bg-caption: rgba(244, 251, 248, 0.30);
+  /* Flat glass: the same pane without a live backdrop blur. Blur is charged
+     per surface per frame and a 10px radius measured no cheaper than 24px,
+     so a dozen small chips each pay a full compositing pass for a softening
+     nobody can see against quiet paper. These keep the rim, the sheen and
+     the drop; only the blur goes, and the fill steps up to carry the pane. */
+  --ln-glass-bg-flat: rgba(244, 251, 248, 0.72);
+  --ln-glass-bg-flat-strong: rgba(244, 251, 248, 0.80);
 
   /* Occluding overlays: the scrolled navs, the mobile menu sheet, the docs
      search results. These are a different job from a glass card. Page content
@@ -87,9 +94,9 @@
   --ln-dial-tick: rgba(1, 50, 32, 0.20);
   --ln-dial-disc: #50C878;
   --ln-dotgrid: #013220;
-  --ln-grain-blend: multiply;
+  --ln-grain-blend: normal;
   --ln-grain-opacity: 0.055;
-  --ln-grain-pocket-blend: soft-light;
+  --ln-grain-pocket-blend: normal;
   --ln-grain-pocket-opacity: 0.18;
 
   --ln-chip-open-bg: rgba(80, 200, 120, 0.20);
@@ -136,6 +143,8 @@
   --ln-glass-bg-strong: rgba(230, 244, 236, 0.11);
   --ln-glass-bg-tier2: rgba(230, 244, 236, 0.055);
   --ln-glass-bg-caption: rgba(230, 244, 236, 0.065);
+  --ln-glass-bg-flat: rgba(230, 244, 236, 0.13);
+  --ln-glass-bg-flat-strong: rgba(230, 244, 236, 0.16);
 
   /* Occluding overlays, dark. The smoke law above is for panes with the page
      behind them at rest; these have moving content behind them and must hide
@@ -192,9 +201,9 @@
   --ln-dial-tick: rgba(240, 246, 241, 0.18);
   --ln-dial-disc: #6EBE96;
   --ln-dotgrid: rgba(240, 246, 241, 0.4);
-  --ln-grain-blend: screen;
+  --ln-grain-blend: normal;
   --ln-grain-opacity: 0.09;
-  --ln-grain-pocket-blend: soft-light;
+  --ln-grain-pocket-blend: normal;
   /* on black, mid-grey noise at soft-light LIFTS luminance; keep pockets low or the dial fogs over */
   --ln-grain-pocket-opacity: 0.11;
 
@@ -227,7 +236,14 @@
   pointer-events: none;
   z-index: 100;
   opacity: var(--ln-grain-opacity); /* film pass: perceptible, theme-tuned */
+  /* The film pass covers the whole viewport and never scrolls, so a blend mode
+     here re-composites everything under it on every frame: measured at about a
+     fifth of the page's entire scroll paint, the largest single cost on the
+     landing. Over grounds this flat a plain alpha layer lands in the same
+     place, so the grain composites normally now. The tile size matters too:
+     without it one turbulence raster is stretched across the viewport. */
   mix-blend-mode: var(--ln-grain-blend);
+  background-size: 220px 220px;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
@@ -304,9 +320,7 @@
 }
 
 .landing-glass-tier-1 {
-  background: var(--ln-glass-bg);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: var(--ln-glass-bg-flat);
   border: 1px solid var(--ln-glass-border);
   box-shadow: inset 0 1px 1px var(--ln-glass-inner-light),
               inset 0 -1px 1px var(--ln-glass-inner-dark),
@@ -317,8 +331,8 @@
 .landing-glass-tier-2 {
   background: var(--ln-glass-bg-tier2);
   /* Light glass: strong blur, NO brightness/oversaturation (pale backdrops milk out). */
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--ln-glass-border);
   box-shadow: inset 0 1px 1px var(--ln-glass-inner-light),
               inset 0 -1px 1px var(--ln-glass-inner-dark),
@@ -336,10 +350,19 @@
   border-color: var(--ln-glass-border-hover);
 }
 
+/* A half-viewport panel is the costliest live blur on the page: it crosses the
+   whole viewport during a scroll and repaints on every frame of the way. Where
+   such a panel sits on its own flat ground, it takes the flat fill instead. */
+.landing-glass-flat-panel {
+  background: var(--ln-glass-bg-flat);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .landing-glass-tier-3 {
   background: var(--ln-glass-bg-caption);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--ln-glass-border);
   border-radius: 999px;
   box-shadow: inset 0 1px 1px var(--ln-glass-inner-light),
@@ -568,7 +591,7 @@
 
 .landing-secondary-btn:hover {
   background: var(--ln-glass-bg);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
   border-color: var(--ln-hairline-hard);
 }
 
@@ -666,6 +689,8 @@
     --ln-glass-bg-strong: rgba(244, 251, 248, 0.97);
     --ln-glass-bg-tier2: rgba(244, 251, 248, 0.90);
     --ln-glass-bg-caption: rgba(244, 251, 248, 0.92);
+    --ln-glass-bg-flat: rgba(244, 251, 248, 0.92);
+    --ln-glass-bg-flat-strong: rgba(244, 251, 248, 0.96);
     --ln-overlay-bg: rgba(244, 251, 248, 0.97);
   }
   .landing-container[data-theme="dark"] {
@@ -675,6 +700,8 @@
     --ln-glass-bg-strong: rgba(10, 14, 12, 0.97);
     --ln-glass-bg-tier2: rgba(10, 14, 12, 0.92);
     --ln-glass-bg-caption: rgba(10, 14, 12, 0.94);
+    --ln-glass-bg-flat: rgba(10, 14, 12, 0.94);
+    --ln-glass-bg-flat-strong: rgba(10, 14, 12, 0.96);
     --ln-overlay-bg: rgba(10, 14, 12, 0.98);
   }
 }
