@@ -47,10 +47,10 @@ export function PublicNav() {
     <header
       className="pub-nav pub-no-print fixed top-0 left-0 right-0 z-50 transition-[background,border-color,backdrop-filter] duration-300"
       style={{
-        background: scrolled ? 'var(--ln-glass-bg-strong)' : 'transparent',
+        background: scrolled ? 'var(--ln-overlay-bg)' : 'transparent',
         borderBottom: `1px solid ${scrolled ? 'var(--ln-hairline)' : 'transparent'}`,
-        backdropFilter: scrolled ? 'blur(28px) saturate(180%)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(28px) saturate(180%)' : 'none',
+        backdropFilter: scrolled ? 'blur(28px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(28px)' : 'none',
       }}
     >
       <div className="w-full max-w-[90rem] mx-auto px-5 sm:px-8 lg:px-12 h-16 flex items-center gap-6">
@@ -118,9 +118,9 @@ export function PublicNav() {
         <div
           className="md:hidden border-t border-[color:var(--ln-hairline)] max-h-[calc(100vh-4rem)] overflow-y-auto"
           style={{
-            background: 'var(--ln-glass-bg-strong)',
-            backdropFilter: 'blur(28px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+            background: 'var(--ln-overlay-bg)',
+            backdropFilter: 'blur(28px)',
+            WebkitBackdropFilter: 'blur(28px)',
           }}
           data-testid="pub-nav-sheet"
         >

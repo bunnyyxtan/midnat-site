@@ -49,11 +49,11 @@ export function LandingNav({ theme, toggleTheme }: { theme?: 'light' | 'dark', t
                 : 'gap-3 sm:gap-4 md:gap-8 px-4 sm:px-5 md:px-8 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
             }`}
             style={{
-              background: scrolled ? 'var(--ln-glass-bg-strong)' : 'var(--ln-glass-bg)',
+              background: scrolled ? 'var(--ln-overlay-bg)' : 'var(--ln-glass-bg)',
               borderColor: 'var(--ln-glass-border)',
               boxShadow: 'inset 0 1px 1px var(--ln-glass-inner-light), inset 0 -1px 1px var(--ln-glass-inner-dark), var(--ln-glass-drop)',
-              backdropFilter: 'blur(32px) saturate(200%)',
-              WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+              backdropFilter: 'blur(32px)',
+              WebkitBackdropFilter: 'blur(32px)',
             }}
           >
             {/* Below sm the pill would run wider than a 320px screen, so the two

@@ -61,6 +61,28 @@
   max-width: 72ch;
 }
 
+/* A document that carries a contents rail needs room for the rail on top of
+   its reading column, not instead of it.
+
+   DocumentLayout draws the rail as a second grid column inside this same
+   container from 1280px up. Without the widening below, a prose page keeps its
+   46rem cap and the rail is carved out of the text: 46 - 13 - 3 leaves a 30rem
+   column, so a legal page on a 1440px desktop reads at phone width with empty
+   space either side. Each value here is the page's own measure plus the 13rem
+   rail and the 3rem gap that layout draws.
+
+   The doc and wide widths are already sized for a rail, so they are unchanged;
+   they are listed to make that deliberate rather than an omission. */
+@media (min-width: 1280px) {
+  .pub-has-rail.pub-width-prose {
+    max-width: 62rem;
+  }
+  .pub-has-rail.pub-width-doc,
+  .pub-has-rail.pub-width-wide {
+    max-width: 78rem;
+  }
+}
+
 /* -------------------------------------------------------------------------
    3. Type scale. A document scale, not a marketing scale.
    ------------------------------------------------------------------------- */
@@ -305,8 +327,8 @@
   border-radius: 14px;
   border: 1px solid var(--ln-glass-border);
   background: var(--ln-glass-bg);
-  backdrop-filter: blur(18px) saturate(1.1);
-  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   box-shadow: var(--ln-glass-drop-sm);
 }
 .pub-table {
@@ -402,8 +424,8 @@
   padding: 1rem 1.15rem 1rem 1.35rem;
   border: 1px solid var(--ln-glass-border);
   background: var(--ln-glass-bg);
-  backdrop-filter: blur(16px) saturate(1.08);
-  -webkit-backdrop-filter: blur(16px) saturate(1.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: var(--ln-glass-drop-sm);
   overflow: hidden;
 }
@@ -624,8 +646,8 @@
   border-radius: 14px;
   border: 1px solid var(--ln-glass-border);
   background: var(--ln-glass-bg);
-  backdrop-filter: blur(18px) saturate(1.1);
-  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   box-shadow: var(--ln-glass-drop-sm);
   padding: 1.25rem;
   transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;

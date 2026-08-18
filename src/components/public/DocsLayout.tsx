@@ -197,9 +197,9 @@ export function DocsSearch() {
         <div
           className="absolute z-30 mt-2 w-full max-h-[22rem] overflow-y-auto rounded-xl border border-[color:var(--ln-glass-border)] shadow-[var(--ln-glass-drop)] p-1.5"
           style={{
-            background: 'var(--ln-glass-bg-strong)',
-            backdropFilter: 'blur(28px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+            background: 'var(--ln-overlay-bg)',
+            backdropFilter: 'blur(28px)',
+            WebkitBackdropFilter: 'blur(28px)',
           }}
           data-testid="docs-search-results"
         >

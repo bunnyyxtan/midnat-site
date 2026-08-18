@@ -47,7 +47,7 @@ export function DocumentLayout({
   const contentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <PublicPage meta={meta} width={width}>
+    <PublicPage meta={meta} width={width} className={toc ? 'pub-has-rail' : ''}>
       <div className={toc ? 'xl:grid xl:grid-cols-[minmax(0,1fr)_13rem] xl:gap-12' : ''}>
         <article className="min-w-0">
           <DocumentHeader

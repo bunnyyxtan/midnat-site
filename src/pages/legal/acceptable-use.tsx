@@ -75,7 +75,15 @@ export default function AcceptableUse() {
         </Prose>
         <KeyValue
           items={[
-            { key: 'Questions per minute, per address', value: `${INTELLIGENCE.askRequestsPerMinutePerIp}` },
+            { key: 'Questions per minute, per visitor', value: `${INTELLIGENCE.askQuestionsPerMinute}` },
+            {
+              key: 'Questions per minute, with a wallet connected',
+              value: `${INTELLIGENCE.askQuestionsPerMinuteConnected}`,
+            },
+            {
+              key: 'Questions per minute, across one address',
+              value: `${INTELLIGENCE.askQuestionsPerMinutePerAddress}`,
+            },
             { key: 'Concurrent questions in flight', value: `${INTELLIGENCE.askConcurrentRequests}` },
           ]}
         />

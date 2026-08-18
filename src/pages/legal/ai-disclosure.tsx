@@ -38,7 +38,7 @@ export default function AiDisclosure() {
             { key: 'Desk refresh', value: `Every ${INTELLIGENCE.deskRefreshMinutes} minutes` },
             {
               key: 'Ask rate limit',
-              value: `${INTELLIGENCE.askRequestsPerMinutePerIp} per minute per IP, ${INTELLIGENCE.askConcurrentRequests} concurrent`,
+              value: `${INTELLIGENCE.askQuestionsPerMinute} per minute, ${INTELLIGENCE.askQuestionsPerMinuteConnected} with a wallet connected, ${INTELLIGENCE.askConcurrentRequests} concurrent`,
             },
           ]}
         />

@@ -111,7 +111,8 @@ export default function Api() {
           <p>
             None of the read endpoints above enforce a rate limit in code. The only enforced limits sit on the two
             on-demand intelligence endpoints, which accept a request body and call the model: ask and order
-            intelligence each allow at most {INTELLIGENCE.askRequestsPerMinutePerIp} requests per minute per IP and{' '}
+            intelligence each allow at most {INTELLIGENCE.askQuestionsPerMinute} requests per minute for a visitor,{' '}
+            {INTELLIGENCE.askQuestionsPerMinuteConnected} with a wallet connected, and{' '}
             {INTELLIGENCE.askConcurrentRequests} in flight at once, returning a 429 when either bound is hit. Those
             endpoints are covered in{' '}
             <Link href={docHref('intelligence')} className="pub-link">

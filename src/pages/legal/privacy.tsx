@@ -165,8 +165,9 @@ export default function Privacy() {
           </p>
           <p>
             Once your question reaches {INTELLIGENCE.provider}, what happens to it is governed by that provider, not by
-            this project, and their retention applies. The endpoint is rate limited to {INTELLIGENCE.askRequestsPerMinutePerIp}{' '}
-            requests per minute per IP address and {INTELLIGENCE.askConcurrentRequests} concurrent requests.{' '}
+            this project, and their retention applies. The endpoint is rate limited to{' '}
+            {INTELLIGENCE.askQuestionsPerMinute} requests per minute for a visitor and{' '}
+            {INTELLIGENCE.askConcurrentRequests} concurrent requests.{' '}
             <Link href="/legal/ai-disclosure" className="pub-link">
               The AI disclosure
             </Link>{' '}

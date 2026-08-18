@@ -394,8 +394,21 @@ export const INTELLIGENCE = {
   defaultModel: 'anthropic/claude-fable-5',
   modelOverrideEnv: 'AI_DESK_MODEL',
   deskRefreshMinutes: 10,
-  askRequestsPerMinutePerIp: 6,
-  askConcurrentRequests: 2,
+  /* Burst ceilings on model questions, in questions per minute.
+
+     These mirror the engine's usage policy (burst.ANONYMOUS.refillPerMinute
+     and burst.CONNECTED.refillPerMinute) and have to be changed together with
+     it: the engine enforces, this file only reports.
+
+     The bucket is not keyed by address. An anonymous visitor is told apart by
+     browser session and only falls back to the source address when there is
+     no session, so these are per visitor, not per IP. Everyone sharing one
+     address is bounded separately, by the network ceiling below. */
+  askQuestionsPerMinute: 20,
+  askQuestionsPerMinuteConnected: 30,
+  /** Shared-address ceiling: everyone behind one office or carrier NAT together. */
+  askQuestionsPerMinutePerAddress: 250,
+  askConcurrentRequests: 4,
   provenanceFields: [
     'analysisContextHash',
     'inputsHash',

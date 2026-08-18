@@ -46,7 +46,14 @@ export default function Intelligence() {
             { key: 'Default model', value: <span className="pub-mono">{INTELLIGENCE.defaultModel}</span> },
             { key: 'Model override variable', value: <span className="pub-mono">{INTELLIGENCE.modelOverrideEnv}</span> },
             { key: 'Desk refresh interval', value: `${INTELLIGENCE.deskRefreshMinutes} minutes` },
-            { key: 'Ask rate limit', value: `${INTELLIGENCE.askRequestsPerMinutePerIp} requests per minute per IP` },
+            {
+              key: 'Ask rate limit',
+              value: `${INTELLIGENCE.askQuestionsPerMinute} questions per minute, ${INTELLIGENCE.askQuestionsPerMinuteConnected} with a wallet connected`,
+            },
+            {
+              key: 'Shared address ceiling',
+              value: `${INTELLIGENCE.askQuestionsPerMinutePerAddress} questions per minute across one address`,
+            },
             { key: 'Ask concurrency', value: `${INTELLIGENCE.askConcurrentRequests} in flight at once` },
           ]}
         />
@@ -139,8 +146,10 @@ export default function Intelligence() {
             </li>
             <li>
               The ambient desk is a recent read, not a live one, and a question can only be answered about a position or
-              portfolio when an address is provided. Rate limits apply: at most {INTELLIGENCE.askRequestsPerMinutePerIp}{' '}
-              questions per minute per IP, with {INTELLIGENCE.askConcurrentRequests} in flight at once.
+              portfolio when an address is provided. Rate limits apply: at most{' '}
+              {INTELLIGENCE.askQuestionsPerMinute} questions per minute for a visitor,{' '}
+              {INTELLIGENCE.askQuestionsPerMinuteConnected} with a wallet connected, and{' '}
+              {INTELLIGENCE.askConcurrentRequests} in flight at once.
             </li>
           </ul>
           <p>

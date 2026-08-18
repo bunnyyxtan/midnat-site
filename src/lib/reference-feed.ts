@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { APP_URL } from './config';
+
 /**
  * The reference feed behind the landing hero.
  *
@@ -12,9 +14,16 @@ import { useEffect, useState } from 'react';
  * hero comes from here, and when this cannot be read the hero says so instead
  * of drawing something. There is no fallback series on purpose: an invented
  * curve is worse than an empty card.
+ *
+ * The base is absolute and points at the terminal's host, because this site is
+ * static and has no backend of its own. A relative '/api' resolves against
+ * whatever is serving these files, which answers nothing, so the card would
+ * report the feed unreachable everywhere and always -- a permanent lie about a
+ * feed that is in fact up. The engine sends a permissive CORS header, so the
+ * read works cross origin.
  */
 
-const API_BASE = '/api';
+const API_BASE = `${APP_URL}/api`;
 const POLL_INTERVAL_MS = 30_000;
 const REQUEST_TIMEOUT_MS = 8_000;
 /** One trading day of hourly closes. */
