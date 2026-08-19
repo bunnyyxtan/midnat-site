@@ -460,6 +460,9 @@ describe('every live read leaves this origin', () => {
     [/\bWebSocket\b/, 'WebSocket'],
     [/\bsendBeacon\s*\(/, 'sendBeacon'],
     [/\baxios\b/, 'axios'],
+    /* Bracket access reaches every name above while spelling none of them,
+       and an alias taken that way carries the brackets on its own line. */
+    [/\[\s*['"`](?:fetch|XMLHttpRequest|EventSource|WebSocket|sendBeacon)['"`]\s*\]/, 'a transport named in brackets'],
   ];
 
   it('builds the base from the terminal origin', () => {
