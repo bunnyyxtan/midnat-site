@@ -19,6 +19,7 @@ import {
 import { CANONICAL, LIMITATIONS, MARKETS } from '@/lib/protocol-registry';
 import { CONTACT_CHANNELS, HAS_EMAIL_CHANNEL, PRIMARY_CONTACT, X_HANDLE } from '@/lib/contact';
 import { APP_URL, appHref } from '@/lib/config';
+import { API_BASE } from '@/lib/api';
 
 /**
  * The public site is a claim surface.
@@ -419,6 +420,51 @@ describe('one canonical origin, declared in one place', () => {
       (f) => !allowed.has(f.rel) && /https:\/\/(?:[a-z]+\.)?midnat\.xyz/.test(f.text),
     ).map((f) => f.rel);
     expect(offenders, 'absolute site URLs must come from SITE_URL or APP_URL').toEqual([]);
+  });
+});
+
+describe('every live read leaves this origin', () => {
+  /**
+   * The status page carried its own `const API_BASE = '/api'`. On a static
+   * host that path is not even a 404: vercel.json rewrites everything it does
+   * not recognise to index.html, so the request came back as HTML with status
+   * 200, the JSON parse threw, and the page reported the read API and the
+   * reference engine as unreachable while both were answering normally. It had
+   * worked in the monorepo, where one dev server stood in front of the site
+   * and the API, and it broke the moment the site was deployed on its own.
+   *
+   * This site has no backend. A relative request can only ever reach the host
+   * serving these files, so there is one absolute base and one caller, and
+   * these rules are what keep the next page from writing its own.
+   */
+  const API_MODULE = 'lib/api.ts';
+
+  /** Comments discuss the bug by name; the rules are about code. */
+  const code = (text: string): string =>
+    text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+
+  it('builds the base from the terminal origin', () => {
+    expect(API_BASE.startsWith(`${APP_URL}/`), 'API_BASE must be derived from APP_URL').toBe(true);
+    expect(API_BASE).toMatch(/^https:\/\/[a-z0-9.-]+\/api$/);
+  });
+
+  it('calls fetch in exactly one file', () => {
+    const callers = SOURCES.filter((f) => /\bfetch\s*\(/.test(code(f.text))).map((f) => f.rel);
+    expect(callers, 'every read goes through lib/api.ts').toEqual([API_MODULE]);
+  });
+
+  it('never names a request path against this host', () => {
+    const offenders = SOURCES.filter(
+      (f) => f.rel !== API_MODULE && /(?:API_BASE|API_URL|BASE_URL|apiBase|endpoint)\s*[:=]\s*['"`]\//i.test(code(f.text)),
+    ).map((f) => f.rel);
+    expect(offenders, "a relative base resolves to the static host, which answers index.html").toEqual([]);
+  });
+
+  it('is what the pages reporting live state actually import', () => {
+    // Without this the rules above pass perfectly on a site that reads nothing.
+    const readers = SOURCES.filter((f) => /from '(?:\.|@\/lib)\/api'/.test(f.text)).map((f) => f.rel);
+    expect(readers).toContain('lib/reference-feed.ts');
+    expect(readers).toContain('pages/status.tsx');
   });
 });
 

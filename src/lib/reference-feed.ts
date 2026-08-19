@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { APP_URL } from './config';
+import { getJson } from './api';
 
 /**
  * The reference feed behind the landing hero.
@@ -15,15 +15,10 @@ import { APP_URL } from './config';
  * of drawing something. There is no fallback series on purpose: an invented
  * curve is worse than an empty card.
  *
- * The base is absolute and points at the terminal's host, because this site is
- * static and has no backend of its own. A relative '/api' resolves against
- * whatever is serving these files, which answers nothing, so the card would
- * report the feed unreachable everywhere and always -- a permanent lie about a
- * feed that is in fact up. The engine sends a permissive CORS header, so the
- * read works cross origin.
+ * Where that API lives, and how it is read, is lib/api.ts. This file only says
+ * which routes it wants and what it will render from them.
  */
 
-const API_BASE = `${APP_URL}/api`;
 const POLL_INTERVAL_MS = 30_000;
 const REQUEST_TIMEOUT_MS = 8_000;
 /** One trading day of hourly closes. */
@@ -77,16 +72,6 @@ export type FeedStatus = 'loading' | 'ready' | 'unavailable';
 export interface FeedResult {
   readonly status: FeedStatus;
   readonly feed: ReferenceFeed | null;
-}
-
-async function getJson<T>(path: string, signal: AbortSignal): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    signal,
-    headers: { accept: 'application/json' },
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return (await res.json()) as T;
 }
 
 /**

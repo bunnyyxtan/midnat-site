@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { DocumentLayout } from '@/components/public/DocumentLayout';
 import { Callout, KeyValue, Prose, Section, TableScroll } from '@/components/public/primitives';
+import { getJson } from '@/lib/api';
 import { CANONICAL, MARKETS, NETWORK, ORACLE_POLICY, REFERENCE_ENGINE, utcDateTime } from '@/lib/protocol-registry';
 
 /**
@@ -13,7 +14,6 @@ import { CANONICAL, MARKETS, NETWORK, ORACLE_POLICY, REFERENCE_ENGINE, utcDateTi
  * none of those.
  */
 
-const API_BASE = '/api';
 const POLL_INTERVAL_MS = 15_000;
 const REQUEST_TIMEOUT_MS = 8_000;
 
@@ -47,16 +47,6 @@ const INITIAL: Snapshot = {
   referenceState: 'checking',
   attemptedAtMs: null,
 };
-
-async function getJson<T>(path: string, signal: AbortSignal): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    signal,
-    headers: { accept: 'application/json' },
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return (await res.json()) as T;
-}
 
 function withTimeout(): { signal: AbortSignal; cancel: () => void } {
   const controller = new AbortController();
