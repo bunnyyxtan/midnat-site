@@ -443,28 +443,70 @@ describe('every live read leaves this origin', () => {
   const code = (text: string): string =>
     text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
 
+  /* Every way a page could reach a server, not only the one that broke. An
+     alias, an optional call or an older transport lands on this same static
+     host and fails in the same silent way, so the rule is about reaching a
+     server at all: lib/api.ts is the one file allowed to. A code sample in a
+     docs page trips this too, which is intended -- writing a request outside
+     that module is the moment worth stopping at. Test files are not in
+     SOURCES and never ship, so a stubbed transport in one is not a bypass. */
+  const TRANSPORTS: readonly (readonly [RegExp, string])[] = [
+    [/\bfetch\s*\??\.?\s*\(/, 'fetch'],
+    [/\bfetch\s*\.\s*(?:call|apply|bind)\s*\(/, 'fetch, indirectly'],
+    [/\b(?:window|globalThis|self)\s*\.\s*fetch\b/, 'fetch off the global'],
+    [/[=,([]\s*fetch\s*(?:[,)\];]|$)/m, 'fetch passed around as a value'],
+    [/\bXMLHttpRequest\b/, 'XMLHttpRequest'],
+    [/\bEventSource\b/, 'EventSource'],
+    [/\bWebSocket\b/, 'WebSocket'],
+    [/\bsendBeacon\s*\(/, 'sendBeacon'],
+    [/\baxios\b/, 'axios'],
+  ];
+
   it('builds the base from the terminal origin', () => {
     expect(API_BASE.startsWith(`${APP_URL}/`), 'API_BASE must be derived from APP_URL').toBe(true);
     expect(API_BASE).toMatch(/^https:\/\/[a-z0-9.-]+\/api$/);
   });
 
-  it('calls fetch in exactly one file', () => {
-    const callers = SOURCES.filter((f) => /\bfetch\s*\(/.test(code(f.text))).map((f) => f.rel);
-    expect(callers, 'every read goes through lib/api.ts').toEqual([API_MODULE]);
-  });
+  for (const [pattern, what] of TRANSPORTS) {
+    it(`reaches a server with ${what} from lib/api.ts only`, () => {
+      const offenders = SOURCES.filter(
+        (f) => f.rel !== API_MODULE && pattern.test(code(f.text)),
+      ).map((f) => f.rel);
+      expect(offenders, 'every read goes through lib/api.ts').toEqual([]);
+    });
+  }
 
   it('never names a request path against this host', () => {
     const offenders = SOURCES.filter(
-      (f) => f.rel !== API_MODULE && /(?:API_BASE|API_URL|BASE_URL|apiBase|endpoint)\s*[:=]\s*['"`]\//i.test(code(f.text)),
+      (f) =>
+        f.rel !== API_MODULE &&
+        /(?:API_BASE|API_URL|BASE_URL|apiBase|baseUrl|endpoint)\s*[:=]\s*['"`]\//i.test(code(f.text)),
     ).map((f) => f.rel);
-    expect(offenders, "a relative base resolves to the static host, which answers index.html").toEqual([]);
+    expect(offenders, 'a relative base resolves to this static host, which answers index.html').toEqual([]);
   });
 
-  it('is what the pages reporting live state actually import', () => {
+  it('ships no static file that talks to a server', () => {
+    /* Vite copies these verbatim, so nothing in them can go through the
+       module above. latin1 never throws and leaves ASCII byte for byte. */
+    const statics = [...walkEveryFile(join(SRC, '..', 'public')), join(SRC, '..', 'index.html')];
+    expect(statics.length, 'the static scan found no files to read').toBeGreaterThan(0);
+    const offenders = statics
+      .filter((full) => {
+        const text = readFileSync(full).toString('latin1');
+        return TRANSPORTS.some(([pattern]) => pattern.test(text));
+      })
+      .map((full) => relative(join(SRC, '..'), full));
+    expect(offenders, 'a copied static file makes its own request').toEqual([]);
+  });
+
+  it('is what the pages reporting live state actually call', () => {
     // Without this the rules above pass perfectly on a site that reads nothing.
-    const readers = SOURCES.filter((f) => /from '(?:\.|@\/lib)\/api'/.test(f.text)).map((f) => f.rel);
-    expect(readers).toContain('lib/reference-feed.ts');
-    expect(readers).toContain('pages/status.tsx');
+    for (const rel of ['lib/reference-feed.ts', 'pages/status.tsx']) {
+      const file = SOURCES.find((f) => f.rel === rel);
+      expect(file, `${rel} is missing`).toBeDefined();
+      expect(/from '(?:\.|@\/lib)\/api'/.test(file?.text ?? ''), `${rel} must import the API module`).toBe(true);
+      expect(/\bgetJson\s*[<(]/.test(code(file?.text ?? '')), `${rel} must read through getJson`).toBe(true);
+    }
   });
 });
 
