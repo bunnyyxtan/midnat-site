@@ -20,9 +20,10 @@ export default function Funding() {
         <Prose>
           <p>
             A perpetual has no expiry, so nothing forces its price back to the underlying except a periodic transfer
-            between the two sides. That transfer is funding. When a market is skewed, the heavier side pays the lighter
-            side, which makes holding the crowded direction cost something and rewards the trader who takes the other
-            side of the imbalance.
+            between the two sides. That transfer is funding. The posted rate is a base carry plus a skew term plus a
+            divergence premium, so the crowded direction costs more to hold as the book tilts, and the trader on the
+            other side is paid for taking it. The carry is why a balanced book is not free: at zero skew the rate is
+            still positive, which means longs pay a small amount and shorts receive it.
           </p>
           <p>
             Funding is charged per market and settles into each position's equity as it accrues. If you hold the paying

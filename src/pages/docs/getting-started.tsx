@@ -7,9 +7,7 @@ import {
   CANONICAL,
   COLLATERAL,
   GLOBALS,
-  LEVERAGE_RANGE,
   NETWORK,
-  ORACLE_POLICY,
   collateralAmount,
 } from '@/lib/protocol-registry';
 
@@ -22,16 +20,23 @@ export default function GettingStarted() {
     <DocsLayout
       slug={DOC.slug}
       title={DOC.title}
-      standfirst="The ordered path to a first position on this testnet: a wallet, the network, collateral, and the checks that run before an open is accepted. It also says plainly which of that happens in the app and which happens on chain."
+      standfirst="Setup, and only setup: a wallet, the network, collateral, and a first look at the terminal. When your wallet is connected and funded, your first trade is the next page. It also says plainly which of this happens in the app and which happens on chain."
       meta={{ title: DOC.title, description: DOC.summary, path: docHref(DOC.slug), type: 'article' }}
     >
       <Section id="before-you-start" title="Before you start">
         <Prose>
           <p>{CANONICAL.testnet}</p>
           <p>
-            Nothing here has monetary worth, so the cost of a mistake is time, not money. The steps below run in order.
-            Each one has a reason, and the last section lists the things that will stop you even when your wallet is
-            funded and connected.
+            Nothing here has monetary worth, so the cost of a mistake is time, not money. The steps below run in order,
+            and each one has a reason. Once they are done,{' '}
+            <Link href={docHref('first-trade')} className="pub-link">
+              your first trade
+            </Link>{' '}
+            walks through placing, reading and closing a position, and{' '}
+            <Link href={docHref('refusal-rules')} className="pub-link">
+              when the protocol refuses
+            </Link>{' '}
+            lists the things that will stop you even when your wallet is funded and connected.
           </p>
         </Prose>
         <Callout tone="note" title="Gas">
@@ -155,97 +160,20 @@ export default function GettingStarted() {
         />
       </Section>
 
-      <Section id="open" title="Open a position">
+      <Section id="first-look" title="A first look at the terminal">
         <Prose>
           <p>
-            Choose a market, a side and a size. Size is notional, not the margin you post. Your leverage is size
-            divided by the collateral you assign to the position, and it must sit inside the tier's maximum, which runs
-            from {LEVERAGE_RANGE.min}x to {LEVERAGE_RANGE.max}x depending on the market. The{' '}
-            <Link href={docHref('markets-and-tiers')} className="pub-link">
-              markets and risk tiers
+            With a wallet connected and funded, the terminal shows every listed market, its live parameters and the
+            reference price the venue is trading against, all read from the contracts over your own RPC connection
+            rather than from any ledger MIDNAT keeps. You can read all of it before you open anything.
+          </p>
+          <p>
+            When you are ready to place one,{' '}
+            <Link href={docHref('first-trade')} className="pub-link">
+              your first trade
             </Link>{' '}
-            page lists the limit for every market.
+            takes it from here: choosing a market, reading the preview, signing, and closing again.
           </p>
-          <p>
-            When you fill in the ticket, the app asks the clearing house what the trade would cost. It quotes the fill
-            against the contract's own pricing view and simulates the call, so the execution price, the fees and the
-            liquidation price you are shown before you sign are the contract's numbers rather than a second opinion.
-            Nothing has been sent at that point, and nothing is recorded anywhere.
-          </p>
-          <p>
-            When you accept, your wallet signs one transaction and sends it to the clearing house. The contract then
-            does the work itself: it reads the anchored price and refuses a stale one, builds the fill from the tier's
-            base spread and an impact term, checks the open-interest caps, the minimums and the tier's leverage limit,
-            enforces the slippage bound the call carries, and writes the position. If any check fails the whole call
-            reverts, no position is written and you have spent only gas.{' '}
-            <Link href={docHref('positions-and-margin')} className="pub-link">
-              Positions and margin
-            </Link>{' '}
-            describes what is written and why.
-          </p>
-        </Prose>
-      </Section>
-
-      <Section id="watch" title="Where to watch it">
-        <Prose>
-          <p>
-            Your open positions, margin and unrealised profit and loss are shown in the app portfolio, read from the
-            clearing house over your own RPC connection rather than from any ledger MIDNAT keeps. The same positions
-            are on the block explorer, under the transaction that opened them.
-          </p>
-          <p>
-            What you can follow on the{' '}
-            <ExternalLink href={NETWORK.explorerBase}>{NETWORK.explorerName}</ExternalLink> is the on-chain record: the
-            anchored prices this venue prices against, posted continuously, and the deployment and live-fire
-            transactions on the contract addresses. Any transaction you send yourself lands there too. The{' '}
-            <Link href="/contracts" className="pub-link">
-              contracts page
-            </Link>{' '}
-            lists the addresses those transactions touch.
-          </p>
-        </Prose>
-      </Section>
-
-      <Section id="what-can-block-you" title="What can block you">
-        <Prose>
-          <p>
-            A funded, connected wallet is not enough on its own. The clearing house refuses rather than fill you on
-            terms it cannot defend, and because the app simulates the call before asking you to sign, most refusals
-            reach you as an error in the ticket instead of a failed transaction.
-          </p>
-          <ul>
-            <li>
-              <strong>Stale or uncertain price.</strong> If the anchored price is older than
-              {' '}{ORACLE_POLICY.maxPriceAgeSec} seconds, or its confidence band is wider than the market allows, the
-              open reverts. Ahead of that, the app's risk policy cuts the leverage it will offer, and pauses new
-              exposure entirely, as reference quality falls: it can refuse to build a call the contract would still
-              have accepted, never the other way round.
-            </li>
-            <li>
-              <strong>A cap refuses your size.</strong> Open interest is capped globally, per market and per side. A
-              position that would push any cap past its limit is refused, not partially filled. The ticket reads the
-              same capacity from the contract before you sign, and the risk policy can narrow what it offers further
-              when reference quality is poor.
-            </li>
-            <li>
-              <strong>A minimum refuses a dust position.</strong> The minimum collateral is
-              {' '}{collateralAmount(GLOBALS.minCollateral, 2)} and the minimum size is
-              {' '}{collateralAmount(GLOBALS.minSize, 2)}, and anything smaller is rejected. The app does not test
-              those two thresholds itself; the simulation it runs before asking you to sign fails, and the ticket
-              shows the contract's refusal.
-            </li>
-            <li>
-              <strong>The market is not accepting new exposure.</strong> The owner can set a market to close only or
-              halted, and in those modes the call will not go through even when your price is fresh and your size is
-              legal. The app also refuses at its own gate, from the market regime and the risk policy it applies, so
-              a halted market usually stops you before your wallet opens.
-            </li>
-            <li>
-              <strong>The market is not listed on this deployment.</strong> The clearing house lists a fixed set of
-              markets and rejects a call naming anything else. The reference engine can price further symbols, and
-              they can appear in market data, but they cannot be traded.
-            </li>
-          </ul>
         </Prose>
       </Section>
     </DocsLayout>

@@ -67,7 +67,7 @@ const TERMS: readonly Term[] = [
   {
     term: 'Equity',
     search: 'equity margin pnl funding maintenance',
-    def: 'The current value backing a position: posted margin plus unrealised profit and loss minus accrued funding. A position is liquidatable when its equity falls below the maintenance margin requirement.',
+    def: 'The current value backing a position: posted margin plus unrealised profit and loss minus accrued funding. A position is liquidatable when its equity reaches or falls below the maintenance margin requirement.',
   },
   {
     term: 'Execution price',
@@ -110,7 +110,7 @@ const TERMS: readonly Term[] = [
     search: 'liquidation maintenance margin keeper public function',
     def: (
       <>
-        The forced close of a position whose equity has fallen below the maintenance margin. It is a public function
+        The forced close of a position whose equity has reached or fallen below the maintenance margin. It is a public function
         anyone can call.{' '}
         <Link href={docHref('liquidation')} className="pub-link">
           Liquidation
@@ -230,7 +230,7 @@ const TERMS: readonly Term[] = [
   {
     term: 'Skew',
     search: 'skew imbalance long short funding',
-    def: 'The imbalance between long and short open interest on a market. Funding is paid from the heavier side toward the lighter side to price that imbalance.',
+    def: 'The imbalance between long and short open interest on a market. The funding rate rises with skew, so the crowded side pays more to hold; a base carry means longs pay a small amount even when the book is balanced.',
   },
   {
     term: 'Stale price',

@@ -321,6 +321,12 @@ describe('the site does not describe the retired architecture', () => {
     [/\bdoes not (?:yet )?route trades through\b/i, 'trades route through the contracts'],
     [/\bsweep every minute\b/i, 'funding accrues on chain, nothing sweeps off chain'],
     [/\bopening in the app sends no transaction\b/i, 'opening in the app is a transaction'],
+    // A landing card claimed the venue "does not submit a transaction today".
+    // Trading is a call to the deployed clearing house -- the chain already
+    // holds open positions from it -- so any claim that a trade is booked
+    // without a transaction is the retired book wearing new copy.
+    [/\b(?:does not|doesn't|never) (?:submits?|sends?) a transaction\b/i, 'a trade is a transaction to the clearing house'],
+    [/\bbooks (?:opens?|closes?)[^.]{0,40}\byour (?:connected )?address\b/i, 'opens and closes are on-chain calls, not local bookings'],
     [/\bthe app takes no deposit\b/i, 'the app deposits collateral'],
     [/\bon the contract path\b/i, 'there is one path, not two'],
     [/\bin the app it is a record\b/i, 'a position is a contract record'],
@@ -801,5 +807,212 @@ describe('a link into the app opens the app, not over the page you were reading'
     const footer = SOURCES.find((s) => s.rel.endsWith('PublicFooter.tsx'))!.text;
     const branch = footer.slice(footer.indexOf('{link.external ? ('));
     opensSafely((branch.match(/<a\b[\s\S]*?>/) ?? [''])[0]);
+  });
+});
+
+describe('the verify page prices a share the way the vault mints them', () => {
+  /**
+   * MidnatVault carries a 6-decimal virtual share offset over 6-decimal
+   * collateral, so a full share is 1e12 base units, not 1e18. The verify page
+   * hands a reader a `cast convertToAssets(...)` command; passing 1e18 asks the
+   * vault to price a million full shares and reports a nonsense "share price".
+   * The magnitude has to match the mint, or the self-check the page teaches
+   * fails silently in the reader's own terminal.
+   */
+  const verify = SOURCES.find((f) => f.rel === 'pages/verify.tsx')!;
+
+  it('prices one full share as 1e12, the 12-decimal share unit', () => {
+    expect(verify.text).toMatch(/convertToAssets\(uint256\)\(uint256\)"\s*1000000000000\b/);
+    expect(verify.text, 'a full share is 1e12, not 1e18').not.toMatch(/convertToAssets\(uint256\)\(uint256\)"\s*1000000000000000000\b/);
+  });
+
+  it('says why the share magnitude differs from the asset', () => {
+    expect(verify.text).toMatch(/6 more decimals|1e12/i);
+  });
+});
+
+describe('the cookies notice matches what the code actually stores', () => {
+  /**
+   * The page audits browser storage from the code and states, in prose and in
+   * a callout, that MIDNAT sets no cookie. The site-map summary once promised
+   * "the four keys ... and the one cookie" -- a count the page contradicts on
+   * both halves. A search result rendering that summary next to a page that
+   * says the opposite is an internal contradiction a reader meets before the
+   * page even loads.
+   */
+  const cookies = SOURCES.find((f) => f.rel === 'pages/legal/cookies.tsx')!;
+  const summary = LEGAL.find((l) => l.slug === 'cookies')!.summary;
+
+  it('states, on the page, that no cookie is set', () => {
+    expect(cookies.text).toMatch(/sets no browser cookie|no cookie/i);
+    expect(cookies.text).toMatch(/no consent banner|none is shown/i);
+  });
+
+  it('does not promise a cookie the page then denies', () => {
+    // The honest negation ("there is no cookie") is fine; an affirmative claim
+    // that a cookie exists is what the page contradicts.
+    expect(summary, 'the summary must not claim a cookie the page says does not exist').not.toMatch(
+      /\b(?:the |a |one )cookie\b/i,
+    );
+    expect(summary).toMatch(/no cookie/i);
+  });
+
+  it('does not fix a storage-key count the page derives from code', () => {
+    // The page maps a KEYS array read from the code; a hard count in the
+    // summary drifts the moment a key is added or removed.
+    expect(summary).not.toMatch(/\b(one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+keys?\b/i);
+  });
+});
+
+describe('the site never says trading is free', () => {
+  /**
+   * The canonical claim is narrow: MIDNAT charges no protocol GAS fee
+   * (`CANONICAL.gas`). Every tier does charge an open, close and liquidation
+   * fee on notional, and the schedule page prints them from the registry.
+   *
+   * A landing card summarised that claim and dropped one word ("no protocol
+   * fee on top of the gas X Layer charges"), which tells a visitor on the
+   * first screen that the protocol takes nothing while the fee page charges
+   * 8bps to open and 8bps to close.
+   *
+   * A list of banned phrasings loses this game: "trade without fees", "there
+   * are no trading fees" and "the protocol charges you nothing" are the same
+   * claim in words no list predicted. So this reads the construct instead. A
+   * denial of cost is legal only when something narrows it, and there are
+   * exactly two ways to narrow one: name the cost that really is zero (gas, a
+   * deposit, a management fee), or condition it on a case (a liquidation with
+   * no positive residual). An unnarrowed denial is a claim that trading is
+   * free, however it is phrased.
+   */
+
+  /** Narrowings that name a cost the protocol genuinely does not take. Read
+      as a qualifier standing before the noun: "no protocol GAS fee". */
+  const NARROWED_BEFORE =
+    /\b(gas|deposits?|withdrawals?|management|performance|subscription|listing|switch|treasury|network|vault)\b/i;
+
+  /** The same job done by a modifier after the noun. It must attach to the
+      noun: "no fee ON DEPOSIT" narrows, "no protocol fee ON TOP OF the gas"
+      does not, and that difference is the whole bug this block exists for. */
+  const NARROWED_AFTER =
+    /^[\s,.]*(?:switch\b|on\s+(?:deposit|withdrawal|deposits|withdrawals)\b|for\s+(?:reading|reads|viewing|browsing)\b|to\s+(?:read|view|browse)\b)/i;
+
+  /** Narrowings that condition the denial on a case rather than a cost. */
+  const CONDITIONED = /\b(bad debt|positive residual|erc-?4626|reading the market|read the market)\b/i;
+
+  /** Constructs that deny a cost. The qualifier, when the shape has one, is
+      captured so it can be tested for a narrowing. */
+  const DENIALS: ReadonlyArray<RegExp> = [
+    /\b(?:no|zero)\s+((?:[\w-]+\s+){0,3}?)(?:fees?|charges?|costs?)\b/gi,
+    /\bwithout\s+((?:[\w-]+\s+){0,3}?)(?:fees?|charges?|costs?)\b/gi,
+    /\b(?:charges?|costs?|pays?)\s+(?:you\s+)?()nothing\b/gi,
+    /\b(?:fee|commission|cost)[- ]free\b()/gi,
+    /\b(?:free|no cost) to\s+()(?:trade|open|close|use)\b/gi,
+    /\btrad(?:e|es|ing)[^.]{0,24}\b(?:is|are)\s+()free\b/gi,
+    /\b(?:does not|do not|doesn't|don't) charge\s+(?:you\s+)?(?:for\s+)?()(?:trad\w+|anything|a fee|fees)\b/gi,
+  ];
+
+  /** What a reader actually sees. Comments do not ship, and the brand page's
+      `bad:` samples exist precisely to print the dishonest sentence beside the
+      honest one, so neither is a claim the site makes. The pairing is asserted
+      below so the exemption cannot be used to smuggle a bare claim in. */
+  function readerProse(text: string): string {
+    return proseOf(
+      text
+        .replace(/\/\*[\s\S]*?\*\//g, ' ')
+        .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ')
+        .replace(/\bbad:\s*'(?:[^'\\]|\\.)*'/g, ' ')
+        .replace(/\bbad:\s*"(?:[^"\\]|\\.)*"/g, ' '),
+    );
+  }
+
+  /** Every denial in a piece of prose that nothing narrows. */
+  function unnarrowedDenials(prose: string): string[] {
+    const found: string[] = [];
+    for (const sentence of prose.split(/(?<=[.!?])\s+/)) {
+      for (const pattern of DENIALS) {
+        pattern.lastIndex = 0;
+        for (const m of sentence.matchAll(pattern)) {
+          const qualifier = m[1] ?? '';
+          const after = sentence.slice((m.index ?? 0) + m[0].length, (m.index ?? 0) + m[0].length + 40);
+          // Order-independent: a narrowing may sit before the noun ("no
+          // protocol gas fee") or after it ("no fee on deposit").
+          if (NARROWED_BEFORE.test(qualifier) || NARROWED_AFTER.test(after)) continue;
+          if (CONDITIONED.test(sentence)) continue;
+          found.push(m[0].trim());
+        }
+      }
+    }
+    return found;
+  }
+
+  it('never denies the cost of trading without narrowing the denial', () => {
+    const offenders: string[] = [];
+    for (const file of SOURCES) {
+      if (file.rel === 'site-truth.test.ts') continue;
+      for (const hit of unnarrowedDenials(readerProse(file.text))) offenders.push(`${file.rel}: "${hit}"`);
+    }
+    expect(offenders, 'the protocol charges a fee on notional at open, close and liquidation').toEqual([]);
+  });
+
+  it('catches the claim however it is phrased', () => {
+    // The rule is only worth having if it survives a writer who did not read
+    // it. Each of these is the same false claim in different words, including
+    // the exact sentence that shipped.
+    const FALSE_CLAIMS = [
+      'No order book to queue behind, and no protocol fee on top of the gas X Layer charges the sender in OKB.',
+      'The protocol charges you nothing to trade.',
+      'Trade without fees.',
+      'Pay no fees when you trade.',
+      'There are no trading fees.',
+      'Zero fees on trades.',
+      'Trading costs nothing.',
+      'MIDNAT is fee-free.',
+      'It is free to trade here.',
+      'We do not charge for trades.',
+    ];
+    const missed = FALSE_CLAIMS.filter((s) => unnarrowedDenials(s).length === 0);
+    expect(missed, 'these say trading is free and must be caught').toEqual([]);
+  });
+
+  it('leaves every true denial sayable', () => {
+    // A ban that also forbids the true sentences pushes the pages into saying
+    // nothing about cost, which is how the vague version arrived. The corpus
+    // needs both answers, so these must pass.
+    const TRUE_CLAIMS = [
+      CANONICAL.gas,
+      'MIDNAT charges no protocol gas fee.',
+      'A liquidation that would create bad debt charges no fee.',
+      'The vault is a standard ERC-4626 vault with no fee on deposit, no management fee and no performance fee.',
+      'No vault management fee.',
+      'There is no treasury, no fee switch and no recipient address that can be changed.',
+      'Reading the market costs nothing.',
+      'Every cost of a round trip, the costs MIDNAT does not charge, and the difference between them.',
+    ];
+    const wrongly = TRUE_CLAIMS.filter((s) => unnarrowedDenials(s).length > 0).map(
+      (s) => `${s} -> ${unnarrowedDenials(s).join(', ')}`,
+    );
+    expect(wrongly, 'these are true and must stay sayable').toEqual([]);
+  });
+
+  it('keeps the brand page honest about the sample it exempts', () => {
+    // The scan skips `bad:` samples. That is only safe while each one is
+    // shown as the wrong way to say something, next to the right way.
+    const brand = SOURCES.find((f) => f.rel === 'pages/brand.tsx')!;
+    const pair = /bad:\s*'Zero fees[^']*',\s*good:\s*'([^']+)'/.exec(brand.text.replace(/\s+/g, ' '));
+    expect(pair, 'the "Zero fees" sample must stay paired with an honest line').toBeTruthy();
+    expect(pair![1], 'the honest line must keep the qualifier').toMatch(/no protocol gas fee/i);
+  });
+
+  it('states the fee on the card that once denied it', () => {
+    // Presence, not just absence, and read from the card's own string rather
+    // than the file: a comment mentioning the fee must not satisfy this, and
+    // neither must copy that merely links somewhere else.
+    const rail = SOURCES.find((f) => f.rel === 'components/landing/MeridianRail.tsx')!;
+    const desc = /label:\s*"01"[\s\S]{0,600}?desc:\s*"([^"]+)"/.exec(rail.text)?.[1];
+    expect(desc, 'the on-chain execution card must still have a description').toBeTruthy();
+    expect(desc!, 'the card must say a protocol fee exists and where it goes').toMatch(
+      /\bprotocol fee\b[^.]*\bvault\b/i,
+    );
+    expect(unnarrowedDenials(desc!), 'the card must not deny the fee it states').toEqual([]);
   });
 });

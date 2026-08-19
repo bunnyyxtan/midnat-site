@@ -14,7 +14,7 @@ export default function Liquidation() {
     <DocsLayout
       slug={DOC.slug}
       title={DOC.title}
-      standfirst="A position fails when its equity drops below the maintenance margin. Anyone may close it, the tier's liquidation fee is taken out of what is left, the vault receives the fee and the loss, and any remaining equity returns to the trader."
+      standfirst="A position fails when its equity reaches or falls below the maintenance margin. Anyone may close it, the tier's liquidation fee is taken out of what is left, the vault receives the fee and the loss, and any remaining equity returns to the trader."
       meta={{ title: DOC.title, description: DOC.summary, path: docHref(DOC.slug), type: 'article' }}
     >
       <Section id="test" title="The maintenance margin test">
@@ -23,7 +23,7 @@ export default function Liquidation() {
             Every position has an equity: the margin assigned to it, plus its unrealised profit and loss at the current
             price, minus accrued funding. Each tier sets a maintenance margin requirement, a floor expressed as a
             fraction of the position's notional. While equity sits above that floor the position stands. When equity
-            falls below it, the position is liquidatable.
+            reaches or falls below it, the position is liquidatable.
           </p>
           <p>
             Maintenance margin is checked against the same anchored price that prices a fill. If the anchor is not
@@ -35,7 +35,7 @@ export default function Liquidation() {
       <Section id="who" title="Who may call it, and what they receive">
         <Prose>
           <p>
-            Liquidation is a public function. Anyone can call it against any position that is below its maintenance
+            Liquidation is a public function. Anyone can call it against any position that is at or below its maintenance
             margin: there is no privileged liquidator and no keeper allow-list. On this deployment the caller is paid
             nothing for making the call. The tier's liquidation fee is deducted from the position's remaining equity and
             settled to the vault along with the loss, and whatever equity survives that deduction is credited back to the

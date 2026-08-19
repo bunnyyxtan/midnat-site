@@ -55,7 +55,7 @@ export default function PositionsAndMargin() {
         <Prose>
           <p>
             The maintenance margin is the minimum equity a position must keep, set per tier as a fraction of notional
-            size. When equity falls below it, the position can be liquidated by anyone who calls the public liquidation
+            size. When equity reaches or falls below it, the position can be liquidated by anyone who calls the public liquidation
             function. Maintenance runs from {bpsToPercent(STANDARD.params.maintenanceMarginBps)} in the Standard tier
             up to the higher requirements of the more reflexive tiers.{' '}
             <Link href={docHref('liquidation')} className="pub-link">

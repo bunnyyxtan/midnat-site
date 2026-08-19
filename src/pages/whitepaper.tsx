@@ -270,7 +270,7 @@ export default function Whitepaper() {
             ))}
             <li>
               <strong>Traders.</strong> Deposit collateral, open and close positions, and may be liquidated when a
-              position falls below its maintenance margin.
+              position reaches or falls below its maintenance margin.
             </li>
             <li>
               <strong>Liquidity providers.</strong> Deposit into the vault, receive shares, and take the other side of
@@ -543,8 +543,10 @@ export default function Whitepaper() {
       <Section id="funding" title="9. Funding">
         <Prose>
           <p>
-            Funding prices the imbalance between the two sides of a market rather than forbidding it. When a market is
-            skewed, the heavier side pays the lighter side. The counterparty ordering is fixed: {FUNDING.counterparties}.
+            Funding prices the imbalance between the two sides of a market rather than forbidding it. The posted rate is
+            a base carry plus a skew term plus a divergence premium, so the crowded side pays more as the book tilts,
+            and a balanced book still charges longs the carry rather than nothing. A positive rate means longs pay and
+            shorts receive. The counterparty ordering is fixed: {FUNDING.counterparties}.
           </p>
           <p>
             The funding keeper posts a rate. The contract clamps that rate at {FUNDING.clampPercentPerHour}% per hour in
@@ -557,7 +559,7 @@ export default function Whitepaper() {
         </Prose>
         <KeyValue
           items={[
-            { key: 'Direction', value: 'Heavier side pays lighter side' },
+            { key: 'Direction', value: 'Positive rate: longs pay, shorts receive' },
             { key: 'Counterparties', value: FUNDING.counterparties },
             { key: 'On-chain clamp', value: `${FUNDING.clampPercentPerHour}% per hour, either direction` },
             { key: 'Accrual', value: FUNDING.accrual },
@@ -579,7 +581,8 @@ export default function Whitepaper() {
             Taking the other side of every position makes the vault a directional book by accident. If the whole venue
             is long, the vault is short the whole venue. Three mechanisms keep that from running away. Open interest is
             capped at {bpsToPercent(GLOBALS.globalOiFactorBps, 0)} of vault net asset value across all markets, with
-            smaller per-market and per-side caps beneath it. Funding pays the lighter side, pricing the imbalance.
+            smaller per-market and per-side caps beneath it. Funding prices that imbalance: the rate rises with skew, so the
+            crowded side pays more to hold.
             And the impact term makes each additional unit of the crowded side fill worse than the last. LP withdrawals
             are themselves capped: a withdrawal cannot drop remaining net asset value below the capital required to back
             open positions, so LP capital can be locked while the book is busy.

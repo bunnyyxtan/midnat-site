@@ -38,7 +38,7 @@ export default function RiskDisclosure() {
           <p>
             Leverage ranges from {LEVERAGE_RANGE.min}x to {LEVERAGE_RANGE.max}x depending on the market. The higher the
             leverage, the smaller the move against you that wipes out your margin. A position is liquidatable the moment
-            its equity falls below the maintenance margin requirement, and anyone may call the liquidation.
+            its equity reaches or falls below the maintenance margin requirement, and anyone may call the liquidation.
           </p>
           <p>
             Liquidation is not a floor that returns most of your collateral. After the liquidation fee and what is owed,

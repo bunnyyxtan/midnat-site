@@ -8,9 +8,12 @@ export function MeridianRail() {
     {
       label: "01",
       title: "On-chain execution",
-      // "No protocol gas fee" on its own reads as "trading here is free". The
-      // canonical wording carries both halves, so this card does too.
-      desc: "A trade is a call to one contract, priced from the signed anchor. No order book to queue behind, and no protocol fee on top of the gas X Layer charges the sender in OKB.",
+      // The canonical claim is "no protocol GAS fee" (CANONICAL.gas). Dropping
+      // that one word says the protocol charges nothing at all, which the fee
+      // schedule contradicts: every tier charges an open, close and
+      // liquidation fee on notional. A summary of a canonical claim either
+      // carries the qualifier or states the fee outright. This one does both.
+      desc: "A trade is a call to one contract, priced from the signed anchor. No order book to queue behind. The protocol fee on your notional settles to the vault, and the gas on top is X Layer's, charged to the sender in OKB.",
       svg: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" className="landing-draw-path" />

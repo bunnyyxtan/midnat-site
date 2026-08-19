@@ -32,7 +32,7 @@ export function InfrastructureStrip() {
               <div className="px-6 md:px-12 py-10 flex flex-col gap-3 md:border-r border-b md:border-b-0 border-[color:var(--ln-glass-border)] hover:bg-[var(--ln-glass-bg)] hover:backdrop-blur-xl transition-colors duration-300">
                 <span className="font-mono text-[10px] uppercase tracking-widest opacity-50">Execution</span>
                 <span className="font-sans text-[1.1rem] font-bold">Testnet venue</span>
-                <span className="font-sans text-[13px] leading-relaxed opacity-60">The interface books opens and closes to your connected address. It does not submit a transaction today.</span>
+                <span className="font-sans text-[13px] leading-relaxed opacity-60">Opens and closes are transactions your own wallet signs and sends to the clearing house, and the chain records the position.</span>
               </div>
               
               <div className="px-6 md:px-12 py-10 flex flex-col gap-3 border-r border-[color:var(--ln-glass-border)] hover:bg-[var(--ln-glass-bg)] hover:backdrop-blur-xl transition-colors duration-300">

@@ -87,8 +87,10 @@ export default function DocsIndex() {
         <Prose>
           <ul>
             <li>
-              Every protocol number on this site is read from the deployment manifest that the deploy script wrote. If a
-              parameter changes on chain, the page changes with it.
+              Every protocol number on this site is read from the deployment manifest that the deploy script wrote, so
+              it matches the contracts as deployed. This site is static: if a parameter is changed on chain afterwards,
+              the page follows at the next publish, not at the moment of the change. The terminal reads such values
+              live from the contract.
             </li>
             <li>
               Claims carry a status label. <strong>Live on testnet</strong> means it is deployed and running.{' '}

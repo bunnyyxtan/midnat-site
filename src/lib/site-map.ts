@@ -51,15 +51,29 @@ export const DOCS: readonly DocMeta[] = [
     slug: 'how-it-works',
     title: 'How MIDNAT works',
     group: 'start',
-    summary: 'The whole protocol in one page: reference price, clearing house, vault, and what happens when you open a position.',
-    keywords: ['overview', 'architecture', 'perpetual', 'synthetic', 'counterparty'],
+    summary: 'A short map of the whole protocol: one orienting paragraph per mechanism, each linking the page that owns the detail.',
+    keywords: ['overview', 'architecture', 'perpetual', 'synthetic', 'counterparty', 'index', 'map'],
   },
   {
     slug: 'getting-started',
     title: 'Getting started',
     group: 'start',
-    summary: 'What you need before your first testnet position, and the order in which the protocol expects it.',
-    keywords: ['wallet', 'connect', 'faucet', 'gas', 'deposit', 'first trade'],
+    summary: 'Setup only: the wallet, the network, testnet funds, and a first look at the terminal.',
+    keywords: ['wallet', 'connect', 'faucet', 'gas', 'deposit', 'setup', 'network'],
+  },
+  {
+    slug: 'first-trade',
+    title: 'Your first trade',
+    group: 'start',
+    summary: 'Placing, reading and closing a position once your wallet is connected and funded.',
+    keywords: ['open', 'close', 'position', 'ticket', 'size', 'leverage', 'portfolio'],
+  },
+  {
+    slug: 'refusal-rules',
+    title: 'When the protocol refuses',
+    group: 'start',
+    summary: 'Every condition under which an open is refused: stale or low-confidence reference, a closed or unlisted market, capacity, margin minimums and deferred payouts.',
+    keywords: ['revert', 'refuse', 'stale', 'confidence', 'cap', 'minimum', 'halted', 'closed', 'blocked'],
   },
   {
     slug: 'glossary',
@@ -225,7 +239,7 @@ export const LEGAL: readonly LegalMeta[] = [
   {
     slug: 'cookies',
     title: 'Cookies and local storage',
-    summary: 'The four keys MIDNAT stores in your browser, and the one cookie. There is no analytics and no tracking.',
+    summary: 'Every key MIDNAT stores in your browser. There is no cookie, no analytics and no tracking.',
     updated: '2026-08-17',
   },
   {

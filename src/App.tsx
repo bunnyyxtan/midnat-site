@@ -30,6 +30,8 @@ import About from '@/pages/about';
 import DocsIndex from '@/pages/docs/index';
 import HowItWorks from '@/pages/docs/how-it-works';
 import GettingStarted from '@/pages/docs/getting-started';
+import FirstTrade from '@/pages/docs/first-trade';
+import RefusalRules from '@/pages/docs/refusal-rules';
 import Glossary from '@/pages/docs/glossary';
 import MarketsAndTiers from '@/pages/docs/markets-and-tiers';
 import PositionsAndMargin from '@/pages/docs/positions-and-margin';
@@ -80,6 +82,8 @@ function Router() {
         <Route path="/docs" component={DocsIndex} />
         <Route path="/docs/how-it-works" component={HowItWorks} />
         <Route path="/docs/getting-started" component={GettingStarted} />
+        <Route path="/docs/first-trade" component={FirstTrade} />
+        <Route path="/docs/refusal-rules" component={RefusalRules} />
         <Route path="/docs/glossary" component={Glossary} />
         <Route path="/docs/markets-and-tiers" component={MarketsAndTiers} />
         <Route path="/docs/positions-and-margin" component={PositionsAndMargin} />

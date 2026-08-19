@@ -43,9 +43,10 @@ const vaultReadCmd = `# total assets the vault holds, and the price of one share
 cast call ${vault.address} "totalAssets()(uint256)" --rpc-url ${rpc}
 cast call ${vault.address} "totalSupply()(uint256)" --rpc-url ${rpc}
 
-# convertToAssets(1e18) prices one full share in ${COLLATERAL.symbol} base units
+# shares carry 6 more decimals than the asset, so one full share is 1e12
+# convertToAssets(1e12) prices one full share in ${COLLATERAL.symbol} base units
 cast call ${vault.address} \\
-  "convertToAssets(uint256)(uint256)" 1000000000000000000 \\
+  "convertToAssets(uint256)(uint256)" 1000000000000 \\
   --rpc-url ${rpc}`;
 
 const marketReadCmd = `# read a market's stored parameters from the clearing house.

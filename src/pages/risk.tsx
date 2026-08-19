@@ -80,8 +80,9 @@ export default function Risk() {
               position is underwater against the reference price the moment it opens.
             </li>
             <li>
-              <strong>Funding accrues while you hold.</strong> The side that is with the crowd pays funding to the
-              lighter side. It is charged continuously and settled at close.
+              <strong>Funding accrues while you hold.</strong> The rate rises with skew, so the side that is with the
+              crowd pays more, and a base carry means longs pay a small amount even when the book is balanced. It is
+              charged continuously and settled at close.
             </li>
             <li>
               <strong>Positions close in full.</strong> There is no partial close on this deployment, so you cannot
@@ -147,7 +148,7 @@ export default function Risk() {
           <p>
             Leverage is capped by tier, from {LEVERAGE_RANGE.min}x to {LEVERAGE_RANGE.max}x. Each market carries a
             maintenance margin: when a position's equity, which is margin plus unrealised profit and loss minus accrued
-            funding, falls below it, the position may be liquidated by anyone through a permissionless call.
+            funding, reaches or falls below it, the position may be liquidated by anyone through a permissionless call.
           </p>
         </Prose>
 
