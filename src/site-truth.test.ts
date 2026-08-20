@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import {
   ALL_PUBLIC_ROUTES,
@@ -827,9 +828,128 @@ describe('the name is written the way the brand page says it is written', () => 
    * identifiers too, so lowercase is correct there. Only the mark is pinned.
    */
   const RULE_PAGE = 'pages/brand.tsx';
-  /** `Midnat` not followed by a capital: MidnatVault is a contract, "Midnat
-      Vaults" is the mark spelled wrong. */
-  const WRONG = /\bMid(?:nat(?![A-Z])|Nat\b)/;
+  const WRONG = /\b(?:Midnat|MidNat|Midnight|midnat)\b|\bMID(?:\s+|-+)NAT\b/;
+  const withoutIntentionalInvalidExamples = (text: string) =>
+    text.replace(
+      /\{\/\*\s*brand-contract: allow-invalid-name:start\s*\*\/\}[\s\S]*?\{\/\*\s*brand-contract: allow-invalid-name:end\s*\*\/\}/g,
+      '',
+    );
+
+  /*
+    Only the mark is pinned, so machine text has to come out before the rule
+    runs, and the removal has to know what a reader actually sees.
+
+    Doing that by pattern over the whole file is how a check like this starts
+    lying. "midnat-trading is live" is shaped exactly like a storage key, so a
+    key-shaped removal deletes it, and the one sentence that breaks the rule
+    never reaches the rule. The same goes the other way: a design comment
+    naming the midnight sun is not a spelling mistake, and neither is an
+    element id.
+
+    So this reads the syntax rather than the characters. Comments and technical
+    attributes are excluded because the parser says that is what they are, and
+    only rendered text and non-technical strings are judged. What is left is
+    then narrowed by shape only where prose cannot imitate it -- an x- header,
+    a name with a version after a slash, a key of several dotted segments --
+    and every other identifier is named outright below. The repository brand
+    checker draws the same boundary; this file repeats it because the landing
+    site also ships as a repository of its own, where that checker is absent.
+  */
+  const TECHNICAL_JSX_ATTRIBUTES = new Set([
+    'className', 'data-testid', 'href', 'id', 'key', 'name', 'property', 'rel',
+    'src', 'style', 'target', 'to', 'type',
+  ]);
+  const TECHNICAL_OBJECT_KEYS = new Set([
+    'address', 'chainId', 'dataTestId', 'domain', 'env', 'file', 'host', 'href',
+    'id', 'key', 'origin', 'package', 'path', 'route', 'slug', 'src',
+    'storageKey', 'symbol', 'testId', 'url', 'version',
+  ]);
+  const TECHNICAL_CALLS =
+    /(?:getElementById|querySelector|querySelectorAll|setItem|getItem|removeItem|fetch|import)\b|(?:logger|console)\./;
+  const NAMED_TECHNICAL_TOKENS = [
+    'app.midnat.xyz', 'midnat.xyz', 'midnat-theme', 'midnat-intelligence-usage',
+    'midnat.wallet',
+  ];
+  const TECHNICAL_TOKEN_SHAPES = [
+    /\bx-midnat-[a-z0-9-]+\b/g,
+    /\bmidnat-[a-z-]+\/\d[\w.-]*/g,
+    /\bmidnat(?:\.[a-z0-9-]+){2,}\b/g,
+  ];
+
+  const displayTextOf = (value: string): string => {
+    let text = value
+      .replace(/\bhttps?:\/\/[^\s"'<>]+/gi, ' ')
+      .replace(/\bmailto:[^\s"'<>]+/gi, ' ');
+    for (const token of NAMED_TECHNICAL_TOKENS) text = text.split(token).join(' ');
+    for (const shape of TECHNICAL_TOKEN_SHAPES) text = text.replace(shape, ' ');
+    return text.replace(/@[A-Za-z0-9_]+/g, ' ');
+  };
+
+  const isTechnicalString = (node: ts.Node): boolean => {
+    const parent = node.parent as ts.Node | undefined;
+    if (!parent) return false;
+    if (
+      ts.isImportDeclaration(parent)
+      || ts.isExportDeclaration(parent)
+      || ts.isLiteralTypeNode(parent)
+    ) {
+      return true;
+    }
+    if (ts.isJsxAttribute(parent)) return TECHNICAL_JSX_ATTRIBUTES.has(parent.name.getText());
+    if (ts.isPropertyAssignment(parent) && parent.initializer === node) {
+      const key = ts.isIdentifier(parent.name) || ts.isStringLiteral(parent.name)
+        ? parent.name.text
+        : '';
+      return TECHNICAL_OBJECT_KEYS.has(key);
+    }
+    if (ts.isCallExpression(parent) && parent.arguments.some((argument) => argument === node)) {
+      return TECHNICAL_CALLS.test(parent.expression.getText());
+    }
+    return false;
+  };
+
+  const renderedTextOf = (rel: string, source: string): string[] => {
+    const file = ts.createSourceFile(
+      rel,
+      withoutIntentionalInvalidExamples(source),
+      ts.ScriptTarget.Latest,
+      true,
+      rel.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+    const values: string[] = [];
+    const visit = (node: ts.Node): void => {
+      if (ts.isJsxText(node)) {
+        const value = node.getText(file).replace(/\s+/g, ' ').trim();
+        if (value) values.push(value);
+      } else if (
+        (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node))
+        && !isTechnicalString(node)
+      ) {
+        values.push(node.text);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(file);
+    return values;
+  };
+
+  const renderedHtmlOf = (html: string): string[] => {
+    const stripped = withoutIntentionalInvalidExamples(html)
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style\b[\s\S]*?<\/style>/gi, ' ');
+    const values: string[] = [];
+    for (const match of stripped.matchAll(
+      /\b(?:alt|aria-label|content|placeholder|title)\s*=\s*(["'])([\s\S]*?)\1/gi,
+    )) {
+      values.push(match[2] ?? '');
+    }
+    values.push(...stripped.replace(/<[^>]*>/g, ' ').split('\n'));
+    return values.map((value) => value.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  };
+
+  const spellsTheMarkWrong = (values: string[]) =>
+    values.some((value) => WRONG.test(displayTextOf(value)));
 
   it('still publishes the rule it is being held to', () => {
     const brand = SOURCES.find((f) => f.rel === RULE_PAGE);
@@ -840,17 +960,49 @@ describe('the name is written the way the brand page says it is written', () => 
   });
 
   it('spells the mark MIDNAT in every page it renders', () => {
-    const offenders = SOURCES.filter(
-      (f) => f.rel !== RULE_PAGE && WRONG.test(proseOf(f.text)),
-    ).map((f) => f.rel);
-    expect(offenders, 'the mark is MIDNAT, never Midnat or MidNat').toEqual([]);
+    const offenders = SOURCES.filter((f) => spellsTheMarkWrong(renderedTextOf(f.rel, f.text)))
+      .map((f) => f.rel);
+    expect(offenders, 'the mark is MIDNAT: uppercase, one word, never a substitute').toEqual([]);
   });
 
   it('spells the mark MIDNAT in the document head', () => {
     const html = readFileSync(join(SRC, '..', 'index.html'), 'utf8');
     const title = /<title>([^<]*)<\/title>/.exec(html)?.[1] ?? '';
     expect(title, 'index.html has no title').not.toBe('');
-    expect(WRONG.test(html), 'the tab title or a share card spells the mark wrong').toBe(false);
+    expect(
+      spellsTheMarkWrong(renderedHtmlOf(html)),
+      'the tab title or a share card spells the mark wrong',
+    ).toBe(false);
+  });
+
+  it('still catches the mark spelled wrong in text a reader sees', () => {
+    /*
+      Every exemption above is a place this check stops looking, so each one
+      needs a neighbour that still fails. The first four are the cases a
+      pattern-only version waved through: text shaped like a key, text shaped
+      like a comment, and text shaped like an attribute, all of them rendered.
+    */
+    const flags = (source: string) => spellsTheMarkWrong(renderedTextOf('fixture.tsx', source));
+
+    expect(flags('<p>midnat-trading is live.</p>'), 'a hyphenated wrong mark').toBe(true);
+    expect(flags('<p>midnat.terminal is live.</p>'), 'a dotted wrong mark').toBe(true);
+    expect(flags("const copy = 'Midnat /* still rendered */ desk';"), 'comment syntax').toBe(true);
+    expect(flags('const copy = \'id="Midnat"\';'), 'attribute syntax').toBe(true);
+    expect(flags('<p>Welcome to Midnat, the exchange.</p>')).toBe(true);
+    expect(flags('<p>Trade on MID NAT today.</p>')).toBe(true);
+
+    expect(flags('<td>Browser local storage, key midnat-theme</td>')).toBe(false);
+    expect(flags('<td>Browser local storage, key midnat.wallet.v3</td>')).toBe(false);
+    expect(flags("const STORAGE_KEY = 'midnat-theme';")).toBe(false);
+    expect(flags("export const SITE_URL = 'https://midnat.xyz';")).toBe(false);
+    expect(flags('const label = <p>{/* Midnight Sun Dial */}MIDNAT</p>;')).toBe(false);
+    expect(flags('const view = <Section id="midnat" title="MIDNAT licence" />;')).toBe(false);
+    expect(flags("const contract = 'MidnatVault';")).toBe(false);
+
+    const flagsHtml = (html: string) => spellsTheMarkWrong(renderedHtmlOf(html));
+    expect(flagsHtml('<title>Midnat | Stock Perpetuals</title>')).toBe(true);
+    expect(flagsHtml('<meta property="og:title" content="Midnat" />')).toBe(true);
+    expect(flagsHtml('<link rel="canonical" href="https://midnat.xyz/" />')).toBe(false);
   });
 });
 

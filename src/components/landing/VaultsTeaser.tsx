@@ -77,7 +77,7 @@ export function VaultsTeaser() {
                 </h2>
 
                 <p className="text-[1.1rem] opacity-[0.85] font-normal leading-relaxed mb-12 max-w-md">
-                  MIDNAT has one counterparty. Traders do not trade against each other, they trade against vault capital, which earns the protocol fees and absorbs the losses. The vault contract is deployed on X Layer Testnet and the app deposits into it and withdraws from it directly from your wallet, so this is a position you can actually take.
+                  MIDNAT has one counterparty. Traders do not trade against each other, they trade against vault capital, which earns the protocol fees and absorbs the losses. The vault contract is deployed on X Layer Testnet. Deposits and withdrawals are direct wallet transactions.
                 </p>
 
                 <Link href="/docs/vault" data-testid="link-vaults-teaser" className="landing-primary-btn w-fit whitespace-nowrap">

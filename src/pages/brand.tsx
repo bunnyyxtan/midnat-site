@@ -116,16 +116,19 @@ export default function Brand() {
     >
       <Section id="name" title="The name">
         <Prose>
+          {/* brand-contract: allow-invalid-name:start */}
           <p>
             The name is MIDNAT, always in uppercase. It is never written Midnat, never MidNat and never Midnight. It is
             one word, no space, no hyphen. In running prose it stays uppercase because it reads as a mark, not a common
             noun.
           </p>
+          {/* brand-contract: allow-invalid-name:end */}
           <p>
             MIDNAT is midnight in Danish. The name carries the whole argument: the oldest exchange in the world closed at
             sunset, and these markets do not.
           </p>
         </Prose>
+        {/* brand-contract: allow-invalid-name:start */}
         <KeyValue
           items={[
             { key: 'Correct', value: 'MIDNAT' },
@@ -133,6 +136,7 @@ export default function Brand() {
             { key: 'In a sentence', value: 'MIDNAT trades stock perpetuals around the clock.' },
           ]}
         />
+        {/* brand-contract: allow-invalid-name:end */}
       </Section>
 
       <Section id="mark" title="The mark">

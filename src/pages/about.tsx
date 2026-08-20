@@ -182,9 +182,9 @@ export default function About() {
           </p>
           <p>
             It also does not establish that the system is safe with real money. Everything here runs on a test network
-            that can be reset or replaced without notice, and the deployment has never been through an independent
-            security audit. For the exact ways a position or a deposit can lose everything, read the risk pages rather
-            than this one.
+            that can be reset or replaced without notice. The Security page records the current evidence and review
+            status. For the exact ways a position or a deposit can lose everything, read the risk pages rather than this
+            one.
           </p>
         </Prose>
       </Section>

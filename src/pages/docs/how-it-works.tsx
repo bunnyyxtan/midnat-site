@@ -36,8 +36,8 @@ export default function HowItWorks() {
             <Link href={docHref('markets-and-tiers')} className="pub-link">
               markets and risk tiers
             </Link>
-            . How a position is written and held once opened, isolated margin, equity and the maintenance requirement —
-            is on{' '}
+            . How a position is written and held once opened, including isolated margin, equity and the maintenance
+            requirement, is on{' '}
             <Link href={docHref('positions-and-margin')} className="pub-link">
               positions and margin
             </Link>
@@ -125,8 +125,9 @@ export default function HowItWorks() {
           </p>
           <p>
             Positions close in full at the current fill price. If the vault cannot pay a winning position in full at
-            that moment, the shortfall is recorded as a claim that ranks ahead of LP equity rather than written down —
-            a liquidity failure, not a solvency one. Why the distinction matters and where it can still hurt you is on{' '}
+            that moment, the shortfall is recorded as a claim that ranks ahead of LP equity rather than written down.
+            That is a liquidity failure, not a solvency one. Why the distinction matters and where it can still hurt you
+            is on{' '}
             <Link href={docHref('deferred-payouts')} className="pub-link">
               deferred payouts
             </Link>
