@@ -572,9 +572,8 @@ export const OPERATOR = {
 
 export const SECURITY_REVIEW = {
   status: 'IN_PROGRESS',
-  shortLabel: 'independent review in progress',
   disclosure:
-    'An independent contract review is in progress, but no completed independent security audit report has been published. The contracts have also been reviewed internally, tested with a contract test suite and reproduced from source. None of that is a completed external audit.',
+    'Independent contract review is underway. A final external security report has not been published. Internal review, contract tests and reproducible source builds are supporting evidence, not substitutes for a completed external audit.',
 } as const;
 
 export const CANONICAL = {

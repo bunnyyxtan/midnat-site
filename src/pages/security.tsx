@@ -35,7 +35,7 @@ export default function Security() {
       meta={{
         title: 'Security',
         description:
-          'MIDNAT security posture: the honest audit position, key concentration, the operational surface, the protections that exist in code, and where a reader is still exposed.',
+          'MIDNAT security posture: review status, key concentration, the operational surface, the protections that exist in code, and where a reader is still exposed.',
         path: '/security',
       }}
       eyebrow="Trust"
@@ -45,11 +45,11 @@ export default function Security() {
       actions={<PrintButton />}
       width="doc"
     >
-      <Callout tone="caution" title="No independent audit">
+      <Callout tone="caution" title="Review status">
         {CANONICAL.noAudit}
       </Callout>
 
-      <Section id="audit" title="The honest audit position">
+      <Section id="audit" title="Independent review">
         <Prose>
           <p>{CANONICAL.noAudit}</p>
           <p>What was actually done, stated so it cannot be mistaken for an audit:</p>
@@ -279,10 +279,9 @@ export default function Security() {
             and keep the detail that would let someone else exploit the issue for a direct message.
           </p>
           <p>
-            There is no bug bounty. An independent contract review is in progress, but no completed independent security
-            audit report has been published. No penetration test has been performed, and this project publishes no
-            incident history and no response-time commitment because it has not measured one. If a control is not
-            described on this page, assume it does not exist.
+            There is no bug bounty. {CANONICAL.noAudit} No penetration test has been performed, and this project
+            publishes no incident history and no response-time commitment because it has not measured one. If a
+            control is not described on this page, assume it does not exist.
           </p>
         </Prose>
       </Section>
@@ -294,7 +293,7 @@ export default function Security() {
             exposed in ways it cannot remove:
           </p>
           <ul>
-            <li>The code is unaudited. {CANONICAL.noAudit}</li>
+            <li>{CANONICAL.noAudit}</li>
             <li>
               A single key holds owner and both keeper roles, with no multisig and no timelock, so a compromise of that
               key is a compromise of the protocol's risk controls.

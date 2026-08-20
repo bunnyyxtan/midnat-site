@@ -181,12 +181,19 @@ describe('the footer follows the active deployment and product surfaces', () => 
   });
 });
 
-describe('the in-progress independent review is described consistently', () => {
+describe('security-review status stays factual and out of global marketing chrome', () => {
+  it('keeps review and audit wording off the global footer status line', () => {
+    const footerSource = SOURCES.find((source) => source.rel.endsWith('PublicFooter.tsx'))!.text;
+    expect(footerSource).not.toMatch(/SECURITY_REVIEW|review|audit/i);
+  });
+
   it('does not publish an obsolete claim that no independent review has occurred', () => {
     expect(SECURITY_REVIEW.status).toBe('IN_PROGRESS');
     const obsolete = [
+      /No independent audit/i,
       /No third-party audit firm has reviewed this code/i,
       /No independent security audit has been performed/i,
+      /The code is unaudited/i,
     ];
     const offenders = SOURCES.filter((source) =>
       obsolete.some((pattern) => pattern.test(proseOf(source.text))),
