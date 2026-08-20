@@ -279,9 +279,10 @@ export default function Security() {
             and keep the detail that would let someone else exploit the issue for a direct message.
           </p>
           <p>
-            There is no bug bounty. No third-party audit firm has reviewed this code, no penetration test has been
-            performed, and this project publishes no incident history and no response-time commitment, because it has
-            not measured one. If a control is not described on this page, assume it does not exist.
+            There is no bug bounty. An independent contract review is in progress, but no completed independent security
+            audit report has been published. No penetration test has been performed, and this project publishes no
+            incident history and no response-time commitment because it has not measured one. If a control is not
+            described on this page, assume it does not exist.
           </p>
         </Prose>
       </Section>

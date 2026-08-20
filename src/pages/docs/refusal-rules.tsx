@@ -78,7 +78,7 @@ export default function RefusalRules() {
             .
           </p>
           <p>
-            When you close in profit, the vault pays you — unless it cannot pay in full at that moment, in which case the
+            When you close in profit, the vault pays you, unless it cannot pay in full at that moment, in which case the
             unpaid part is deferred as a claim rather than refused or written down. Why that is a claim, where it ranks
             and where it can still hurt you is on{' '}
             <Link href={docHref('deferred-payouts')} className="pub-link">

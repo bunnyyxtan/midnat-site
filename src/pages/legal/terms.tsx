@@ -42,16 +42,18 @@ export default function Terms() {
         </Prose>
       </Section>
 
-      <Section id="no-custody" title="No account and no custody">
+      <Section id="no-custody" title="No login account; on-chain contract custody">
         <Prose>
           <p>
-            There is no account here. You do not sign up, you do not log in, and there is no password to lose. You
-            interact by connecting a wallet you already control, and that wallet stays in your control the whole time.
+            There is no login account here. You do not sign up, you do not use a password, and the app does not hold a
+            private key for you. The app calls the clearing house's per-wallet collateral ledger your Trading Account.
+            It is on-chain contract state, not a user account operated by this site.
           </p>
           <p>
-            This site never takes custody of your funds. Collateral sits in the contracts, not with the operator of this
-            site, and every transaction that moves value is signed by your wallet and broadcast by you. The operator
-            cannot move your funds and cannot sign for you.
+            This site and its operator do not take interface custody of your funds. Trader collateral deposited to the
+            clearing house is credited to that wallet's Trading Account. LP Vault deposits are separate
+            liquidity-provider positions and do not fund the Trading Account. Every transaction that moves value is
+            signed by your wallet and broadcast by you. The operator cannot sign for you.
           </p>
         </Prose>
       </Section>

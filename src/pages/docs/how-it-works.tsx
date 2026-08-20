@@ -36,7 +36,7 @@ export default function HowItWorks() {
             <Link href={docHref('markets-and-tiers')} className="pub-link">
               markets and risk tiers
             </Link>
-            . How a position is written and held once opened — isolated margin, equity and the maintenance requirement —
+            . How a position is written and held once opened, isolated margin, equity and the maintenance requirement —
             is on{' '}
             <Link href={docHref('positions-and-margin')} className="pub-link">
               positions and margin
@@ -51,8 +51,8 @@ export default function HowItWorks() {
           <p>
             A perpetual needs a reference price whether or not anyone is trading the underlying, so MIDNAT builds one
             off chain and puts a signed version of it on chain. The engine that selects the freshest usable feed for
-            each market — and walks the price across rather than jumping when it has to change source, including while
-            the exchange is closed — is described on{' '}
+            each market, and walks the price across rather than jumping when it has to change source, including while
+            the exchange is closed, is described on{' '}
             <Link href={docHref('reference-engine')} className="pub-link">
               the reference engine
             </Link>
@@ -86,7 +86,7 @@ export default function HowItWorks() {
             skew, and an impact term makes the crowded side fill worse.
           </p>
           <p>
-            The vault itself — an ERC-4626 contract, how its shares are priced, and what LPs are exposed to — is on{' '}
+            The vault itself, an ERC-4626 contract, how its shares are priced, and what LPs are exposed to, is on{' '}
             <Link href={docHref('vault')} className="pub-link">
               the liquidity vault
             </Link>

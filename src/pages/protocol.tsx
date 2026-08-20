@@ -206,8 +206,9 @@ export default function Protocol() {
             <li>{CANONICAL.noAudit}</li>
             <li>{CANONICAL.testnet}</li>
             <li>
-              One key holds owner, risk keeper and funding keeper on this deployment. There is no multisig and no
-              timelock. That address can change risk parameters, halt markets and post funding.
+              One key holds owner, risk keeper and funding keeper on this deployment. The oracle signer is a separate
+              key. There is no multisig and no timelock. The concentrated role address can change risk parameters, halt
+              markets and post funding.
             </li>
             <li>
               A single process posts signed prices. If it stops, prices go stale and the protocol blocks new exposure

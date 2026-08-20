@@ -82,7 +82,7 @@ export default function Licenses() {
       <Section id="midnat" title="MIDNAT's own licence">
         <Prose>
           <p>
-            MIDNAT's own source — the contracts, the API server and the interfaces — is published under the MIT
+            MIDNAT's own source, the contracts, the API server and the interfaces, is published under the MIT
             Licence. That is a decision of the project owner, recorded on 18 August 2026. The full terms are in the
             LICENSE file in the project source, and the same identifier appears in the package metadata and in
             the SPDX header of every MIDNAT Solidity file.

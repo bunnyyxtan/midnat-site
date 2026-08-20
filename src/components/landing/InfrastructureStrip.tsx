@@ -1,4 +1,5 @@
 import { Reveal } from './Reveal';
+import { NETWORK } from '@/lib/protocol-registry';
 
 export function InfrastructureStrip() {
   return (
@@ -25,8 +26,10 @@ export function InfrastructureStrip() {
               
               <div className="px-6 md:px-12 py-10 flex flex-col gap-3 border-r border-b md:border-b-0 border-[color:var(--ln-glass-border)] hover:bg-[var(--ln-glass-bg)] hover:backdrop-blur-xl transition-colors duration-300">
                 <span className="font-mono text-[10px] uppercase tracking-widest opacity-50">Network</span>
-                <span className="font-sans text-[1.1rem] font-bold">X Layer</span>
-                <span className="font-sans text-[13px] leading-relaxed opacity-60">OKX's zkEVM network, secured by Ethereum.</span>
+                <span className="font-sans text-[1.1rem] font-bold">{NETWORK.shortLabel}</span>
+                <span className="font-sans text-[13px] leading-relaxed opacity-60">
+                  {NETWORK.label}, chain {NETWORK.chainId}. Transactions use {NETWORK.gasCurrency} for gas.
+                </span>
               </div>
               
               <div className="px-6 md:px-12 py-10 flex flex-col gap-3 md:border-r border-b md:border-b-0 border-[color:var(--ln-glass-border)] hover:bg-[var(--ln-glass-bg)] hover:backdrop-blur-xl transition-colors duration-300">

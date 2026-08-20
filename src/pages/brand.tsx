@@ -56,7 +56,7 @@ const VOICE: readonly VoiceExample[] = [
   },
   {
     bad: 'Trade with total confidence: our battle-tested contracts are fully secure and audited to the highest standard.',
-    good: 'The contracts are reviewed internally and reproduced from source. No independent security audit has been performed.',
+    good: 'An independent contract review is in progress. No completed independent security audit report has been published.',
   },
   {
     bad: 'Zero fees, zero gas, zero friction. Just pure trading, supercharged.',

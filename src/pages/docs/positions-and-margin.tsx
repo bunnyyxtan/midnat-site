@@ -21,15 +21,16 @@ export default function PositionsAndMargin() {
     <DocsLayout
       slug={DOC.slug}
       title={DOC.title}
-      standfirst="Every position carries its own collateral and its own risk. This page defines equity and maintenance margin, the exact conditions to open and close, and the ways a position can fail."
+      standfirst="Every position carries isolated margin drawn from the Trading Account. This page defines equity and maintenance margin, the exact conditions to open and close, and the ways a position can fail."
       meta={{ title: DOC.title, description: DOC.summary, path: docHref(DOC.slug), type: 'article' }}
     >
       <Section id="isolated" title="Isolated margin">
         <Prose>
           <p>
-            Margin is isolated on this deployment: each position holds the collateral you assigned to it and nothing
-            else. A loss on one position cannot draw on the margin of another, and it cannot draw on your undeposited
-            balance. The most a single position can lose you is the margin behind it. There is no cross margin.
+            Margin is isolated on this deployment: each position holds the margin assigned from your Trading Account
+            and nothing else. A loss on one position cannot draw on another position's margin, your remaining available
+            Trading Account balance or tokens still in your Wallet. The most a single position can lose you is the
+            margin behind it. There is no cross margin.
           </p>
           <p>
             Notional size is the full market value of the position, not the margin you post. Your leverage is notional
@@ -37,6 +38,11 @@ export default function PositionsAndMargin() {
             margin is a higher leverage and a closer liquidation.
           </p>
         </Prose>
+        <Callout tone="note" title="The funds path">
+          Wallet to Trading Account to reserved position or order margin. A resting limit order reserves its required
+          amount until it fills, is cancelled or is cleared after expiry. LP Vault liquidity is separate from every
+          stage of that trader path.
+        </Callout>
       </Section>
 
       <Section id="equity" title="Equity and maintenance margin">

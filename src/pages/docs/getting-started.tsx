@@ -77,9 +77,9 @@ export default function GettingStarted() {
               {' '}{NETWORK.gasCurrency} per claim.
             </li>
             <li>
-              <strong>Testnet {COLLATERAL.symbol}.</strong> Positions written by the clearing house are margined in
-              {' '}{COLLATERAL.name} ({COLLATERAL.symbol}), and the collateral you assign to a position moves into the
-              clearing house when you open it. Collateral below covers where it comes from.
+              <strong>Testnet {COLLATERAL.symbol}.</strong> Deposit trader collateral into the Trading Account before
+              the order. A market order assigns its margin to a position. A resting limit order reserves its margin plus
+              quoted open fee until fill, cancellation, or on-chain expiry. Collateral below covers where it comes from.
             </li>
           </ol>
           <p>
@@ -128,34 +128,33 @@ export default function GettingStarted() {
         </Prose>
       </Section>
 
-      <Section id="deposit" title="Collateral">
+      <Section id="deposit" title="Trading Account collateral">
         <Prose>
           <p>
-            Collateral is a transfer, not a figure. The clearing house holds it against your account, where it is not
-            pooled with liquidity provider capital and not lent out, and the margin behind a position is the
-            denominator of its leverage.
+            Funds begin in your Wallet. A deposit moves trader collateral into the clearing house and credits it to your
+            Trading Account, where available balance can fund a position or order. LP Vault deposits are separate
+            liquidity-provider positions and never fund your Trading Account.
           </p>
           <p>
-            The order ticket handles the transfer for you when it has to. If the clearing house is not yet approved to
-            move your {COLLATERAL.symbol}, it asks your wallet to approve it; if your account there does not already
-            hold enough margin, it sends a deposit before the open. Each of those is its own transaction and each
-            costs {NETWORK.gasCurrency}, which is why a first trade can ask you to sign more than once.
+            The order ticket handles the transfer when it has to. It asks for an ERC-20 approval only if the clearing
+            house allowance is insufficient, then deposits exactly the Trading Account shortfall, then submits the
+            market order or on-chain resting limit order. Each step is its own wallet-signed transaction and costs{' '}
+            {NETWORK.gasCurrency}. With enough available Trading Account balance, only the order transaction is needed.
           </p>
           <p>
-            There is no self-service {COLLATERAL.symbol} faucet on this deployment, so this page does not link one,
-            and the one channel this project publishes, <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
-            {PRIMARY_CONTACT.network}, is an account rather than a faucet: it hands out no collateral. If the wallet you
-            connect does not already hold testnet {COLLATERAL.symbol}, you can read every market and every position
-            here, but you cannot open one.
+            This deployment does not publish a collateral faucet. You need testnet {COLLATERAL.symbol} in the connected
+            Wallet before you can deposit or trade. The project contact,{' '}
+            <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
+            {PRIMARY_CONTACT.network}, is not a faucet.
           </p>
         </Prose>
         <KeyValue
           items={[
             { key: 'Collateral asset', value: `${COLLATERAL.name} (${COLLATERAL.symbol})` },
             { key: 'Token decimals', value: `${COLLATERAL.decimals}` },
-            { key: 'Custody', value: 'MidnatClearingHouse, per account' },
+            { key: 'Custody', value: 'MidnatClearingHouse, credited per-wallet to the Trading Account' },
             { key: 'Minimum collateral', value: collateralAmount(GLOBALS.minCollateral, 2) },
-            { key: 'Held by MIDNAT', value: 'Nothing. The interface never takes custody' },
+            { key: 'Interface custody', value: 'None. Deposited collateral is held by the clearing house on chain' },
           ]}
         />
       </Section>

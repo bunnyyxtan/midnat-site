@@ -238,8 +238,10 @@ export default function Whitepaper() {
         <H3 id="architecture-collateral">The collateral asset</H3>
         <Prose>
           <p>
-            All margin and all liquidity is denominated in {COLLATERAL.name} ({COLLATERAL.symbol}), a token with{' '}
-            {COLLATERAL.decimals} decimals held at a single address on this chain. It is not a mock token in this
+            Trader margin and vault liquidity are both denominated in {COLLATERAL.name} ({COLLATERAL.symbol}), a token
+            with {COLLATERAL.decimals} decimals at one canonical address on this chain. Their custody is separate:
+            Wallet funds move into the Trading Account, where available balance can be reserved for positions and
+            resting orders; liquidity-provider funds are accounted for by the LP Vault. It is not a mock token in this
             deployment. On a test network it is still a testnet value with no monetary worth: {CANONICAL.testnet}
           </p>
         </Prose>
@@ -451,11 +453,12 @@ export default function Whitepaper() {
       <Section id="execution" title="7. Execution and pricing">
         <Prose>
           <p>
-            There is no order book and no resting depth. A fill price is a formula applied to the anchored reference
-            price. Two terms move the price against the trader. The base spread is a fixed, tier-set charge applied on
-            entry and exit. The impact term scales with how much of the venue's capacity on that side the order
-            consumes, so each additional unit of the crowded side fills at a worse price than the last. The impact term
-            is bounded by a per-market maximum, so it cannot grow without limit.
+            There is no order-book depth or counterparty queue. Limit orders can rest in the clearing house and appear
+            in Open Orders, but every eventual fill price is a formula applied to the anchored reference price. Two
+            terms move that price against the trader. The base spread is a fixed, tier-set charge applied on entry and
+            exit. The impact term scales with how much of the venue's capacity on that side the order consumes, so each
+            additional unit of the crowded side fills at a worse price than the last. The impact term is bounded by a
+            per-market maximum, so it cannot grow without limit.
           </p>
           <p>
             Because both terms work against the trader, a position is underwater against the reference price the moment

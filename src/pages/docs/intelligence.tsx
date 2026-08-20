@@ -55,8 +55,31 @@ export default function Intelligence() {
               value: `${INTELLIGENCE.askQuestionsPerMinutePerAddress} questions per minute across one address`,
             },
             { key: 'Ask concurrency', value: `${INTELLIGENCE.askConcurrentRequests} in flight at once` },
+            {
+              key: 'Daily allowance',
+              value: `${INTELLIGENCE.askUnitsPerDayConnected} units with a wallet connected, ${INTELLIGENCE.askUnitsPerDayVisitor} without`,
+            },
+            {
+              key: 'What a question costs',
+              value: `${INTELLIGENCE.askUnitsPerQuestion} unit, or ${INTELLIGENCE.askUnitsPerPortfolioQuestion} for a whole-portfolio question`,
+            },
           ]}
         />
+        <Prose>
+          <p>
+            The per-minute ceilings are there to stop scripts, not people. The allowance that a working trader can
+            actually reach is the daily one: {INTELLIGENCE.askUnitsPerDayConnected} units with a wallet connected and{' '}
+            {INTELLIGENCE.askUnitsPerDayVisitor} without, refilling steadily across{' '}
+            {INTELLIGENCE.askUnitsRefillHours} hours rather than resetting at a fixed hour. A question about a market,
+            an order or a position costs one unit. A question about the whole portfolio costs two, because the server
+            assembles and sends more. Answers the deterministic engine produces on its own draw no units at all.
+          </p>
+          <p>
+            Model capacity for the day is finite for MIDNAT as well. When it runs out, Intelligence degrades to the
+            deterministic copy described above for everyone, rather than queueing anyone behind it. You are told when an
+            allowance is what shortened an answer.
+          </p>
+        </Prose>
       </Section>
 
       <Section id="reads" title="What the model reads">

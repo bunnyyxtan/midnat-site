@@ -2,16 +2,59 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "trailingSlash": false,
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/protocol", "destination": "/index.html" },
+    { "source": "/markets", "destination": "/index.html" },
+    { "source": "/fees", "destination": "/index.html" },
+    { "source": "/risk", "destination": "/index.html" },
+    { "source": "/contracts", "destination": "/index.html" },
+    { "source": "/deployments", "destination": "/index.html" },
+    { "source": "/verify", "destination": "/index.html" },
+    { "source": "/security", "destination": "/index.html" },
+    { "source": "/status", "destination": "/index.html" },
+    { "source": "/changelog", "destination": "/index.html" },
+    { "source": "/whitepaper", "destination": "/index.html" },
+    { "source": "/brand", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
+    { "source": "/docs", "destination": "/index.html" },
+    { "source": "/docs/how-it-works", "destination": "/index.html" },
+    { "source": "/docs/getting-started", "destination": "/index.html" },
+    { "source": "/docs/first-trade", "destination": "/index.html" },
+    { "source": "/docs/refusal-rules", "destination": "/index.html" },
+    { "source": "/docs/glossary", "destination": "/index.html" },
+    { "source": "/docs/markets-and-tiers", "destination": "/index.html" },
+    { "source": "/docs/positions-and-margin", "destination": "/index.html" },
+    { "source": "/docs/execution-and-pricing", "destination": "/index.html" },
+    { "source": "/docs/funding", "destination": "/index.html" },
+    { "source": "/docs/liquidation", "destination": "/index.html" },
+    { "source": "/docs/vault", "destination": "/index.html" },
+    { "source": "/docs/deferred-payouts", "destination": "/index.html" },
+    { "source": "/docs/reference-engine", "destination": "/index.html" },
+    { "source": "/docs/oracle-anchor", "destination": "/index.html" },
+    { "source": "/docs/market-hours", "destination": "/index.html" },
+    { "source": "/docs/intelligence", "destination": "/index.html" },
+    { "source": "/docs/api", "destination": "/index.html" },
+    { "source": "/legal", "destination": "/index.html" },
+    { "source": "/legal/terms", "destination": "/index.html" },
+    { "source": "/legal/privacy", "destination": "/index.html" },
+    { "source": "/legal/risk-disclosure", "destination": "/index.html" },
+    { "source": "/legal/testnet", "destination": "/index.html" },
+    { "source": "/legal/ai-disclosure", "destination": "/index.html" },
+    { "source": "/legal/market-data", "destination": "/index.html" },
+    { "source": "/legal/acceptable-use", "destination": "/index.html" },
+    { "source": "/legal/cookies", "destination": "/index.html" },
+    { "source": "/legal/licenses", "destination": "/index.html" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com; font-src 'self' data: https://cdn.fontshare.com https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://app.midnat.xyz; upgrade-insecure-requests"
+        },
         {
           "key": "X-Content-Type-Options",
           "value": "nosniff"

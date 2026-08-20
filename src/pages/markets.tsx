@@ -85,6 +85,8 @@ export default function Markets() {
           </p>
           <p>
             All markets settle in {COLLATERAL.name} ({COLLATERAL.symbol}) on {NETWORK.label}, chain {NETWORK.chainId}.
+            Trader funds move from Wallet to the Trading Account and become reserved margin when committed. LP deposits
+            remain separately accounted for by the Vault.
           </p>
         </Prose>
       </Section>

@@ -19,6 +19,7 @@ interface StorageKey {
  * Audited from the code, not a template. Sources:
  *   midnat/src/components/public/theme.tsx           theme
  *   app/src/lib/session.tsx                          wallet provider id
+ *   app/src/lib/trading-account-storage.ts           unresolved transfers
  *   app/src/lib/intelligence-identity.ts             fair-use session id
  *   app/src/lib/chart-store.ts                       chart prefs, drawings, tab
  *   app/src/lib/wallet/mobile-links.ts               wallet handoff
@@ -45,6 +46,15 @@ const KEYS: readonly StorageKey[] = [
     surface: 'Trading app',
     purpose: 'Stores which wallet provider you last connected with, so it can reconnect. It stores the provider identifier only, never your address.',
     lifetime: 'Until you disconnect or clear it',
+    essential: 'Yes',
+  },
+  {
+    name: 'midnat.trading-account.unresolved.v1',
+    store: 'localStorage',
+    surface: 'Trading app',
+    purpose:
+      'Persists an unresolved Trading Account deposit or withdrawal receipt when X Layer has not returned a final outcome, so the app cannot submit the same transfer twice and can reconcile it later. The record is not proof of success or failure.',
+    lifetime: 'Until the chain outcome is observed or the record is cleared',
     essential: 'Yes',
   },
   {
@@ -102,10 +112,12 @@ export default function Cookies() {
       actions={<PrintButton />}
       width="prose"
     >
-      <Callout tone="note" title="No cookie, no tracking, no banner">
-        MIDNAT sets no browser cookie. It stores a small number of keys in your browser's local and session storage,
-        all listed below. There is no analytics cookie, no advertising cookie and no cross site tracking, so no consent
-        banner is shown because nothing here requires consent.
+      <Callout tone="note" title="No MIDNAT cookie, no tracking, no banner">
+        MIDNAT's own code sets no browser cookie. It stores a small number of keys in your browser's local and session
+        storage, all listed below. There is no analytics cookie, no advertising cookie and no cross site tracking, so no
+        consent banner is shown because nothing MIDNAT sets requires consent. The hosting platform that serves the
+        deployment does set one routing cookie of its own, named GAESA, which MIDNAT does not control and cannot delete
+        from application code. It is described under Cookies below.
       </Callout>
 
       <Section id="keys" title="Every key we store">
@@ -147,13 +159,20 @@ export default function Cookies() {
       <Section id="cookies" title="Cookies">
         <Prose>
           <p>
-            No part of MIDNAT sets a browser cookie. The interface and this site use local and session storage instead,
-            which stays on your device and is not sent with every request the way a cookie is. The API server reads
-            request headers but does not set a session cookie or any other cookie.
+            No part of MIDNAT's own code sets a browser cookie. The interface and this site use local and session
+            storage instead, which stays on your device and is not sent with every request the way a cookie is. The API
+            server reads request headers but does not set a session cookie or any other cookie.
           </p>
           <p>
-            Because there is no cookie and no tracking technology, there is nothing to consent to under the rules that
-            govern consent banners, and none is shown.
+            One cookie does reach your browser on the trading app, and MIDNAT does not set it. The hosting platform that
+            serves the deployment sets a routing cookie of its own, named GAESA, on this origin. It keeps your requests
+            going to the same server instance, lasts about 30 days, and is cleared when you clear site data. It carries
+            no MIDNAT data and is not used for analytics, advertising or profiling. MIDNAT does not read it and cannot
+            delete it from application code.
+          </p>
+          <p>
+            Because nothing MIDNAT sets is a cookie or a tracking technology, there is nothing MIDNAT asks you to
+            consent to under the rules that govern consent banners, and none is shown.
           </p>
         </Prose>
       </Section>

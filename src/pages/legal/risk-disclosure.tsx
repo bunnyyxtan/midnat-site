@@ -28,9 +28,9 @@ export default function RiskDisclosure() {
       width="prose"
     >
       <Callout tone="caution" title="Total loss is a realistic outcome">
-        A leveraged position can lose all of the collateral assigned to it. On this deployment those balances are
-        testnet values, but the mechanics that cause the loss are real and they are the mechanics you would face with
-        real money.
+        A leveraged position can lose all of the collateral assigned to it. On this deployment the collateral is
+        testnet USD₮0 with no monetary value. This testnet demonstrates contract mechanics, but does not establish that
+        any future real-value deployment is safe, available, or identical.
       </Callout>
 
       <Section id="leverage" title="Leverage and liquidation">

@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -16,7 +16,7 @@ import {
   footerGroups,
   legalHref,
 } from '@/lib/site-map';
-import { CANONICAL, LIMITATIONS, MARKETS } from '@/lib/protocol-registry';
+import { CANONICAL, LIMITATIONS, MARKETS, SECURITY_REVIEW } from '@/lib/protocol-registry';
 import { CONTACT_CHANNELS, HAS_EMAIL_CHANNEL, PRIMARY_CONTACT, X_HANDLE } from '@/lib/contact';
 import { APP_URL, appHref } from '@/lib/config';
 import { API_BASE } from '@/lib/api';
@@ -114,6 +114,84 @@ describe('every link the site offers resolves to a page', () => {
       }
     }
     expect(offenders, 'a hard-coded link points at no route').toEqual([]);
+  });
+});
+
+describe('the footer follows the active deployment and product surfaces', () => {
+  const footerSource = SOURCES.find((source) => source.rel.endsWith('PublicFooter.tsx'))!.text;
+  const manifest = JSON.parse(
+    readFileSync(join(SRC, 'deployments', '1952.json'), 'utf8'),
+  ) as {
+    readonly completedAt: string;
+    readonly supersedes: {
+      readonly vault: string;
+      readonly clearingHouse: string;
+    };
+  };
+
+  it('derives the displayed contract deployment date from the active manifest', () => {
+    expect(footerSource).toContain('utcDate(DEPLOYMENT.completedAt)');
+    expect(footerSource).not.toMatch(/contracts deployed\s+20\d{2}-\d{2}-\d{2}/i);
+    expect(Date.parse(manifest.completedAt)).not.toBeNaN();
+  });
+
+  it('matches the canonical protocol manifest when this site is checked out inside the protocol workspace', () => {
+    const canonicalPath = join(SRC, '..', '..', '..', 'lib', 'protocol', 'deployments', '1952.json');
+    if (!existsSync(canonicalPath)) return;
+    const canonical = JSON.parse(readFileSync(canonicalPath, 'utf8')) as unknown;
+    expect(manifest, 'the public-site manifest drifted from the protocol manifest').toEqual(canonical);
+  });
+
+  it('keeps every internal footer destination registered in the router', () => {
+    const footerLinks = [
+      ...footerGroups().flatMap((group) => group.links),
+      ...FOOTER_META_LINKS,
+    ].filter((link) => !link.external);
+    const missing = footerLinks.filter((link) => !ROUTES.has(link.href));
+    expect(missing, 'an internal footer destination has no registered route').toEqual([]);
+  });
+
+  it('sends the four Product links to the current app.midnat.xyz routes', () => {
+    expect(APP_URL).toBe('https://app.midnat.xyz');
+    const product = footerGroups().find((group) => group.title === 'Product');
+    expect(product?.links).toEqual([
+      { label: 'Trade', href: appHref('/trade'), external: true },
+      { label: 'Markets', href: appHref('/markets'), external: true },
+      { label: 'Vault', href: appHref('/vault'), external: true },
+      { label: 'Portfolio', href: appHref('/portfolio'), external: true },
+    ]);
+  });
+
+  it('does not render superseded contract addresses or hard-coded deployment dates', () => {
+    const renderedSources = SOURCES.filter(
+      (source) => source.rel.startsWith('pages/') || source.rel.startsWith('components/'),
+    );
+    const staleAddresses = [manifest.supersedes.vault, manifest.supersedes.clearingHouse];
+    const staleAddressOffenders = renderedSources.flatMap((source) =>
+      staleAddresses
+        .filter((address) => source.text.toLowerCase().includes(address.toLowerCase()))
+        .map((address) => `${source.rel}: ${address}`),
+    );
+    expect(staleAddressOffenders, 'a rendered source contains a superseded contract address').toEqual([]);
+
+    const hardCodedDateOffenders = renderedSources
+      .filter((source) => /20\d{2}-\d{2}-\d{2}/.test(source.text))
+      .map((source) => source.rel);
+    expect(hardCodedDateOffenders, 'rendered deployment dates must come from the manifest').toEqual([]);
+  });
+});
+
+describe('the in-progress independent review is described consistently', () => {
+  it('does not publish an obsolete claim that no independent review has occurred', () => {
+    expect(SECURITY_REVIEW.status).toBe('IN_PROGRESS');
+    const obsolete = [
+      /No third-party audit firm has reviewed this code/i,
+      /No independent security audit has been performed/i,
+    ];
+    const offenders = SOURCES.filter((source) =>
+      obsolete.some((pattern) => pattern.test(proseOf(source.text))),
+    ).map((source) => source.rel);
+    expect(offenders, 'public prose contradicts the in-progress independent review').toEqual([]);
   });
 });
 
@@ -843,9 +921,29 @@ describe('the cookies notice matches what the code actually stores', () => {
   const cookies = SOURCES.find((f) => f.rel === 'pages/legal/cookies.tsx')!;
   const summary = LEGAL.find((l) => l.slug === 'cookies')!.summary;
 
-  it('states, on the page, that no cookie is set', () => {
+  it('states, on the page, that MIDNAT sets no cookie of its own', () => {
     expect(cookies.text).toMatch(/sets no browser cookie|no cookie/i);
     expect(cookies.text).toMatch(/no consent banner|none is shown/i);
+  });
+
+  it('names the hosting cookie the live deployment actually sets', () => {
+    // A live browser on the trading app receives one cookie, set by the
+    // hosting platform. The page must name it and its purpose, or it reads as
+    // a false claim that no cookie reaches the browser at all.
+    expect(cookies.text).toMatch(/GAESA/);
+    expect(cookies.text).toMatch(/hosting platform/i);
+    expect(cookies.text).toMatch(/routing/i);
+  });
+
+  it('makes no unqualified claim that MIDNAT sets no cookie', () => {
+    // The live deployment does receive a cookie. Any sentence that says MIDNAT
+    // sets no cookie without qualifying it as MIDNAT's own code is false as a
+    // reader reads it.
+    const unqualified = /\bMIDNAT sets no (?:browser )?cookie\b(?!\s+of its own)/i;
+    expect(
+      unqualified.test(cookies.text),
+      'the cookies page makes an unqualified "MIDNAT sets no cookie" claim',
+    ).toBe(false);
   });
 
   it('does not promise a cookie the page then denies', () => {

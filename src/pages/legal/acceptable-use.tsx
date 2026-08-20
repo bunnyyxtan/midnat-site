@@ -85,8 +85,23 @@ export default function AcceptableUse() {
               value: `${INTELLIGENCE.askQuestionsPerMinutePerAddress}`,
             },
             { key: 'Concurrent questions in flight', value: `${INTELLIGENCE.askConcurrentRequests}` },
+            {
+              key: 'Units per day, with a wallet connected',
+              value: `${INTELLIGENCE.askUnitsPerDayConnected}`,
+            },
+            { key: 'Units per day, per visitor', value: `${INTELLIGENCE.askUnitsPerDayVisitor}` },
+            {
+              key: 'Units a question costs',
+              value: `${INTELLIGENCE.askUnitsPerQuestion}, or ${INTELLIGENCE.askUnitsPerPortfolioQuestion} for a whole-portfolio question`,
+            },
           ]}
         />
+        <Prose>
+          <p>
+            The daily allowance refills steadily across {INTELLIGENCE.askUnitsRefillHours} hours and is the limit a
+            person is likely to meet. The per-minute ceilings above sit on top of it to stop automation.
+          </p>
+        </Prose>
         <Prose>
           <p>
             Other read endpoints are offered on best effort and may be rate limited or throttled without notice to keep

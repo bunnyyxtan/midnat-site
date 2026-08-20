@@ -17,10 +17,11 @@ export default function ExecutionAndPricing() {
       <Section id="composition" title="How a fill price is built">
         <Prose>
           <p>
-            There is no order book on this venue, no depth ladder and no resting quotes. When you open or close, the
-            clearing house builds a single price from three inputs and fills the whole order at it. The first input is
-            the anchored reference price, the number the oracle anchor holds for that market. The next two move the
-            price against you: a base spread and an impact term.
+            There is no order book on this venue and no depth ladder to cross. Market orders and executable limit orders
+            fill against the clearing house's formula, not another trader's quote. When a fill executes, the clearing
+            house builds one price from three inputs and fills the whole order at it. The first input is the anchored
+            reference price, the number the oracle anchor holds for that market. The next two move the price against
+            you: a base spread and an impact term.
           </p>
           <p>
             One party builds this price: the clearing house, reading the anchored mark at the moment your call
@@ -144,8 +145,10 @@ sideShare = order size / remaining capacity on that side`}</CodeBlock>
         <Prose>
           <ul>
             <li>
-              There is no order book and no depth. You cannot place a resting limit order, and there is no queue of
-              other traders' prices to fill against.
+              There is no order-book depth or queue of other traders' prices. A submitted limit order can rest in the
+              clearing house until it is filled, cancelled or expired. While it rests, its required Trading Account
+              margin is reserved. At execution the contract recomputes its formula price and fills only at the limit or
+              better; otherwise the order stays open.
             </li>
             <li>
               There are no partial fills. An order either fills in full at the computed price or reverts. If a cap would

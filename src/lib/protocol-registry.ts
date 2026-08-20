@@ -325,6 +325,24 @@ export const LEVERAGE_RANGE = {
    Deployment history and owner operations
    ------------------------------------------------------------------------- */
 
+export interface OwnerOperationRecord {
+  readonly at: string;
+  readonly action: string;
+  readonly by: string;
+  readonly txHash: string;
+  readonly before: {
+    readonly globalOiFactorBps: number;
+    readonly minCollateralE6: string;
+    readonly minSizeE6: string;
+  };
+  readonly after: {
+    readonly globalOiFactorBps: number;
+    readonly minCollateralE6: string;
+    readonly minSizeE6: string;
+  };
+  readonly reason: string;
+}
+
 export const DEPLOYMENT = {
   startedAt: deployment.startedAt,
   completedAt: deployment.completedAt,
@@ -332,7 +350,8 @@ export const DEPLOYMENT = {
   wired: deployment.wired,
   totalGasUsed: deployment.gas.totalGasUsed,
   receipts: deployment.receipts,
-  operations: deployment.operations,
+  operations: deployment.operations as readonly OwnerOperationRecord[],
+  supersedes: deployment.supersedes,
 } as const;
 
 /* -------------------------------------------------------------------------
@@ -409,6 +428,22 @@ export const INTELLIGENCE = {
   /** Shared-address ceiling: everyone behind one office or carrier NAT together. */
   askQuestionsPerMinutePerAddress: 250,
   askConcurrentRequests: 4,
+  /* The allowance that actually binds a person, in units over a rolling day.
+
+     The per-minute ceilings above exist to stop scripts and almost never
+     interrupt someone thinking. This is the one a working trader can reach, so
+     publishing the burst layer without it would advertise the wrong number.
+
+     Mirrors capacity.CONNECTED, capacity.ANONYMOUS, refillWindowHours and
+     weights in the engine's usage policy; the engine enforces, this file only
+     reports. Spending refills steadily across the window rather than resetting
+     at a fixed hour. */
+  askUnitsPerDayConnected: 300,
+  askUnitsPerDayVisitor: 75,
+  askUnitsRefillHours: 24,
+  /** A question costs one unit, a whole-portfolio question two, a deterministic answer none. */
+  askUnitsPerQuestion: 1,
+  askUnitsPerPortfolioQuestion: 2,
   provenanceFields: [
     'analysisContextHash',
     'inputsHash',
@@ -535,6 +570,13 @@ export const OPERATOR = {
   incorporated: false,
 } as const;
 
+export const SECURITY_REVIEW = {
+  status: 'IN_PROGRESS',
+  shortLabel: 'independent review in progress',
+  disclosure:
+    'An independent contract review is in progress, but no completed independent security audit report has been published. The contracts have also been reviewed internally, tested with a contract test suite and reproduced from source. None of that is a completed external audit.',
+} as const;
+
 export const CANONICAL = {
   /**
    * The system boundary, in one wording. Every page that describes the shape
@@ -551,11 +593,11 @@ export const CANONICAL = {
    * reads before trusting the venue with a position.
    */
   tradingPath:
-    'Trading in the MIDNAT app is a call to the deployed clearing house. The interface builds the call and quotes it against the contract, your own wallet signs and sends the transaction, and the contract prices it, checks it and records the position. X Layer keeps that record: the position, the collateral behind it, the price it filled at and the address that sent it are public from that moment. The MIDNAT API holds no position and takes no custody. Off chain it runs the reference engine, signs the reports the oracle anchor holds, posts a funding rate the contract clamps, and runs a liquidation keeper with no power a stranger does not also have; everything it shows you it reconstructs from what the chain already recorded.',
+    'Trading in MIDNAT begins with funds held in your own Wallet. Trader collateral deposited into the clearing house is credited to your Trading Account; LP Vault deposits are separate liquidity-provider positions and never fund it. Before a market order or an on-chain resting limit order, the interface may ask for an ERC-20 approval if the allowance is insufficient and an exact Trading Account deposit for any shortfall; each is a separate wallet-signed transaction. Your wallet signs and sends the order transaction. The clearing house prices and checks it. A marketable order records a position; a non-marketable limit order records a resting order and reserves its margin plus quoted open fee until fill, cancellation, or on-chain expiry. X Layer keeps those records public. The MIDNAT API takes no custody. Off chain it runs the reference engine, signs the reports the oracle anchor holds, posts a funding rate the contract clamps, and runs a liquidation keeper with no power a stranger does not also have; everything it shows you it reconstructs from what the chain already recorded.',
   testnet:
     'MIDNAT runs on X Layer Testnet. Positions, collateral and vault shares are testnet values with no monetary worth, and the deployment can be reset or replaced at any time.',
   noAudit:
-    'No independent security audit of the MIDNAT contracts has been performed. The contracts have been reviewed internally, tested with a contract test suite and reproduced from source, and none of that is an external audit.',
+    SECURITY_REVIEW.disclosure,
   notAdvice:
     'Nothing on this site or in the product is investment advice, a recommendation or an offer. MIDNAT does not know your circumstances and does not provide financial, legal or tax advice.',
   noOwnership:
@@ -567,7 +609,7 @@ export const CANONICAL = {
 
 /** Where the numbers on this site come from, cited on data-bearing pages. */
 export const SOURCES = {
-  manifest: 'lib/protocol/deployments/1952.json',
+  manifest: 'src/deployments/1952.json',
   deploymentReport: 'lib/protocol/MIDNAT-X-LAYER-TESTNET-DEPLOYMENT.md',
   economicModel: 'artifacts/app/MIDNAT-ECONOMIC-MODEL.md',
   contracts: 'lib/protocol/src',

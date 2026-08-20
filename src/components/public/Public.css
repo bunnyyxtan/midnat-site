@@ -536,6 +536,20 @@
   border-color: color-mix(in srgb, var(--ln-accent) 45%, transparent);
 }
 
+/*
+  Tap target. The compact desktop size measures 22px tall, which is a fine
+  mouse target and an unusable thumb target -- these buttons (print, copy)
+  sit in a header row next to text, so a miss lands on the document instead.
+  Widths, not pointer media, because a phone-width window on a laptop has the
+  same problem and `pointer: coarse` does not fire there.
+*/
+@media (max-width: 767px) {
+  .pub-copy-btn {
+    min-height: 40px;
+    padding-inline: 0.7rem;
+  }
+}
+
 /* -------------------------------------------------------------------------
    11. Docs chrome: sidebar, table of contents, breadcrumbs
    ------------------------------------------------------------------------- */
@@ -691,7 +705,7 @@ a.pub-card:hover,
 
 /* -------------------------------------------------------------------------
    12c. Footer legibility. The engraved plate is brightest exactly where the
-   small print sits — the water reflections run along the bottom of the plate —
+   small print sits, the water reflections run along the bottom of the plate —
    and mono type at 11px in ink-soft dissolved into them (owner report with a
    screenshot). The plate stays: a scrim in the page's own ground colour rises
    under the closing rails so the type has a ground, and the rails themselves

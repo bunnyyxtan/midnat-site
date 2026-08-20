@@ -2,8 +2,8 @@
   "status": "complete",
   "chainId": 1952,
   "rpcUrl": "https://testrpc.xlayer.tech/terigon",
-  "startedAt": "2026-08-17T05:35:50.659Z",
-  "completedAt": "2026-08-17T05:40:35.355Z",
+  "startedAt": "2026-08-20T13:21:01.788Z",
+  "completedAt": "2026-08-20T13:22:53.192Z",
   "deployer": "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
   "local": false,
   "collateral": {
@@ -27,26 +27,26 @@
       "provenance": "Deployed in P0 with solc 0.8.36 (standard pipeline, recorded in its own metadata trailer). This repo pins 0.8.26 with via-IR, so byte equality is not expected: a standard-pipeline rebuild of src/MidnatOracleAnchor.sol from this repo produces the identical 3093-byte body and differs only in 35 zero-push opcodes (PUSH0 vs DUP1), a compiler-patch encoding difference. runtimeCodeHash was pinned at first verification on 2026-08-17, not at deploy time."
     },
     "vault": {
-      "address": "0xdef6c364C2446894C622107223aa4AaA08bd74b5",
-      "deploymentBlock": 38486119,
-      "txHash": "0xbc15ec29e5cf10cb0eeb67d9025054d03b57ecfc7ec308cc44d7558254cd243a",
+      "address": "0x93C2dF60560f00FfdcA0F4c845B6c37344361b18",
+      "deploymentBlock": 38773235,
+      "txHash": "0xe1cb7f95d42e14bbeb1ea697a12944d4c4d8f52f7c2dab62090a0b39c8e07af2",
       "constructorArgs": [
         "0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c"
       ]
     },
     "clearingHouse": {
-      "address": "0x4F470bb282f4d31c8071D6Ec05C6bfE47E79181C",
-      "deploymentBlock": 38486123,
-      "txHash": "0x83bc008b7949d5403c2bbaeccf109339d464335ce05496c8638d53b36ad410ed",
+      "address": "0x256CF2fBaF0ad5412f8ac8aB405D2af8834Bf8D5",
+      "deploymentBlock": 38773245,
+      "txHash": "0x66e67e55b1f8586f02ab7b900e4c7a19c9127f6a220f15ebfa30041650890b7b",
       "constructorArgs": [
         "0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c",
         "0xD2D95fC530b579ae63Ea1E16c8a247a611859Cdb",
-        "0xdef6c364C2446894C622107223aa4AaA08bd74b5",
+        "0x93C2dF60560f00FfdcA0F4c845B6c37344361b18",
         "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
         "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
         8000,
-        "10000000",
-        "10000000"
+        "1000000",
+        "1000000"
       ]
     }
   },
@@ -82,10 +82,8 @@
         "maxConfidenceBps": 500,
         "maxPriceAgeSec": 120
       },
-      "txHash": "0x04e259d4cd35fa200760a2d3ac838f13d9b07f68e25dd3f63abbce6f480da187",
-      "block": 38486132,
-      "adopted": true,
-      "note": "listed by the first run, which crashed on a lagging RPC read before recording it; hash recovered from the MarketListed event"
+      "txHash": "0x460e787a0dd1dbbbdff68e21a29dd859ee3d2ef6ec96d4923466305522b46f0f",
+      "block": 38773310
     },
     {
       "symbol": "GOOGL",
@@ -105,8 +103,8 @@
         "maxConfidenceBps": 500,
         "maxPriceAgeSec": 120
       },
-      "txHash": "0x77e32f88002a1b3ba5e667ae84d3b916e119529354297f6161f4e45360dbc4c0",
-      "block": 38486385
+      "txHash": "0x1286298def6fc65012ef6fab442f7fc497478e1ca7bf080a8b1377835a9801bd",
+      "block": 38773316
     },
     {
       "symbol": "NVDA",
@@ -126,8 +124,8 @@
         "maxConfidenceBps": 400,
         "maxPriceAgeSec": 120
       },
-      "txHash": "0x7d05eca900ed9afd5de72f52f5783f7a16c91dc4ee82910ba39e9b3847e31fc9",
-      "block": 38486388
+      "txHash": "0x62d76dd7c467ce4bcf1b702fc2cc5b85fb88b44b783c17e1d8c862c99b342c8a",
+      "block": 38773322
     },
     {
       "symbol": "TSLA",
@@ -147,8 +145,8 @@
         "maxConfidenceBps": 400,
         "maxPriceAgeSec": 120
       },
-      "txHash": "0x4e85bdfd15b720aff65c4cf2e50f48de32f6efda6e011b588c805e704754df57",
-      "block": 38486392
+      "txHash": "0x8b7ecb794166632b170a1c8faa308963849739dbfd7e058936036f9a09dc0308",
+      "block": 38773327
     },
     {
       "symbol": "HOOD",
@@ -168,92 +166,71 @@
         "maxConfidenceBps": 300,
         "maxPriceAgeSec": 120
       },
-      "txHash": "0x67daa685de19571c6c26790daac27709ff797c48ae18fb667d855a03397e4b1e",
-      "block": 38486396
+      "txHash": "0x2bc432262234ed444a6568e7f57af20a5b4413823dd7bdf747748d8b4d63c823",
+      "block": 38773333
     }
   ],
   "gas": {
-    "totalGasUsed": "6428882",
+    "totalGasUsed": "7267466",
     "gasPriceWei": "20000001",
-    "estimatedCostWei": "125294946264747",
-    "estimatedCost": "0.000128577646428882",
-    "note": "AAPL listing gas read from its receipt; cost priced at 0.020000001 gwei"
+    "estimatedCostWei": "145349327267466",
+    "estimatedCost": "0.000145349327267466"
   },
   "receipts": [
     {
       "step": "deploy MidnatVault",
-      "txHash": "0xbc15ec29e5cf10cb0eeb67d9025054d03b57ecfc7ec308cc44d7558254cd243a",
-      "block": 38486119,
+      "txHash": "0xe1cb7f95d42e14bbeb1ea697a12944d4c4d8f52f7c2dab62090a0b39c8e07af2",
+      "block": 38773235,
       "gasUsed": "1526178"
     },
     {
       "step": "deploy MidnatClearingHouse",
-      "txHash": "0x83bc008b7949d5403c2bbaeccf109339d464335ce05496c8638d53b36ad410ed",
-      "block": 38486123,
-      "gasUsed": "4102998"
+      "txHash": "0x66e67e55b1f8586f02ab7b900e4c7a19c9127f6a220f15ebfa30041650890b7b",
+      "block": 38773245,
+      "gasUsed": "4941472"
     },
     {
       "step": "wireClearingHouse",
-      "txHash": "0xa4bb4285266fdd0fcf81cf25f4586531ca2f2a06e80af9e804373cfedf597c5a",
-      "block": 38486129,
+      "txHash": "0x0a90302b29e0b118260b583fcf2d78e1cf1a4eaa3790b057ee03c419c24fcbc6",
+      "block": 38773305,
       "gasUsed": "47419"
     },
     {
       "step": "listMarket AAPL",
-      "txHash": "0x04e259d4cd35fa200760a2d3ac838f13d9b07f68e25dd3f63abbce6f480da187",
-      "block": 38486132,
-      "gasUsed": "164135",
-      "note": "recovered from the MarketListed event after the first run crashed on a lagging RPC read"
+      "txHash": "0x460e787a0dd1dbbbdff68e21a29dd859ee3d2ef6ec96d4923466305522b46f0f",
+      "block": 38773310,
+      "gasUsed": "164157"
     },
     {
       "step": "listMarket GOOGL",
-      "txHash": "0x77e32f88002a1b3ba5e667ae84d3b916e119529354297f6161f4e45360dbc4c0",
-      "block": 38486385,
-      "gasUsed": "147047"
+      "txHash": "0x1286298def6fc65012ef6fab442f7fc497478e1ca7bf080a8b1377835a9801bd",
+      "block": 38773316,
+      "gasUsed": "147069"
     },
     {
       "step": "listMarket NVDA",
-      "txHash": "0x7d05eca900ed9afd5de72f52f5783f7a16c91dc4ee82910ba39e9b3847e31fc9",
-      "block": 38486388,
-      "gasUsed": "147035"
+      "txHash": "0x62d76dd7c467ce4bcf1b702fc2cc5b85fb88b44b783c17e1d8c862c99b342c8a",
+      "block": 38773322,
+      "gasUsed": "147057"
     },
     {
       "step": "listMarket TSLA",
-      "txHash": "0x4e85bdfd15b720aff65c4cf2e50f48de32f6efda6e011b588c805e704754df57",
-      "block": 38486392,
-      "gasUsed": "147035"
+      "txHash": "0x8b7ecb794166632b170a1c8faa308963849739dbfd7e058936036f9a09dc0308",
+      "block": 38773327,
+      "gasUsed": "147057"
     },
     {
       "step": "listMarket HOOD",
-      "txHash": "0x67daa685de19571c6c26790daac27709ff797c48ae18fb667d855a03397e4b1e",
-      "block": 38486396,
-      "gasUsed": "147035"
-    },
-    {
-      "step": "setGlobalRiskParams",
-      "txHash": "0x771467ed6448c833e1e26b89e10ab64aa5858d052174c47b16389c4791a1db74",
-      "block": 38488330,
-      "gasUsed": "39053",
-      "note": "post-deployment owner operation; excluded from the deployment gas total"
+      "txHash": "0x2bc432262234ed444a6568e7f57af20a5b4413823dd7bdf747748d8b4d63c823",
+      "block": 38773333,
+      "gasUsed": "147057"
     }
   ],
-  "operations": [
-    {
-      "at": "2026-08-17T06:12:48.302Z",
-      "action": "setGlobalRiskParams",
-      "by": "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
-      "txHash": "0x771467ed6448c833e1e26b89e10ab64aa5858d052174c47b16389c4791a1db74",
-      "before": {
-        "globalOiFactorBps": 8000,
-        "minCollateralE6": "10000000",
-        "minSizeE6": "10000000"
-      },
-      "after": {
-        "globalOiFactorBps": 8000,
-        "minCollateralE6": "1000000",
-        "minSizeE6": "1000000"
-      },
-      "reason": "Capacity is derived from live vault NAV, so a 10.000000 floor required 41.666668 of NAV before any position could be opened — more than a faucet user, or this deployment, could supply. Lowered to 1.000000 by owner decision."
-    }
-  ]
+  "operations": [],
+  "supersedes": {
+    "vault": "0xdef6c364C2446894C622107223aa4AaA08bd74b5",
+    "clearingHouse": "0x4F470bb282f4d31c8071D6Ec05C6bfE47E79181C",
+    "snapshotBlock": 38773143,
+    "note": "State was not migrated. The superseded contracts remain deployed and callable so LP shares and open positions stay redeemable there. See evidence/migration/pre-migration-snapshot.json."
+  }
 }

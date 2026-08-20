@@ -67,6 +67,15 @@ export default function Privacy() {
                 <td>Until you disconnect or clear</td>
               </tr>
               <tr>
+                <td>Unresolved Trading Account transfer receipt</td>
+                <td>Browser local storage, key midnat.trading-account.unresolved.v1</td>
+                <td>
+                  Prevent the same deposit or withdrawal from being submitted twice while X Layer has not returned a
+                  final outcome, and reconcile it later. The record is not proof of success or failure
+                </td>
+                <td>Until the chain outcome is observed or the record is cleared</td>
+              </tr>
+              <tr>
                 <td>Chart preferences, drawings and selected tab</td>
                 <td>Browser local storage, in the trading app</td>
                 <td>Keep your chart set up between visits</td>
@@ -115,6 +124,12 @@ export default function Privacy() {
                 <td>Render the typeface</td>
                 <td>Their own logs</td>
               </tr>
+              <tr>
+                <td>Routing cookie, named GAESA</td>
+                <td>Set by the hosting platform on this origin, not by MIDNAT</td>
+                <td>Keeps your requests going to the same server instance. Carries no MIDNAT data</td>
+                <td>About 30 days, cleared when you clear site data. MIDNAT cannot delete it</td>
+              </tr>
             </tbody>
           </table>
         </TableScroll>
@@ -123,14 +138,17 @@ export default function Privacy() {
       <Section id="browser" title="What the interface stores in your browser">
         <Prose>
           <p>
-            The interface keeps a small number of preferences in your browser's local and session storage. It sets no
-            cookie at all, on this site or in the trading app, so there is nothing here that follows you between sites
-            and no consent banner to dismiss. None of these keys hold your wallet address, a key or a balance.
+            The interface keeps a small number of preferences in your browser's local and session storage. MIDNAT's
+            own code sets no cookie, on this site or in the trading app. The hosting platform that serves the deployment
+            sets one routing cookie of its own, named GAESA, which MIDNAT does not control and cannot delete from
+            application code. It carries no MIDNAT data and is not used for analytics, advertising or profiling. None of
+            these keys hold your wallet address, a key or a balance.
           </p>
           <p>
             The wallet key stores only which wallet extension you chose, so the interface can offer to reconnect. Your
-            live address is read from the wallet each time through the wallet standard, not saved by this site. The full
-            list is in{' '}
+            live address is read from the wallet each time through the wallet standard, not saved by this site. A
+            Trading Account transfer may additionally persist an unresolved receipt until the chain outcome is observed
+            or the record is cleared. The full list is in{' '}
             <Link href="/legal/cookies" className="pub-link">
               cookies and local storage
             </Link>
@@ -196,6 +214,13 @@ export default function Privacy() {
               Font providers receive a normal browser request when a page loads, which exposes standard network
               metadata such as your IP address to them.
             </li>
+            <li>
+              The hosting platform that serves the deployment sits in front of every request, sets its own routing
+              cookie named GAESA, and keeps its own connection records in the ordinary course of serving traffic. That
+              is outside MIDNAT's control. It also injects a feedback-widget script tag into the served page; the
+              page's content security policy allows scripts only from this origin, so the browser refuses to load it
+              and it never runs. MIDNAT sends it no data.
+            </li>
           </ul>
         </Prose>
       </Section>
@@ -205,7 +230,11 @@ export default function Privacy() {
           <ul>
             <li>No analytics of any kind, and no analytics SDK in either front end.</li>
             <li>No advertising and no advertising network.</li>
-            <li>No tracking pixels and no third party tracking scripts.</li>
+            <li>
+              No tracking pixels, and no third party tracking script in the MIDNAT source. The hosting platform injects
+              one feedback-widget script tag into the served page, which the page's content security policy refuses to
+              load, so it never runs.
+            </li>
             <li>No remote error telemetry: browser errors go to the console only.</li>
             <li>No selling or sharing of data for marketing.</li>
             <li>No profiles, no cross site identifiers and no account system.</li>

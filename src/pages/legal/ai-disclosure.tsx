@@ -40,6 +40,10 @@ export default function AiDisclosure() {
               key: 'Ask rate limit',
               value: `${INTELLIGENCE.askQuestionsPerMinute} per minute, ${INTELLIGENCE.askQuestionsPerMinuteConnected} with a wallet connected, ${INTELLIGENCE.askConcurrentRequests} concurrent`,
             },
+            {
+              key: 'Ask daily allowance',
+              value: `${INTELLIGENCE.askUnitsPerDayConnected} units with a wallet connected, ${INTELLIGENCE.askUnitsPerDayVisitor} without, refilling across ${INTELLIGENCE.askUnitsRefillHours} hours`,
+            },
           ]}
         />
       </Section>

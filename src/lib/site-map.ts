@@ -198,25 +198,25 @@ export const LEGAL: readonly LegalMeta[] = [
     slug: 'terms',
     title: 'Terms of use',
     summary: 'The terms under which you may use the MIDNAT interface and interact with the contracts.',
-    updated: '2026-08-18',
+    updated: '2026-08-21',
   },
   {
     slug: 'privacy',
     title: 'Privacy notice',
     summary: 'Every piece of data MIDNAT touches, where it goes, and how long it stays. Written from an audit of the code, not from a template.',
-    updated: '2026-08-18',
+    updated: '2026-08-21',
   },
   {
     slug: 'risk-disclosure',
     title: 'Risk disclosure',
     summary: 'The ways you can lose everything you deposit, stated plainly and without softening.',
-    updated: '2026-08-17',
+    updated: '2026-08-21',
   },
   {
     slug: 'testnet',
     title: 'Testnet disclosure',
     summary: 'What a testnet deployment means for your balances, your positions and this deployment\u2019s lifetime.',
-    updated: '2026-08-17',
+    updated: '2026-08-21',
   },
   {
     slug: 'ai-disclosure',
@@ -239,8 +239,8 @@ export const LEGAL: readonly LegalMeta[] = [
   {
     slug: 'cookies',
     title: 'Cookies and local storage',
-    summary: 'Every key MIDNAT stores in your browser. There is no cookie, no analytics and no tracking.',
-    updated: '2026-08-17',
+    summary: 'Every key MIDNAT stores in your browser. MIDNAT sets no cookie, no analytics and no tracking. The hosting platform sets one routing cookie MIDNAT does not control.',
+    updated: '2026-08-21',
   },
   {
     slug: 'licenses',

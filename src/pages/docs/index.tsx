@@ -26,6 +26,11 @@ export default function DocsIndex() {
       <Callout tone="caution" title="Read this first">
         {CANONICAL.testnet} {CANONICAL.noAudit}
       </Callout>
+      <Callout tone="note" title="Four balances, four different jobs">
+        Wallet holds {COLLATERAL.symbol} before deposit. Trading Account balance funds new positions and orders. Reserved
+        margin is already committed to an open position or resting order. LP Vault deposits are a separate
+        liquidity-provider position and never fund your Trading Account.
+      </Callout>
 
       <Section id="paths" title="Three ways in">
         <Prose>

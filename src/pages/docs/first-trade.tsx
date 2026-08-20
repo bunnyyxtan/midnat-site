@@ -11,7 +11,7 @@ export default function FirstTrade() {
     <DocsLayout
       slug={DOC.slug}
       title={DOC.title}
-      standfirst="Placing, reading and closing a position, once your wallet is connected and funded. This assumes you have already done the setup; if you have not, start with getting started. Everything the contract can refuse is gathered under when the protocol refuses."
+      standfirst="Placing, reading and closing a position once your wallet is connected and holds USD₮0. MIDNAT can move the required amount into the Trading Account before it submits the order."
       meta={{ title: DOC.title, description: DOC.summary, path: docHref(DOC.slug), type: 'article' }}
     >
       <Section id="place" title="Open a position">
@@ -21,11 +21,13 @@ export default function FirstTrade() {
             <Link href={docHref('getting-started')} className="pub-link">
               getting started
             </Link>{' '}
-            left off: a wallet on {NETWORK.label}, holding the collateral a position is margined in.
+            left off: a wallet on {NETWORK.label} holding USD₮0. Your Wallet and Trading Account are separate. You can
+            deposit first from Trade or Portfolio, or let the order ticket stage the exact shortfall before it submits
+            the order. LP Vault deposits do not fund the Trading Account.
           </p>
           <p>
-            Choose a market, a side and a size. Size is notional, not the margin you post. Your leverage is size
-            divided by the collateral you assign to the position, and it must sit inside the tier's maximum, which runs
+            Choose a market, a side and a margin amount. Position size is notional, not the margin you post. Your
+            leverage is size divided by the margin assigned to the position, and it must sit inside the tier's maximum, which runs
             from {LEVERAGE_RANGE.min}x to {LEVERAGE_RANGE.max}x depending on the market. The{' '}
             <Link href={docHref('markets-and-tiers')} className="pub-link">
               markets and risk tiers
@@ -39,11 +41,16 @@ export default function FirstTrade() {
             Nothing has been sent at that point, and nothing is recorded anywhere.
           </p>
           <p>
-            When you accept, your wallet signs one transaction and sends it to the clearing house. The contract then
-            does the work itself: it reads the anchored price and refuses a stale one, builds the fill from the tier's
-            base spread and an impact term, checks the open-interest caps, the minimums and the tier's leverage limit,
-            enforces the slippage bound the call carries, and writes the position. If any check fails the whole call
-            reverts, no position is written and you have spent only gas.{' '}
+            When you accept, the ticket shows every wallet step before anything is signed. If the Trading Account
+            already has enough available balance, only the order transaction is needed. If it is short, the sequence can
+            also include an ERC-20 approval when allowance is insufficient and an exact deposit for the shortfall; each
+            step must confirm before the next is prepared. The
+            clearing house then reads the anchored price and refuses a stale one, builds the fill from the tier's base
+            spread and an impact term, checks the open-interest caps, the minimums and the tier's leverage limit,
+            and enforces the slippage bound the call carries. A marketable order writes the position. A non-marketable
+            limit order writes a resting on-chain order and reserves its margin plus quoted open fee until fill,
+            cancellation, or on-chain expiry. If the order call fails, no position or resting order is written; any
+            earlier confirmed approval or Trading Account deposit remains on chain.{' '}
             <Link href={docHref('positions-and-margin')} className="pub-link">
               Positions and margin
             </Link>{' '}

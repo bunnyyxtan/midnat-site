@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
 
 import { sitemapPlugin } from './vite-plugins/sitemap';
+import { spa404 } from './vite-plugins/spa-404';
 
 /* The trading terminal's origin can be overridden at build time with
    VITE_APP_URL (see src/lib/config.ts). A typo there ships dead "Start
@@ -41,7 +42,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: '/',
-    plugins: [react(), tailwindcss(), sitemapPlugin()],
+    plugins: [react(), tailwindcss(), sitemapPlugin(), spa404()],
     resolve: {
       alias: { '@': path.resolve(import.meta.dirname, 'src') },
       dedupe: ['react', 'react-dom'],

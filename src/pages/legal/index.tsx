@@ -3,7 +3,7 @@ import { DocumentLayout } from '@/components/public/DocumentLayout';
 import { Callout, ExternalLink, Prose, RelatedLinks, Section } from '@/components/public/primitives';
 import { HAS_EMAIL_CHANNEL, PRIMARY_CONTACT } from '@/lib/contact';
 import { LEGAL, legalHref } from '@/lib/site-map';
-import { CANONICAL, utcDate } from '@/lib/protocol-registry';
+import { CANONICAL, DEPLOYMENT, utcDate } from '@/lib/protocol-registry';
 
 export default function LegalIndex() {
   return (
@@ -79,6 +79,11 @@ export default function LegalIndex() {
             <li>{CANONICAL.testnet}</li>
             <li>{CANONICAL.noAudit}</li>
           </ul>
+          <p>
+            The current deployment completed {utcDate(DEPLOYMENT.completedAt)}. It supersedes prior contracts without
+            migrating their state. Old positions and LP shares remain on the old contracts described in the deployment
+            record.
+          </p>
           <p>
             Where a document states a technical fact, that fact is taken from the deployment manifest or from the code,
             not from marketing copy. Where it states a limit, the limit is enforced by a contract or it is not claimed.

@@ -5,7 +5,7 @@ import { SeamMark } from '../landing/SeamMark';
 import etchExchange from '../../assets/landing/etch-exchange.webp';
 import { footerGroups, FOOTER_META_LINKS } from '@/lib/site-map';
 import { CONTACT_CHANNELS } from '@/lib/contact';
-import { NETWORK, DEPLOYMENT, utcDate } from '@/lib/protocol-registry';
+import { NETWORK, DEPLOYMENT, SECURITY_REVIEW, utcDate } from '@/lib/protocol-registry';
 
 /**
  * The one footer, used by every public page including the landing.
@@ -190,7 +190,8 @@ export function PublicFooter({ variant = 'document' }: { variant?: 'full' | 'doc
             className="pub-footer-rail pub-mono !text-[0.6875rem] uppercase tracking-[0.12em] no-underline hover:text-[color:var(--ln-accent)] transition-colors"
             data-testid="footer-status-line"
           >
-            {NETWORK.label} · chain {NETWORK.chainId} · contracts deployed {utcDate(DEPLOYMENT.completedAt)}
+            {NETWORK.label} · chain {NETWORK.chainId} · test collateral · {SECURITY_REVIEW.shortLabel} · contracts
+            deployed {utcDate(DEPLOYMENT.completedAt)}
           </Link>
 
           <span className="flex items-center gap-3" data-testid="footer-xlayer-brand">

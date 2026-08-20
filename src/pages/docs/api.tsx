@@ -32,9 +32,10 @@ const READ_ENDPOINTS: readonly Endpoint[] = [
   { method: 'GET', path: '/vault', returns: 'Vault statistics, reported as unavailable where there is no figure to source.', rateLimit: 'None' },
   { method: 'GET', path: '/stats', returns: 'Exchange activity: 24 hour volume, trades, open interest and active addresses.', rateLimit: 'None' },
   { method: 'GET', path: '/ai/desk', returns: 'The cached ambient market desk state.', rateLimit: 'None' },
-  { method: 'GET', path: '/ai/intelligence-metrics', returns: 'Counters for the intelligence surface: usage, cache and degradation.', rateLimit: 'None' },
+  { method: 'GET', path: '/ai/intelligence-metrics', returns: 'Counters for the intelligence surface: usage, cache and degradation. Operating costs are not published.', rateLimit: 'None' },
   { method: 'GET', path: '/intelligence/changes', returns: 'Deterministic observed transitions for a symbol, newest first.', rateLimit: 'None' },
   { method: 'GET', path: '/anchor/status', returns: 'Anchor contract, signer, signing domain and an explorer link.', rateLimit: 'None' },
+  { method: 'GET', path: '/liquidation/keeper', returns: 'Whether the liquidation keeper is running, its last completed scan and its current failure streak.', rateLimit: 'None' },
 ];
 
 const HEALTH_RESPONSE = `GET /api/healthz
@@ -113,8 +114,11 @@ export default function Api() {
             on-demand intelligence endpoints, which accept a request body and call the model: ask and order
             intelligence each allow at most {INTELLIGENCE.askQuestionsPerMinute} requests per minute for a visitor,{' '}
             {INTELLIGENCE.askQuestionsPerMinuteConnected} with a wallet connected, and{' '}
-            {INTELLIGENCE.askConcurrentRequests} in flight at once, returning a 429 when either bound is hit. Those
-            endpoints are covered in{' '}
+            {INTELLIGENCE.askConcurrentRequests} in flight at once, returning a 429 when either bound is hit. Under
+            those ceilings sits a daily allowance of {INTELLIGENCE.askUnitsPerDayConnected} units with a wallet
+            connected and {INTELLIGENCE.askUnitsPerDayVisitor} without, which is the limit a normal caller meets first.
+            Exhausting it does not return a 429: the response arrives with model interpretation dropped and the
+            deterministic answer in its place, flagged in the usage block. Those endpoints are covered in{' '}
             <Link href={docHref('intelligence')} className="pub-link">
               MIDNAT Intelligence
             </Link>
