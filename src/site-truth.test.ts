@@ -226,18 +226,32 @@ describe('security-review status stays factual and out of global marketing chrom
     expect(footerSource).not.toMatch(/SECURITY_REVIEW|review|audit/i);
   });
 
-  it('does not publish an obsolete claim that no independent review has occurred', () => {
-    expect(SECURITY_REVIEW.status).toBe('IN_PROGRESS');
+  it('publishes the completed independent external AI review without calling it a professional audit', () => {
+    expect(SECURITY_REVIEW.status).toBe('SIGNED_OFF');
+    expect(SECURITY_REVIEW.completedOn).toBe('2026-08-21');
+    expect(SECURITY_REVIEW.scopeFileCount).toBe(105);
+    expect(SECURITY_REVIEW.sectionCount).toBe(6);
+    expect(SECURITY_REVIEW.verdict).toBe('PASS');
+    expect(SECURITY_REVIEW.findingCount).toBe(0);
+    expect(SECURITY_REVIEW.disclosure).toMatch(/not a third-party professional audit/i);
     const obsolete = [
       /No independent audit/i,
       /No third-party audit firm has reviewed this code/i,
       /No independent security audit has been performed/i,
       /The code is unaudited/i,
+      /independent review that is underway/i,
+      /external review publication is the next assurance milestone/i,
     ];
     const offenders = SOURCES.filter((source) =>
       obsolete.some((pattern) => pattern.test(proseOf(source.text))),
     ).map((source) => source.rel);
-    expect(offenders, 'public prose contradicts the in-progress independent review').toEqual([]);
+    expect(offenders, 'public prose contradicts the completed independent external AI review').toEqual([]);
+  });
+
+  it('reads the current oracle signer set on the whitepaper without a stale role lookup', () => {
+    const whitepaper = SOURCES.find((source) => source.rel.endsWith('pages/whitepaper.tsx'))!.text;
+    expect(whitepaper).toContain('ORACLE_SIGNER_SET');
+    expect(whitepaper).not.toMatch(/ROLES\.find\([^)]*Oracle signer/);
   });
 });
 

@@ -12,6 +12,7 @@ import {
   ORACLE_POLICY,
   REFERENCE_ENGINE,
   ROLES,
+  SECURITY_REVIEW,
   bpsToPercent,
 } from '@/lib/protocol-registry';
 
@@ -50,19 +51,28 @@ export default function Security() {
         {SECURITY_LIMITATIONS.find((l) => l.id === 'activated-testnet')!.detail}
       </Callout>
 
-      <Callout tone="caution" title="Review status">
+      <Callout tone="note" title="Independent external AI review completed">
         {CANONICAL.noAudit}
       </Callout>
 
-      <Section id="audit" title="Independent review">
+      <Section id="audit" title="Independent external AI review">
         <Prose>
-          <p>{CANONICAL.noAudit}</p>
-          <p>What was actually done, stated so it cannot be mistaken for an audit:</p>
+          <p>
+            The exact frozen testnet release was reviewed by {SECURITY_REVIEW.reviewer} on{' '}
+            {SECURITY_REVIEW.completedOn}. The signed-off scope covered {SECURITY_REVIEW.scopeFileCount} files across{' '}
+            {SECURITY_REVIEW.sectionCount} independent sections. Every section returned {SECURITY_REVIEW.verdict}, with{' '}
+            {SECURITY_REVIEW.findingCount} findings.
+          </p>
+          <p>The completed review is backed by four checkable evidence layers:</p>
           <ul>
             <li>
-              <strong>Internal review.</strong> The contracts were read and reasoned about by the people who wrote
-              them. That is the weakest form of review there is, because the reviewer and the author share the same
-              blind spots.
+              <strong>Exact-scope attestation.</strong> The reviewer attested the same 105-file scope digest recorded
+              by the release bundle, so the verdict cannot silently apply to a different tree.
+            </li>
+            <li>
+              <strong>Independent section review.</strong> Contracts, adversarial tests, activation tooling, live
+              operations, the protocol client and the workspace build were reviewed separately before one consolidated
+              verdict was produced.
             </li>
             <li>
               <strong>A contract test suite.</strong> The behaviour a test asserts is the behaviour someone thought to
@@ -75,12 +85,8 @@ export default function Security() {
             </li>
           </ul>
           <p>
-            Taken together this is a production-grade contract system on X Layer Testnet with real assurance evidence:
-            independent review that is underway, a contract test suite, pinned runtime code hashes and reproducible
-            build inputs. None of it is a substitute for an external audit: internal review and any AI-assisted review
-            are not an audit, a test suite is not an audit, and a pinned code hash confirms the code has not changed
-            since deploy, not that it is correct or safe. This deployment is not represented as audited, and external
-            review publication is the next assurance milestone.
+            The sign-off applies to this exact X Layer Testnet scope. It does not authorize mainnet or real-value use
+            and it is not presented as a third-party professional audit.
           </p>
         </Prose>
         <TableScroll>

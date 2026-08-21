@@ -34,7 +34,7 @@ const PRINCIPLES: readonly { title: string; body: string }[] = [
   },
   {
     title: 'Evidence-led status and transparent assurance',
-    body: 'Every capability carries one status from a fixed vocabulary. Internal review and AI review are described as supporting evidence, not as an external audit, and external review publication is named as the next assurance milestone. Uptime is not published because nothing here measures it.',
+    body: 'Every capability carries one status from a fixed vocabulary. The exact testnet release completed an independent external AI review across 105 files and six PASS sections with zero findings. Its scope and limits stay explicit: it is not a third-party professional audit and does not authorize real-value use.',
   },
 ];
 

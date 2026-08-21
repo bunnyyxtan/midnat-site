@@ -73,8 +73,8 @@ export default function LegalIndex() {
       <Section id="reading" title="How to read them">
         <Prose>
           <p>
-            These documents describe an unaudited testnet deployment. Two facts sit underneath all of them and are worth
-            reading before the rest.
+            These documents describe an activated testnet deployment that completed an independent external AI review
+            of its exact release scope. Two facts sit underneath all of them and are worth reading before the rest.
           </p>
           <ul>
             <li>{CANONICAL.testnet}</li>

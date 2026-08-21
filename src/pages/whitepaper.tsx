@@ -27,6 +27,7 @@ import {
   MARKETS,
   NETWORK,
   ORACLE_POLICY,
+  ORACLE_SIGNER_SET,
   REFERENCE_ENGINE,
   ROLES,
   TIERS,
@@ -381,7 +382,10 @@ export default function Whitepaper() {
             { key: 'Poster interval', value: `${ORACLE_POLICY.posterIntervalSec} s` },
             { key: 'Maximum price age', value: `${ORACLE_POLICY.maxPriceAgeSec} s` },
             { key: 'Future tolerance', value: `${ORACLE_POLICY.futureToleranceSec} s` },
-            { key: 'Signer', value: <AddressDisplay value={ROLES.find((r) => r.label === 'Oracle signer')!.address} /> },
+            {
+              key: 'Signer set',
+              value: `${ORACLE_SIGNER_SET.threshold} of ${ORACLE_SIGNER_SET.signers.length} registered keys`,
+            },
           ]}
         />
 
@@ -860,8 +864,8 @@ export default function Whitepaper() {
               new exposure; the program adds redundant distributed posters and monitored service continuity.
             </li>
             <li>
-              <strong>External assurance.</strong> Independent contract review is a supporting evidence stream today,
-              and publication of an external security report is the assurance milestone the program delivers. {CANONICAL.noAudit}
+              <strong>External assurance.</strong> The exact X Layer Testnet release completed an independent external
+              AI review. A professional third-party audit of the exact mainnet release remains a separate requirement.
             </li>
             <li>
               <strong>Operating entity and custody framework.</strong> A live-money venue is operated through an entity
