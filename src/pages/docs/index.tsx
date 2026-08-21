@@ -99,15 +99,16 @@ export default function DocsIndex() {
             </li>
             <li>
               Claims carry a status label. <strong>Live on testnet</strong> means it is deployed and running.{' '}
-              <strong>Implemented</strong> means the code exists and is tested but is not exercised on this deployment.{' '}
-              <strong>Planned</strong> and <strong>research</strong> mean exactly what they say and nothing is built.
+              <strong>Implemented</strong> means a tested, production-grade capability is available in the protocol;
+              its deployment status is shown separately. <strong>Planned</strong> and <strong>research</strong> mean
+              exactly what they say and nothing is built.
             </li>
             <li>
               Terms are defined once, in the <Link href={docHref('glossary')} className="pub-link">glossary</Link>. If a page
               seems to define a term differently, the glossary is correct and the page is a bug.
             </li>
             <li>
-              Known limitations are published in full on the{' '}
+              Deployment scope and assurance boundaries are published in full on the{' '}
               <Link href="/security" className="pub-link">security page</Link>, including the ones that are awkward.
             </li>
           </ul>

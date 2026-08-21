@@ -22,6 +22,8 @@ import {
   contractByKey,
 } from '@/lib/protocol-registry';
 
+const activation = LIMITATIONS.find((l) => l.id === 'activated-testnet')!;
+
 const vault = contractByKey('vault');
 const clearingHouse = contractByKey('clearingHouse');
 const oracleAnchor = contractByKey('oracleAnchor');
@@ -29,15 +31,14 @@ const rpc = NETWORK.rpcUrl;
 
 const explorerLimit = LIMITATIONS.find((l) => l.id === 'explorer-verification')!;
 
-const anchorReadCmd = `# read the authorised signer the anchor accepts prices from
-cast call ${oracleAnchor.address} \\
-  "signer()(address)" \\
-  --rpc-url ${rpc}`;
+const anchorReadCmd = `# read the signer set and threshold the anchor accepts prices from
+cast call ${oracleAnchor.address} "signerThreshold()(uint256)" --rpc-url ${rpc}
+cast call ${oracleAnchor.address} "signerSetHash()(bytes32)" --rpc-url ${rpc}`;
 
-const anchorEthCall = `# the same read as raw JSON-RPC, no cast required
+const anchorEthCall = `# read the signing threshold as raw JSON-RPC, no cast required
 curl -s -X POST ${rpc} \\
   -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"eth_call","params":[{"to":"${oracleAnchor.address}","data":"0x238ac933"},"latest"]}'`;
+  -d '{"jsonrpc":"2.0","id":1,"method":"eth_getCode","params":["${oracleAnchor.address}","latest"]}'`;
 
 const vaultReadCmd = `# total assets the vault holds, and the price of one share
 cast call ${vault.address} "totalAssets()(uint256)" --rpc-url ${rpc}
@@ -58,19 +59,18 @@ cast call ${clearingHouse.address} \\
 # confirm the collateral immutable is the token you expect
 cast call ${clearingHouse.address} "collateral()(address)" --rpc-url ${rpc}`;
 
-const rebuildCmd = `# 1. build the contracts with the pinned profile.
-#    the sources live at ${SOURCES.contracts} in the project source tree.
-forge build            # solc ${vault.solc}, ${vault.pipeline}, per foundry.toml
-
-# 2. pull the deployed runtime code
+const codeHashCmd = `# 1. pull the deployed runtime code for each contract
 cast code ${vault.address} --rpc-url ${rpc} > deployed-vault.hex
 cast code ${clearingHouse.address} --rpc-url ${rpc} > deployed-ch.hex
 
-# 3. compare against the locally built runtime, with immutables pinned.
-#    a naive diff always differs: immutables (collateral, vault and anchor
-#    addresses, scale factors) are baked into runtime code, so mask those
-#    byte ranges on both sides before comparing, then check each masked
-#    value equals the value it is supposed to be.`;
+# 2. hash it and compare against the runtime code hash pinned in the manifest
+#    (src/deployments/1952.json), which was recorded at deploy time.
+cast keccak "$(cat deployed-vault.hex)"     # expect ${vault.runtimeCodeHash}
+cast keccak "$(cat deployed-ch.hex)"        # expect ${clearingHouse.runtimeCodeHash}
+
+# a matching hash proves the code at the address has not changed since deploy.
+# it does NOT prove the code was built from a particular source tree: for that
+# you need the sources and a rebuild, which this deployment does not publish.`;
 
 export default function Verify() {
   return (
@@ -102,6 +102,10 @@ export default function Verify() {
         />
       }
     >
+      <Callout tone="note" title="Activated on testnet">
+        {activation.detail}
+      </Callout>
+
       <Section id="setup" title="What you need">
         <Prose>
           <p>
@@ -127,21 +131,22 @@ export default function Verify() {
       <Section id="anchor" title="Read the anchored price authority">
         <Prose>
           <p>
-            The clearing house prices every trade from the oracle anchor and from nothing else. The anchor holds one
-            authorised signer, and it accepts a signed report only from that key. Read the signer first, because it is
-            the root of every price on the venue.
+            The clearing house prices every trade from the oracle anchor and from nothing else. This is Oracle Anchor V2:
+            it holds a set of authorised signing keys and a signing threshold, and it accepts a signed report only when a
+            threshold of that set has signed it. Read the threshold and the signer-set hash first, because they are the
+            root of every price on the venue.
           </p>
         </Prose>
-        <CodeBlock label="Read the anchor signer with cast">{anchorReadCmd}</CodeBlock>
-        <CodeBlock label="The same read as raw JSON-RPC">{anchorEthCall}</CodeBlock>
+        <CodeBlock label="Read the anchor signer set with cast">{anchorReadCmd}</CodeBlock>
+        <CodeBlock label="Read the anchor code as raw JSON-RPC">{anchorEthCall}</CodeBlock>
         <Prose>
           <p>
-            The address returned should match the oracle signer on the{' '}
+            The threshold and signer-set hash returned should match the oracle signer set on the{' '}
             <Link href="/contracts" className="pub-link">
               contracts page
             </Link>
-            . If it does not, the anchor is accepting prices from a key this site does not describe, and you should trust
-            nothing downstream of it.
+            . If they do not, the anchor is accepting prices under rules this site does not describe, and you should
+            trust nothing downstream of it.
           </p>
         </Prose>
       </Section>
@@ -177,33 +182,30 @@ export default function Verify() {
         <CodeBlock label="Read a market from the clearing house">{marketReadCmd}</CodeBlock>
       </Section>
 
-      <Section id="rebuild" title="Rebuild the contracts from source">
+      <Section id="codehash" title="Check the runtime code hash">
         <Prose>
           <p>
-            The strongest check available here is to rebuild the contracts and compare the runtime bytecode against the
-            deployed code. The vault and the clearing house reproduce byte for byte once immutables are pinned. The
-            oracle anchor does not, because it was built with a different compiler configuration, so it is checked by
-            runtime code hash and by its live signer instead.
+            The strongest check available from this page is to hash the deployed runtime code and compare it against the
+            runtime code hash the manifest pinned at deploy time. A match proves the code at the address has not been
+            substituted since deploy. It does not prove the code was built from a particular source tree: that would need
+            a byte-for-byte rebuild from source, which this deployment does not publish, so this page does not claim one.
           </p>
           <p>
-            One honest caveat about this section: every check above it is a chain read that needs nothing from us, but
-            this one needs the contract sources, and this site publishes no location to obtain them. You can ask for
+            One honest caveat about a full source rebuild: every check above is a chain read that needs nothing from us,
+            but a rebuild needs the contract sources, and this site publishes no location to obtain them. You can ask for
             them at <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
-            {PRIMARY_CONTACT.network}, which is a request and not a guarantee. Until you hold them, read this as the
-            procedure the reproduction followed and as a check anyone holding those sources can repeat, not as one you
-            can run from this page alone.
+            {PRIMARY_CONTACT.network}, which is a request and not a guarantee.
           </p>
         </Prose>
-        <CodeBlock label="Rebuild and compare">{rebuildCmd}</CodeBlock>
-        <Callout tone="caution" title="Pin immutables before you diff">
-          Immutable values, the collateral address, the vault and anchor addresses and the scale factors, are baked into
-          the runtime code. A naive byte diff against a fresh build will always differ on those ranges. Mask them on both
-          sides, compare the rest, then check each masked value equals the value it is supposed to be. Masking without
-          the second step would let a contract with the right code and a wrong scale factor pass.
+        <CodeBlock label="Hash the deployed code and compare">{codeHashCmd}</CodeBlock>
+        <Callout tone="caution" title="A hash pin is not a source rebuild">
+          Matching the pinned runtime code hash proves the code at an address has not changed since deploy. It does not
+          prove that code corresponds to this source tree, and it does not prove the source is correct. Only a rebuild
+          from the sources, with immutables pinned, would establish the first, and only an audit the second.
         </Callout>
         <Prose>
           <p>
-            This is a local reproduction, not verification on the block explorer. {explorerLimit.detail}
+            A hash pin is not verification on the block explorer either. {explorerLimit.detail}
           </p>
         </Prose>
       </Section>
@@ -228,8 +230,9 @@ export default function Verify() {
               selection from the chain alone.
             </li>
             <li>
-              <strong>A reproduced build does not prove the source is correct.</strong> Byte equality proves the deployed
-              code is this source tree compiled as claimed. It does not prove the source is free of bugs.
+              <strong>A pinned code hash does not prove the source.</strong> A matching runtime code hash proves the code
+              at an address has not changed since deploy. It does not prove that code was built from this source tree, and
+              it does not prove the source is free of bugs.
             </li>
             <li>
               <strong>None of this is an audit.</strong> {CANONICAL.noAudit}

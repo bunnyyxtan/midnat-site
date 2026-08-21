@@ -23,9 +23,9 @@ export default function HowItWorks() {
       <Section id="shape" title="The shape of it">
         <Prose>
           <p>
-            MIDNAT is three contracts on {NETWORK.label}. There is no order book, no matching engine and no market
-            maker: a trade is a call to one contract, priced from a number a second contract holds, backed by capital a
-            third contract custodies. Addresses and verification state for all three are on the{' '}
+            MIDNAT is a set of contracts on {NETWORK.label}. There is no order book, no matching engine and no market
+            maker: a trade is a call to the clearing house, priced from a number the oracle anchor holds, backed by
+            capital the vault custodies. Every deployed contract, with its address and verification state, is on the{' '}
             <Link href="/contracts" className="pub-link">
               contracts page
             </Link>

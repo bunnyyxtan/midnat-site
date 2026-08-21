@@ -17,7 +17,8 @@ import {
 
 /** The limitations that bear on security, in the order this page discusses them. */
 const SECURITY_LIMITATION_IDS = [
-  'single-key',
+  'activated-testnet',
+  'owner-not-timelocked',
   'single-poster',
   'no-live-liquidation',
   'no-liquidation-incentive',
@@ -45,6 +46,10 @@ export default function Security() {
       actions={<PrintButton />}
       width="doc"
     >
+      <Callout tone="note" title="Activated on testnet">
+        {SECURITY_LIMITATIONS.find((l) => l.id === 'activated-testnet')!.detail}
+      </Callout>
+
       <Callout tone="caution" title="Review status">
         {CANONICAL.noAudit}
       </Callout>
@@ -64,15 +69,18 @@ export default function Security() {
               assert. A passing suite shows the cases that were considered, not the cases that were missed.
             </li>
             <li>
-              <strong>A local rebuild against runtime bytecode.</strong> Two of the three contracts were rebuilt from
-              the project source and matched byte for byte against the deployed code. This proves the deployed code is
-              that source, compiled as claimed. It proves nothing about whether that code is correct or safe.
+              <strong>A pinned runtime code hash.</strong> The deployed runtime code hash of every contract was recorded
+              in the manifest at deploy time, so any later substitution of the code at an address is caught. This is not
+              a byte-for-byte rebuild from source and proves nothing about whether the code is correct or safe.
             </li>
           </ul>
           <p>
-            None of the above is an external audit. Internal review and any AI-assisted review are not an audit. A test
-            suite is not an audit. Bytecode reproduction confirms identity, not safety. Treat this deployment as
-            unaudited software.
+            Taken together this is a production-grade contract system on X Layer Testnet with real assurance evidence:
+            independent review that is underway, a contract test suite, pinned runtime code hashes and reproducible
+            build inputs. None of it is a substitute for an external audit: internal review and any AI-assisted review
+            are not an audit, a test suite is not an audit, and a pinned code hash confirms the code has not changed
+            since deploy, not that it is correct or safe. This deployment is not represented as audited, and external
+            review publication is the next assurance milestone.
           </p>
         </Prose>
         <TableScroll>
@@ -101,7 +109,7 @@ export default function Security() {
         </TableScroll>
         <Prose>
           <p>
-            Addresses, compiler settings and the full verification state for all three contracts are on the{' '}
+            Addresses, compiler settings and the full verification state for every deployed contract are on the{' '}
             <Link href="/contracts" className="pub-link">
               contracts page
             </Link>
@@ -117,15 +125,20 @@ export default function Security() {
       <Section id="keys" title="Key concentration">
         <Prose>
           <p>
-            Ownership and the keeper roles are not distributed. On this deployment the same address holds owner, risk
-            keeper and funding keeper. A second address is the oracle signer. There is no multisig and no timelock. This
-            is a real centralisation fact, and it is published here rather than hidden.
+            The keeper roles are held by keys distinct from the owner, and oracle prices need a threshold of{' '}
+            {KEY_CONCENTRATION.oracleSignerThreshold} of {KEY_CONCENTRATION.oracleSignerCount} signing keys rather than a
+            single signer. What is not distributed is ownership: the owner is a single externally owned key with no
+            multisig and no timelock. This is a real centralisation fact, and it is published here rather than hidden.
           </p>
         </Prose>
         <KeyValue
           items={[
             { key: 'Distinct role addresses', value: `${KEY_CONCENTRATION.distinctAddresses}` },
-            { key: 'Owner also risk and funding keeper', value: KEY_CONCENTRATION.ownerAlsoKeeper ? 'Yes' : 'No' },
+            { key: 'Keepers separated from owner', value: KEY_CONCENTRATION.keepersSeparated ? 'Yes' : 'No' },
+            {
+              key: 'Oracle signing',
+              value: `Threshold ${KEY_CONCENTRATION.oracleSignerThreshold} of ${KEY_CONCENTRATION.oracleSignerCount} keys`,
+            },
             { key: 'Multisig', value: KEY_CONCENTRATION.multisig ? 'Yes' : 'No' },
             { key: 'Timelock', value: KEY_CONCENTRATION.timelock ? 'Yes' : 'No' },
           ]}
@@ -147,16 +160,17 @@ export default function Security() {
         </div>
         <Callout tone="limit" title="What a compromise of the owner key would allow">
           <p>
-            Because one key holds owner, risk keeper and funding keeper, an attacker who controlled that key could
-            change global risk caps and per-market parameters, list or suspend or delist markets, put a market into
-            close only or halted, transfer ownership, and post the funding rate. The funding rate is bounded by the
-            on-chain clamp at {FUNDING.clampPercentPerHour}% per hour, so it cannot be used to drain a book outright, but
-            everything else in that list is a live power of the single key.
+            An attacker who controlled the owner key could change global risk caps and per-market parameters, list or
+            suspend or delist markets, put a market into close only or halted, and transfer ownership. The keeper roles
+            are separate keys now, but a compromised owner can reassign them. The funding rate is bounded by the on-chain
+            clamp at {FUNDING.clampPercentPerHour}% per hour, so it cannot be used to drain a book outright, but
+            everything else in that list is a live power of the single owner key.
           </p>
           <p>
-            A compromise of the oracle signer key is separate. It would let the holder sign reference reports that the
-            anchor accepts as canonical prices. A signature authenticates the signer, not the market, so a compromised
-            signer could move the accepted price within the age and confidence rules the clearing house enforces.
+            The oracle signer set is separate. Because the anchor requires a threshold of{' '}
+            {KEY_CONCENTRATION.oracleSignerThreshold} of {KEY_CONCENTRATION.oracleSignerCount} keys, one compromised
+            signing key cannot move the accepted price on its own; a threshold of them, colluding, could sign a report
+            the anchor accepts, still only within the age and confidence rules the clearing house enforces.
           </p>
         </Callout>
       </Section>
@@ -188,11 +202,11 @@ export default function Security() {
                 </td>
               </tr>
               <tr>
-                <td className="pub-td-key">Keeper key</td>
-                <td>Applies risk-driven market state changes and posts the clamped funding rate.</td>
+                <td className="pub-td-key">Keeper keys</td>
+                <td>Apply risk-driven market state changes and post the clamped funding rate.</td>
                 <td>
-                  Funding stops advancing and risk-driven state changes are not applied until the key runs again. It is
-                  the same address as the owner, so its loss is the owner loss above.
+                  Funding stops advancing and risk-driven state changes are not applied until the keys run again. These
+                  are keys distinct from the owner, but the owner can reassign them.
                 </td>
               </tr>
               <tr>
@@ -249,11 +263,11 @@ export default function Security() {
         />
       </Section>
 
-      <Section id="limitations" title="Security-relevant limitations">
+      <Section id="limitations" title="Security posture and assurance boundaries">
         <Prose>
           <p>
-            The published limitations that bear directly on security. Read them as part of the security posture, not as
-            footnotes to it.
+            These deployment-scope and assurance boundaries are published as part of the security posture, alongside
+            the controls, runtime hashes and independent review evidence above.
           </p>
         </Prose>
         <div className="flex flex-col gap-4">
@@ -273,30 +287,30 @@ export default function Security() {
         <Prose>
           <p>
             Send a vulnerability report to <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
-            {PRIMARY_CONTACT.network}. That account is the only channel this project publishes: there is{' '}
-            {!HAS_EMAIL_CHANNEL && 'no security email, '}no ticket queue and no coordinated disclosure process behind
-            it, and no commitment to a response time. {PRIMARY_CONTACT.network} is a public platform, so send only what you are willing to have read there,
-            and keep the detail that would let someone else exploit the issue for a direct message.
+            {PRIMARY_CONTACT.network}. This is the current disclosure channel for the testnet program.
+            {!HAS_EMAIL_CHANNEL && ' A dedicated security email is not currently published.'}{' '}
+            Because {PRIMARY_CONTACT.network} is a public platform, keep the initial report high-level, never include
+            secrets or key material, and request a private handoff before sharing exploitable reproduction detail.
           </p>
           <p>
-            There is no bug bounty. {CANONICAL.noAudit} No penetration test has been performed, and this project
-            publishes no incident history and no response-time commitment because it has not measured one. If a
-            control is not described on this page, assume it does not exist.
+            The current testnet program does not publish a bug bounty or response-time SLA. Assurance status, review
+            scope and the control inventory are maintained on this page; material remediation updates are published
+            after verification.
           </p>
         </Prose>
       </Section>
 
-      <Section id="not-established" title="What this page does not establish">
+      <Section id="not-established" title="Assurance scope">
         <Prose>
           <p>
-            A security page describes intent and mechanism. It does not make the software safe. Reading it leaves you
-            exposed in ways it cannot remove:
+            This page documents the current assurance model and the exact boundary of its controls. It is not a
+            certification or a guarantee; the current scope is:
           </p>
           <ul>
             <li>{CANONICAL.noAudit}</li>
             <li>
-              A single key holds owner and both keeper roles, with no multisig and no timelock, so a compromise of that
-              key is a compromise of the protocol's risk controls.
+              The owner is a single key with no multisig and no timelock, so a compromise of that key is a compromise of
+              the protocol's risk controls, including the power to reassign the keeper roles.
             </li>
             <li>
               The protections listed above are bounded checks. They limit named failures and do not cover the failures

@@ -6,7 +6,7 @@ import { CANONICAL, LIMITATIONS, ORACLE_POLICY, TIERS, bpsToPercent } from '@/li
 
 const DOC = docBySlug('liquidation')!;
 
-const NO_LIVE = LIMITATIONS.find((l) => l.id === 'no-live-liquidation')!;
+const LIQUIDATION_EVIDENCE = LIMITATIONS.find((l) => l.id === 'no-live-liquidation')!;
 const NO_INCENTIVE = LIMITATIONS.find((l) => l.id === 'no-liquidation-incentive')!;
 
 export default function Liquidation() {
@@ -111,20 +111,20 @@ export default function Liquidation() {
         </Prose>
       </Section>
 
-      <Section id="limits" title="What liquidation does not guarantee">
+      <Section id="evidence" title="Liquidation evidence and execution model">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="pub-h4">{NO_LIVE.title}</span>
-          <StatusBadge status="IMPLEMENTED" />
+          <span className="pub-h4">{LIQUIDATION_EVIDENCE.title}</span>
+          <StatusBadge status="LIVE_ON_TESTNET" />
         </div>
         <Prose>
-          <p>{NO_LIVE.detail}</p>
+          <p>{LIQUIDATION_EVIDENCE.detail}</p>
           <p>
             <strong>{NO_INCENTIVE.title}.</strong> {NO_INCENTIVE.detail}
           </p>
           <ul>
             <li>
-              No liquidation has ever executed on this deployment. The keeper economics are tested in code and against a
-              chain-derived fixture, not proven in the wild.
+              The canonical suite proves the exact long and short boundary, funding-driven liquidation, underwater
+              shortfall absorption, liquidator reward accounting, healthy-position refusal and stale-oracle refusal.
             </li>
             <li>
               The call is unpaid at every size. The fee settles to the vault, not to the caller, so the only party

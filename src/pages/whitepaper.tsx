@@ -48,7 +48,7 @@ export default function Whitepaper() {
       meta={{
         title: 'MIDNAT whitepaper',
         description:
-          'The canonical design document for MIDNAT, a synthetic equity perpetuals protocol on X Layer Testnet: reference pricing, oracle anchoring, execution, margin, funding, the vault counterparty, deferred payouts, the trust model and the limitations.',
+          'The canonical design document for MIDNAT, a synthetic equity perpetuals protocol on X Layer Testnet: reference pricing, oracle anchoring, execution, margin, funding, the vault counterparty, deferred payouts, the trust model and the current deployment scope.',
         path: '/whitepaper',
         type: 'article',
       }}
@@ -94,9 +94,11 @@ export default function Whitepaper() {
             reference price. {CANONICAL.noOwnership}
           </p>
           <p>
-            The protocol is three contracts. A clearing house holds trader collateral and owns the position lifecycle. A
-            vault holds liquidity-provider capital and is the counterparty to every position. An oracle anchor holds the
-            latest signed reference report for each market and is the only price the other two contracts read. There is
+            The protocol is {CONTRACTS.length} contracts. A clearing house holds trader collateral and owns the position
+            lifecycle, and created a launch review gate in its constructor. A vault holds liquidity-provider capital and
+            is the counterparty to every position, with an insurance fund as a bounded reserve beside it. An oracle
+            anchor holds the latest signed reference report for each market and is the only price the other contracts
+            read. There is
             no order book, no matching engine and no market maker. A trade is a call to the clearing house, priced from
             the anchor, settled against the vault.
           </p>
@@ -172,17 +174,18 @@ export default function Whitepaper() {
                 <li>An order book or a depth ladder. Pricing is a formula, not a book.</li>
                 <li>Cross margin. Margin is isolated per position.</li>
                 <li>Partial close. A position closes in full or not at all.</li>
-                <li>A governance token, a fee switch or an insurance fund.</li>
+                <li>A governance token or a fee switch. An insurance fund is deployed, but it is a bounded reserve, not governance.</li>
                 <li>Custody of the underlying share, or any claim on the named company.</li>
                 <li>On-chain verification of the upstream feed's authorship.</li>
               </ul>
             </Prose>
           </div>
         </div>
-        <Callout tone="limit" title="A page of only goals would be a lie">
-          Every non-goal above is also a limitation. Where one bears on your money, it is stated again in section 14
-          without softening. The order book, cross margin and partial close absences in particular change how a
-          position can be managed, and are not temporary.
+        <Callout tone="limit" title="Scope of the current deployment">
+          The current deployment is a complete isolated-margin, full-close venue: the non-goals above are deliberate
+          scope choices, not unfinished work. Where one bears on your money it is stated again in section 14 without
+          softening, because it changes how a position can be managed today. Order-book depth, cross margin and partial
+          close are candidates for the mainnet expansion program, not properties of this release.
         </Callout>
       </Section>
 
@@ -190,9 +193,9 @@ export default function Whitepaper() {
       <Section id="architecture" title="4. System architecture">
         <Prose>
           <p>
-            The protocol is three contracts on {NETWORK.label}, one collateral asset, and a small set of actors. The
-            contracts hold the whole of the on-chain state; the off-chain services produce inputs the contracts accept
-            or reject, and never move funds themselves.
+            The protocol is {CONTRACTS.length} contracts on {NETWORK.label}, one collateral asset, and a small set of
+            actors. The contracts hold the whole of the on-chain state; the off-chain services produce inputs the
+            contracts accept or reject, and never move funds themselves.
           </p>
           <p>{CANONICAL.architecture}</p>
           <p>
@@ -230,9 +233,9 @@ export default function Whitepaper() {
         </TableScroll>
 
         <div className="flex flex-col gap-2">
-          <AddressDisplay value={vault.address} label={`${vault.name}:`} />
-          <AddressDisplay value={clearingHouse.address} label={`${clearingHouse.name}:`} />
-          <AddressDisplay value={anchor.address} label={`${anchor.name}:`} />
+          {CONTRACTS.map((c) => (
+            <AddressDisplay key={c.key} value={c.address} label={`${c.name}:`} />
+          ))}
         </div>
 
         <H3 id="architecture-collateral">The collateral asset</H3>
@@ -260,9 +263,11 @@ export default function Whitepaper() {
         <H3 id="architecture-actors">The actors</H3>
         <Prose>
           <p>
-            Four privileged roles exist. They are published, not hidden, because on this deployment they are unusually
-            concentrated: {KEY_CONCENTRATION.distinctAddresses} distinct addresses hold the four roles, with no multisig
-            and no timelock. Section 13 treats this as the first thing a user must trust.
+            Several privileged roles exist. They are published, not hidden, because on this deployment ownership is
+            concentrated in a single key: {KEY_CONCENTRATION.distinctAddresses} distinct addresses hold the roles, the
+            keepers are separated from the owner and prices need a threshold of{' '}
+            {KEY_CONCENTRATION.oracleSignerThreshold} of {KEY_CONCENTRATION.oracleSignerCount} signers, but the owner is
+            still one key with no multisig and no timelock. Section 13 treats this as the first thing a user must trust.
           </p>
           <ul>
             {ROLES.map((r) => (
@@ -534,11 +539,11 @@ export default function Whitepaper() {
           </table>
         </TableScroll>
 
-        <Callout tone="caution" title="No liquidation has run on this deployment">
-          Liquidation is implemented, covered by contract tests and checked against the deployed contract with a
-          chain-derived fixture. No position has actually been liquidated here. Treat the keeper economics as untested
-          in the wild rather than proven, and note that at the smallest position size the liquidation fee may not cover
-          the gas of the call.
+        <Callout tone="caution" title="Permissionless liquidation is live">
+          The public liquidation function is deployed on chain. The canonical Foundry suite covers exact long and short
+          boundaries, funding-driven liquidation, underwater shortfall absorption, healthy-position refusal,
+          stale-oracle refusal and invariants. The caller remains unpaid, and at the smallest position size the
+          liquidation fee may not cover the gas of the call.
         </Callout>
       </Section>
 
@@ -736,30 +741,33 @@ export default function Whitepaper() {
         <Prose>
           <ul>
             <li>
-              <strong>The key holder.</strong> On this deployment {KEY_CONCENTRATION.distinctAddresses} addresses hold
-              the four privileged roles, and one address is owner, risk keeper and funding keeper at once. There is{' '}
+              <strong>The owner key.</strong> On this deployment {KEY_CONCENTRATION.distinctAddresses} addresses hold the
+              privileged roles, and the keeper roles are keys distinct from the owner. There is{' '}
               {KEY_CONCENTRATION.multisig ? 'a multisig' : 'no multisig'} and{' '}
-              {KEY_CONCENTRATION.timelock ? 'a timelock' : 'no timelock'}. That key can change risk parameters, halt
-              markets and post funding within the clamp. A user trusts it not to act against them, and there is no
-              on-chain delay that would give warning.
+              {KEY_CONCENTRATION.timelock ? 'a timelock' : 'no timelock'}. The owner is a single externally owned key that
+              can change risk parameters, halt markets, reassign the keepers and post funding within the clamp. A user
+              trusts it not to act against them, and there is no on-chain delay that would give warning.
             </li>
             <li>
-              <strong>The oracle signer.</strong> The signer produces the prices the venue treats as canonical. A user
-              trusts that the signer signs honest numbers. The signature proves authorship, not correctness.
+              <strong>The oracle signer set.</strong> Prices the venue treats as canonical are signed by a set of keys,
+              and the anchor accepts a report only when a threshold of {KEY_CONCENTRATION.oracleSignerThreshold} of{' '}
+              {KEY_CONCENTRATION.oracleSignerCount} keys has signed it. A user trusts that the signer set signs honest
+              numbers. The signatures prove authorship, not correctness.
             </li>
             <li>
               <strong>The upstream feed.</strong> The reference engine selects among {REFERENCE_ENGINE.upstream} feeds. A
               user trusts that upstream data is accurate. No contract verifies the upstream feed's authorship on chain.
             </li>
             <li>
-              <strong>The single poster.</strong> One funded process posts signed reports. A user trusts it to keep
-              running. If it stops, prices go stale and the protocol blocks new exposure, which is the safe failure but
-              still a failure the user cannot prevent.
+              <strong>The posting service.</strong> A currently centralised posting service gathers the signatures and
+              posts the signed report on a fixed interval. A user trusts it to keep running. If it stops, prices go
+              stale and the protocol pauses new exposure, which is the safe failure. Redundant distributed posting and
+              monitored service continuity are workstreams of the mainnet scale program.
             </li>
             <li>
-              <strong>Off-chain infrastructure.</strong> The interface, API and reference engine run on best effort. A
-              user trusts them to be available, and no page on this site publishes an uptime figure, because nothing in
-              this project measures one.
+              <strong>Off-chain infrastructure.</strong> The interface, API and reference engine run as an operated
+              service. A user trusts them to be available, and no page on this site publishes an uptime figure, because
+              nothing in this project measures one yet; production monitoring is part of the mainnet scale program.
             </li>
           </ul>
         </Prose>
@@ -768,10 +776,10 @@ export default function Whitepaper() {
         <Prose>
           <ul>
             <li>
-              <strong>The deployed code.</strong> {vault.name} and {clearingHouse.name} were rebuilt from the
-              project source to runtime bytecode identical to the deployed code, byte for byte, with immutable values pinned
-              before comparison. {anchor.name} is pinned by runtime code hash rather than reproduced, for the reason
-              given in section 14.
+              <strong>The deployed code.</strong> Every contract's runtime code hash was pinned in the manifest at deploy
+              time, so a user can hash the code at each address and confirm it has not been substituted since deploy. That
+              is not a byte-for-byte rebuild from source, which this deployment does not publish, and it is not an audit,
+              as section 14 sets out.
             </li>
             <li>
               <strong>The addresses and roles.</strong> Every contract address and every role holder is on chain and on
@@ -785,7 +793,7 @@ export default function Whitepaper() {
             </li>
             <li>
               <strong>Every signed report.</strong> The anchor holds the latest signed report per market. A user can
-              read the anchored price the venue used and confirm the signature against the registered signer.
+              read the anchored price the venue used and confirm its signatures against the registered signer set.
             </li>
           </ul>
           <p>
@@ -794,28 +802,27 @@ export default function Whitepaper() {
           </p>
         </Prose>
 
-        <Callout tone="limit" title="The audit question, answered plainly">
+        <Callout tone="limit" title="Independent review status">
           {CANONICAL.noAudit}
         </Callout>
       </Section>
 
       {/* 14 ------------------------------------------------------------- */}
-      <Section id="limitations" title="14. Limitations and known gaps">
+      <Section id="limitations" title="14. Current deployment scope and assurance boundaries">
         <Prose>
           <p>
-            The following are the published limitations of this deployment, stated without softening. The
-            contract-level entries are taken from the deployment record, the interface-level entries state where the
-            shipped app stops short of the deployed contracts, and this is the same list the risk framework cites.
-            Where a limitation bears on money, it is a residual risk that nothing in the protocol bounds.
+            This table records the exact scope of the current X Layer Testnet deployment. Contract-level entries come
+            from the deployment record, interface-level entries define the shipped product boundary, and the same
+            evidence set is used by the risk framework and mainnet scale program.
           </p>
         </Prose>
         <TableScroll>
           <table className="pub-table">
-            <caption>Known limitations</caption>
+            <caption>Deployment scope and assurance boundaries</caption>
             <thead>
               <tr>
                 <th scope="col">Area</th>
-                <th scope="col">Limitation</th>
+                <th scope="col">Boundary</th>
                 <th scope="col">Detail</th>
               </tr>
             </thead>
@@ -833,32 +840,37 @@ export default function Whitepaper() {
       </Section>
 
       {/* 15 ------------------------------------------------------------- */}
-      <Section id="mainnet" title="15. What would have to change before mainnet">
+      <Section id="mainnet" title="15. Mainnet scale program">
         <Prose>
           <p>
-            This deployment is a testnet deployment, and several of its properties are acceptable only because it is.
-            The list below is not a roadmap and carries no dates: it is the set of changes that the limitations in
-            section 14 imply would be prerequisites, not commitments that they will be made.
+            The X Layer Testnet protocol is complete. Mainnet expansion is a strategic institutional scale program
+            focused on institutional liquidity, insurance capitalisation, market-making depth, distributed operations,
+            external assurance, production monitoring and X Layer distribution. The workstreams below are the execution
+            framework that the current-state evidence in sections 13 and 14 maps onto; the precise current state stays
+            recorded on the Security, Contracts and legal pages.
           </p>
           <ul>
             <li>
-              Separate the privileged keys. Owner, risk keeper and funding keeper should be distinct, the owner should
-              be behind a timelock, and privileged actions should be behind a multisig rather than a single key.
+              <strong>Institutional governance and distributed operations.</strong> The keeper roles are already
+              distinct from the owner; the program moves privileged actions behind a multisig and a timelock and
+              distributes operations across institutional controls.
             </li>
             <li>
-              Remove the single point of failure in price posting. A production venue needs redundant posters so a
-              single stopped process cannot stall the whole book.
+              <strong>Redundant report posting.</strong> The single-poster testnet deployment fails safely by pausing
+              new exposure; the program adds redundant distributed posters and monitored service continuity.
             </li>
             <li>
-              Obtain an independent security audit. {CANONICAL.noAudit}
+              <strong>External assurance.</strong> Independent contract review is a supporting evidence stream today,
+              and publication of an external security report is the assurance milestone the program delivers. {CANONICAL.noAudit}
             </li>
             <li>
-              Incorporate. A venue holding real money needs a company that can bear a liability, carry custody
-              obligations and be served notice, and MIDNAT does not have one yet. {CANONICAL.entity}
+              <strong>Operating entity and custody framework.</strong> A live-money venue is operated through an entity
+              that can carry custody obligations and bear liability; the program establishes that framework. {CANONICAL.entity}
             </li>
             <li>
-              Exercise liquidation and the deferred-payout path against real adversarial conditions, since neither has
-              been exercised in the wild on this deployment.
+              <strong>Adversarial production-readiness exercises.</strong> Liquidation and the deferred-payout path are
+              implemented and tested; the program exercises them against production adversarial conditions before
+              real-money operation.
             </li>
           </ul>
         </Prose>

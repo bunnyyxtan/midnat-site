@@ -92,7 +92,8 @@ export default function Terms() {
             stale prices, refused trades, unpaid deferred claims, or the interface being unavailable when you wanted it.
           </p>
           <p>
-            This is not a company disclaiming a duty it would otherwise owe you. MIDNAT is not incorporated, so no
+            MIDNAT is not currently incorporated. No company, partnership, agency or fiduciary relationship is created
+            by your use of the interface, so no
             company balance sheet stands behind this interface to bear a liability, and you should not use it as if one
             did. The ways a position can lose everything assigned to it are set out
             in the{' '}
@@ -115,15 +116,14 @@ export default function Terms() {
       </Section>
 
       <Section id="entity" title="Entity and governing law">
-        <Callout tone="caution" title="An individual operator in India, and no company">
+        <Callout tone="caution" title="Operator and legal status">
           {CANONICAL.entity}
         </Callout>
         <Prose>
           <p>
-            These terms name a governing law and stop there. No arbitration venue or court is named, because none has
-            been agreed, and printing one that had not been agreed would be worse than saying so. The one channel this
-            project publishes, <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
-            {PRIMARY_CONTACT.network}, is an account and not a legal address, so nothing here can be served through it.
+            These terms name the governing law and do not designate an arbitration venue or specific court. The
+            published channel, <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
+            {PRIMARY_CONTACT.network}, is an operational contact rather than a legal service address.
           </p>
         </Prose>
       </Section>

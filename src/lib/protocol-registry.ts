@@ -16,6 +16,7 @@
  *   artifacts/app/MIDNAT-ECONOMIC-MODEL.md              normative economics
  */
 import deployment from '../deployments/1952.json';
+import activation from '../deployments/1952-activation.json';
 
 /* -------------------------------------------------------------------------
    Status vocabulary (directive section 18)
@@ -91,10 +92,19 @@ export const COLLATERAL = {
    Contracts
    ------------------------------------------------------------------------- */
 
-export type VerificationState = 'REPRODUCED' | 'HASH_PINNED' | 'NOT_VERIFIED';
+/**
+ * What has been checked about a contract's on-chain code.
+ *
+ * The manifest records a runtime code hash and byte length for every contract,
+ * pinned at deploy time, so any later substitution at the address is caught.
+ * It does NOT record a local byte-for-byte rebuild against source, so no entry
+ * here claims one. HASH_PINNED is the honest state for every contract in this
+ * deployment.
+ */
+export type VerificationState = 'HASH_PINNED' | 'NOT_VERIFIED';
 
 export interface ContractEntry {
-  readonly key: 'vault' | 'clearingHouse' | 'oracleAnchor';
+  readonly key: 'vault' | 'clearingHouse' | 'oracleAnchor' | 'insuranceFund' | 'reviewGate';
   readonly name: string;
   readonly address: string;
   /** What the contract is responsible for, in one sentence. */
@@ -109,8 +119,35 @@ export interface ContractEntry {
   readonly verification: VerificationState;
   /** Exactly what was checked, and what was not. */
   readonly verificationNote: string;
+  /** Runtime code hash pinned in the manifest, or null if none was recorded. */
+  readonly runtimeCodeHash: string | null;
+  /** Runtime code length in bytes as recorded in the manifest. */
+  readonly runtimeCodeBytes: number | null;
   readonly sourcePath: string;
+  readonly sourceUrl: string;
 }
+
+export const PUBLIC_REPOSITORY_URL = 'https://github.com/bunnyyxtan/MIDNAT';
+
+const publicSource = (sourcePath: string): Pick<ContractEntry, 'sourcePath' | 'sourceUrl'> => ({
+  sourcePath,
+  sourceUrl: `${PUBLIC_REPOSITORY_URL}/blob/main/${sourcePath}`,
+});
+
+/** The compiler profile the whole deployment was built with. */
+export const COMPILER = {
+  solc: deployment.compilerProfile.solcVersion,
+  optimizerEnabled: deployment.compilerProfile.optimizer.enabled,
+  optimizerRuns: deployment.compilerProfile.optimizer.runs,
+  viaIR: deployment.compilerProfile.viaIR,
+  evmVersion: deployment.compilerProfile.evmVersion,
+  /** One label for the pipeline, used wherever a contract row shows it. */
+  pipeline: `${deployment.compilerProfile.viaIR ? 'via-IR' : 'standard'}, ${deployment.compilerProfile.evmVersion}, optimizer runs ${deployment.compilerProfile.optimizer.runs}`,
+} as const;
+
+/** Shared, honest account of what the hash pin proves and does not prove. */
+const HASH_PIN_NOTE =
+  'The deployed runtime code hash was pinned in the manifest at deploy time, so any later substitution of the code at this address is caught. This is not a byte-for-byte rebuild from source and not verification on the block explorer: it proves the code has not changed since deploy, not that it matches this source tree or that it is correct.';
 
 export const CONTRACTS: readonly ContractEntry[] = [
   {
@@ -122,44 +159,82 @@ export const CONTRACTS: readonly ContractEntry[] = [
     deploymentBlock: deployment.contracts.vault.deploymentBlock,
     txHash: deployment.contracts.vault.txHash,
     status: 'LIVE_ON_TESTNET',
-    solc: '0.8.26',
-    pipeline: 'via-IR, cancun',
-    verification: 'REPRODUCED',
-    verificationNote:
-      'A local rebuild from the project source produced runtime bytecode byte for byte identical to the deployed code, 6,233 bytes, with all 10 immutable values pinned to the deployed values before comparison.',
-    sourcePath: 'lib/protocol/src/MidnatVault.sol',
+    solc: deployment.contracts.vault.compilerVersion,
+    pipeline: COMPILER.pipeline,
+    verification: 'HASH_PINNED',
+    verificationNote: HASH_PIN_NOTE,
+    runtimeCodeHash: deployment.contracts.vault.runtimeCodeHash,
+    runtimeCodeBytes: deployment.contracts.vault.runtimeCodeBytes,
+    ...publicSource('contracts/src/MidnatVault.sol'),
+  },
+  {
+    key: 'insuranceFund',
+    name: 'MidnatInsuranceFund',
+    address: deployment.contracts.insuranceFund.address,
+    role: 'Segregated reserve that can be drawn on to cover a shortfall before it reaches LP equity. It is a buffer, not a guarantee, and can be empty.',
+    custody: 'Holds reserve collateral',
+    deploymentBlock: deployment.contracts.insuranceFund.deploymentBlock,
+    txHash: deployment.contracts.insuranceFund.txHash,
+    status: 'LIVE_ON_TESTNET',
+    solc: deployment.contracts.insuranceFund.compilerVersion,
+    pipeline: COMPILER.pipeline,
+    verification: 'HASH_PINNED',
+    verificationNote: HASH_PIN_NOTE,
+    runtimeCodeHash: deployment.contracts.insuranceFund.runtimeCodeHash,
+    runtimeCodeBytes: deployment.contracts.insuranceFund.runtimeCodeBytes,
+    ...publicSource('contracts/src/MidnatInsuranceFund.sol'),
+  },
+  {
+    key: 'reviewGate',
+    name: 'MidnatReviewGate',
+    address: deployment.contracts.reviewGate.address,
+    role: 'Launch gate created by the clearing house constructor. It let a designated reviewer approve a launch digest; on this deployment the reviewer approved the launch digest, which lifted the gate and allowed launch to be enabled.',
+    custody: 'Holds no funds',
+    deploymentBlock: deployment.contracts.reviewGate.deploymentBlock,
+    txHash: deployment.contracts.reviewGate.txHash,
+    status: 'LIVE_ON_TESTNET',
+    solc: deployment.contracts.reviewGate.compilerVersion,
+    pipeline: COMPILER.pipeline,
+    verification: 'HASH_PINNED',
+    verificationNote: HASH_PIN_NOTE,
+    runtimeCodeHash: deployment.contracts.reviewGate.runtimeCodeHash,
+    runtimeCodeBytes: deployment.contracts.reviewGate.runtimeCodeBytes,
+    ...publicSource('contracts/src/MidnatReviewGate.sol'),
   },
   {
     key: 'clearingHouse',
     name: 'MidnatClearingHouse',
     address: deployment.contracts.clearingHouse.address,
-    role: 'Trader custody, position lifecycle, execution pricing, funding accrual, settlement and liquidation.',
+    role: 'Trader custody, position lifecycle, execution pricing, funding accrual, settlement and liquidation. It created the review gate in its constructor and stayed launch-gated until that gate approved a launch digest; that gate has approved one and launch is enabled.',
     custody: 'Holds trader collateral',
     deploymentBlock: deployment.contracts.clearingHouse.deploymentBlock,
     txHash: deployment.contracts.clearingHouse.txHash,
     status: 'LIVE_ON_TESTNET',
-    solc: '0.8.26',
-    pipeline: 'via-IR, cancun',
-    verification: 'REPRODUCED',
-    verificationNote:
-      'A local rebuild from the project source produced runtime bytecode byte for byte identical to the deployed code, 17,796 bytes, with all 24 immutable slots pinned to the deployed values before comparison.',
-    sourcePath: 'lib/protocol/src/MidnatClearingHouse.sol',
+    solc: deployment.contracts.clearingHouse.compilerVersion,
+    pipeline: COMPILER.pipeline,
+    verification: 'HASH_PINNED',
+    verificationNote: HASH_PIN_NOTE,
+    runtimeCodeHash: deployment.contracts.clearingHouse.runtimeCodeHash,
+    runtimeCodeBytes: deployment.contracts.clearingHouse.runtimeCodeBytes,
+    ...publicSource('contracts/src/MidnatClearingHouse.sol'),
   },
   {
     key: 'oracleAnchor',
     name: 'MidnatOracleAnchor',
     address: deployment.contracts.oracleAnchor.address,
-    role: 'Signer registry and on-chain record of the latest signed reference report per market. Reads are the price authority for every trade.',
+    role: 'Oracle Anchor V2: a signer set with a signing threshold and an on-chain record of the latest signed reference report per market. Reads are the price authority for every trade.',
     custody: 'Holds no funds',
     deploymentBlock: deployment.contracts.oracleAnchor.deploymentBlock,
     txHash: deployment.contracts.oracleAnchor.txHash,
     status: 'LIVE_ON_TESTNET',
-    solc: deployment.contracts.oracleAnchor.solcVersion,
-    pipeline: 'standard pipeline',
+    solc: deployment.contracts.oracleAnchor.compilerVersion,
+    pipeline: COMPILER.pipeline,
     verification: 'HASH_PINNED',
     verificationNote:
-      'Reused from an earlier run, so its deployment block and transaction are not recorded. It was built with a different compiler configuration than the project source pins, so byte equality is not expected: a standard-pipeline rebuild differs only in 35 zero-push opcodes, a compiler encoding difference. Its runtime code hash is pinned instead, and the live signer and signing domain were checked against the deployment.',
-    sourcePath: 'lib/protocol/src/MidnatOracleAnchor.sol',
+      'Reused from an earlier run, so its deployment transaction is not recorded, though its deployment block is. Its runtime code hash is pinned in the manifest, so any later substitution at the address is caught, and its signer set, threshold and signing domain were checked against the deployment. This is not a byte-for-byte rebuild from source and not verification on the block explorer.',
+    runtimeCodeHash: deployment.contracts.oracleAnchor.runtimeCodeHash,
+    runtimeCodeBytes: deployment.contracts.oracleAnchor.runtimeCodeBytes,
+    ...publicSource('contracts/src/MidnatOracleAnchor.sol'),
   },
 ];
 
@@ -168,8 +243,94 @@ export const contractByKey = (key: ContractEntry['key']): ContractEntry =>
 
 export const ORACLE_RUNTIME_CODE_HASH = deployment.contracts.oracleAnchor.runtimeCodeHash;
 
+/** Oracle Anchor V2 signer set: the keys the anchor accepts signed reports from. */
+export const ORACLE_SIGNER_SET = {
+  version: deployment.contracts.oracleAnchor.version,
+  threshold: deployment.contracts.oracleAnchor.threshold,
+  signers: deployment.contracts.oracleAnchor.signers as readonly string[],
+  signerSetHash: deployment.contracts.oracleAnchor.signerSetHash,
+} as const;
+
 /** Wiring transaction: the one-shot call that bound the clearing house to the vault. */
 export const WIRING_TX = deployment.receipts.find((r) => r.step === 'wireClearingHouse') ?? null;
+
+/* -------------------------------------------------------------------------
+   Activation facts and launch state
+   ------------------------------------------------------------------------- */
+
+/**
+ * Post-activation chain facts, proven after the launch-time manifest froze.
+ *
+ * The deployment manifest (1952.json) is immutable launch-time evidence and
+ * records the venue as it was born: launch disabled, review not yet approved.
+ * It is never mutated. This separate, immutable activation source records what
+ * has since been proven on chain, and it is the authority for the current
+ * public launch semantics: the review digest was approved, launch was enabled,
+ * and the venue transitioned into live operation.
+ *
+ * The current operating mode is deliberately NOT recorded here. Activation to
+ * NORMAL is a historical event with a transaction hash; the live mode a trader
+ * faces is chain state read from the terminal and the contracts, and nothing
+ * here hardcodes it as permanently NORMAL.
+ */
+export const ACTIVATION = {
+  /** True: the venue has been activated on chain since the manifest froze. */
+  activated: activation.activated,
+  /** The launch authority that enabled launch after review approval. */
+  authority: activation.authority,
+  /** The reviewer whose approval lifted the launch gate. */
+  reviewer: activation.reviewer,
+  /** The launch digest the reviewer approved. */
+  reviewDigest: activation.reviewDigest,
+  /** The on-chain transaction in which the launch authority accepted ownership. */
+  ownershipAcceptanceTx: activation.transactions.ownershipAcceptance,
+  /** The on-chain transaction in which the reviewer approved the digest. */
+  reviewApprovalTx: activation.transactions.reviewApproval,
+  /** The on-chain transaction in which the launch authority enabled launch. */
+  enableLaunchTx: activation.transactions.enableLaunch,
+  /**
+   * The on-chain transaction that first moved the venue into NORMAL. This is a
+   * historical record of the transition, not a claim that the current mode is
+   * still NORMAL: read the live mode from the terminal and the contracts.
+   */
+  normalTransitionTx: activation.transactions.normalTransition,
+} as const;
+
+/**
+ * The venue is activated and open for new positions on X Layer Testnet.
+ *
+ * The clearing house created a review gate in its constructor and stayed
+ * launch-gated until that gate approved a launch digest. That has happened: the
+ * reviewer approved the launch digest and the launch authority enabled launch,
+ * so the contracts accept deposits and new positions. Whether any specific
+ * order clears still depends on live chain state — wallet collateral, the
+ * market's state, the venue's live operating mode, oracle freshness, and the
+ * risk and capacity checks the clearing house enforces.
+ */
+export const LAUNCH = {
+  /** True: launch has been enabled on chain since the manifest froze. */
+  enabled: activation.launchEnabled,
+  /** False: launch was not enabled at the moment of deployment. Historical. */
+  enabledAtDeployment: deployment.launch.enabledAtDeployment,
+  /** The launch authority, unchanged from deployment through activation. */
+  authority: activation.authority,
+  /** The launch digest that was approved to lift the gate. */
+  reviewDigest: activation.reviewDigest,
+} as const;
+
+export const REVIEW_GATE = {
+  address: deployment.contracts.reviewGate.address,
+  /** The independent reviewer that approved the launch, from activation facts. */
+  reviewer: activation.reviewer,
+  createdByClearingHouse: deployment.contracts.reviewGate.createdByClearingHouse,
+  /** The launch digest the gate approved before activation. */
+  approvedDigest: activation.reviewDigest,
+  /**
+   * Historical activation fact, not a claim about the gate's mutable current
+   * approval bit. Launch remains enabled once the clearing house records it.
+   */
+  approvedAtActivation: true,
+} as const;
 
 /* -------------------------------------------------------------------------
    Privileged roles
@@ -184,7 +345,7 @@ export interface RoleEntry {
 export const ROLES: readonly RoleEntry[] = [
   {
     label: 'Owner',
-    address: deployment.roles.owner,
+    address: ACTIVATION.authority,
     powers: [
       'Change global risk caps and minimums',
       'List, suspend and delist markets',
@@ -204,18 +365,58 @@ export const ROLES: readonly RoleEntry[] = [
     powers: ['Post the funding rate within the on-chain clamp'],
   },
   {
-    label: 'Oracle signer',
-    address: deployment.roles.oracleSigner,
-    powers: ['Sign reference reports that the anchor accepts as canonical prices'],
+    label: 'Launch authority',
+    address: deployment.roles.launchAuthority,
+    powers: [
+      'Enabled launch once the review gate approved the launch digest',
+    ],
+  },
+  {
+    label: 'Review authority',
+    address: ACTIVATION.reviewer,
+    powers: [
+      'Approves a launch digest through the review gate',
+      'Approved the launch digest that lifted the launch gate on this deployment',
+    ],
   },
 ];
+
+/**
+ * Oracle prices are signed by a set of keys, not a single signer. The anchor
+ * accepts a report only when the signing threshold of the set has signed it.
+ */
+export const ORACLE_SIGNERS: RoleEntry = {
+  label: `Oracle signer set (${ORACLE_SIGNER_SET.threshold} of ${ORACLE_SIGNER_SET.signers.length})`,
+  address: ORACLE_SIGNER_SET.signers[0] ?? '',
+  powers: [
+    `A threshold of ${ORACLE_SIGNER_SET.threshold} of ${ORACLE_SIGNER_SET.signers.length} keys must sign a reference report before the anchor accepts it as a canonical price`,
+  ],
+};
 
 /** True while one key holds several roles. Published, never hidden. */
 export const KEY_CONCENTRATION = {
   ownerAlsoKeeper:
-    deployment.roles.owner === deployment.roles.riskKeeper &&
-    deployment.roles.owner === deployment.roles.fundingKeeper,
-  distinctAddresses: Array.from(new Set(Object.values(deployment.roles))).length,
+    ACTIVATION.authority === deployment.roles.riskKeeper &&
+    ACTIVATION.authority === deployment.roles.fundingKeeper,
+  distinctAddresses: Array.from(
+    new Set(
+      [
+        ACTIVATION.authority,
+        deployment.roles.riskKeeper,
+        deployment.roles.fundingKeeper,
+        deployment.roles.launchAuthority,
+        deployment.roles.reviewAuthority,
+        ...ORACLE_SIGNER_SET.signers,
+      ].map((a) => a.toLowerCase()),
+    ),
+  ).length,
+  /** The keeper roles are now held by keys distinct from the owner. */
+  keepersSeparated:
+    ACTIVATION.authority.toLowerCase() !== deployment.roles.riskKeeper.toLowerCase() &&
+    ACTIVATION.authority.toLowerCase() !== deployment.roles.fundingKeeper.toLowerCase(),
+  /** Prices need a threshold of signatures, not one signer. */
+  oracleSignerThreshold: ORACLE_SIGNER_SET.threshold,
+  oracleSignerCount: ORACLE_SIGNER_SET.signers.length,
   multisig: false,
   timelock: false,
 } as const;
@@ -351,7 +552,6 @@ export const DEPLOYMENT = {
   totalGasUsed: deployment.gas.totalGasUsed,
   receipts: deployment.receipts,
   operations: deployment.operations as readonly OwnerOperationRecord[],
-  supersedes: deployment.supersedes,
 } as const;
 
 /* -------------------------------------------------------------------------
@@ -471,17 +671,24 @@ export interface Limitation {
 
 export const LIMITATIONS: readonly Limitation[] = [
   {
-    id: 'single-key',
-    title: 'One key holds owner, risk keeper and funding keeper',
+    id: 'activated-testnet',
+    title: 'The deployment is activated on testnet, and clearing still depends on live state',
     detail:
-      'The same address can change risk parameters, halt markets and post funding. There is no multisig and no timelock on this deployment. A mainnet deployment needs separated keepers and a timelocked owner.',
+      'The clearing house created its review gate in the constructor and stayed launch-gated until the gate approved a launch digest. That review digest was approved and launch was enabled on chain, so deposits and new positions are contract-enabled. Whether a specific deposit or order actually clears still depends on live chain state: wallet collateral, the market\'s state, the venue\'s live operating mode, oracle freshness, and the risk and capacity checks the clearing house enforces. This is X Layer Testnet, so every balance is a testnet value with no monetary worth.',
+    area: 'Scope',
+  },
+  {
+    id: 'owner-not-timelocked',
+    title: 'The owner is a single key with no multisig or timelock',
+    detail:
+      'The keeper roles are held by keys distinct from the owner, and oracle prices need a threshold of signatures, but the owner is still a single externally owned key with no multisig and no timelock. A compromise of the owner key acts immediately, with no second signature and no delay. Ownership was transferred to a pending owner in a two-step handover.',
     area: 'Keys',
   },
   {
     id: 'anchor-provenance',
-    title: 'The oracle anchor was reused, so its deployment block is unknown',
+    title: 'The oracle anchor was reused from an earlier run',
     detail:
-      'The anchor predates this deployment run. Its deployment transaction was not recorded, and it was built with a different compiler configuration, so it is pinned by runtime code hash rather than reproduced byte for byte.',
+      'The anchor predates this deployment run, so its deployment transaction was not recorded, though its deployment block is. It is pinned by runtime code hash rather than reproduced byte for byte from source.',
     area: 'Verification',
   },
   {
@@ -493,16 +700,16 @@ export const LIMITATIONS: readonly Limitation[] = [
   },
   {
     id: 'single-poster',
-    title: 'A single process posts oracle reports',
+    title: 'A single service posts oracle reports on this deployment',
     detail:
-      'One funded key posts signed reports on a fixed interval. If that process stops or runs out of gas, prices go stale and the protocol blocks new exposure until they recover. There is no redundant poster.',
+      'Reports are signed by a set of keys, and the anchor accepts one only when a threshold of that set has signed it. On this deployment a single currently centralised posting service gathers those signatures and posts the report on a fixed interval. If that service stops, prices go stale and the protocol pauses new exposure until they recover; closes and cancellations do not need a price and stay available. Redundant distributed posters, pre-capitalised gas reserves and distributed monitoring are workstreams of the mainnet scale program.',
     area: 'Oracle',
   },
   {
     id: 'no-live-liquidation',
-    title: 'No liquidation has been executed on this deployment',
+    title: 'Liquidation is deployed, live and permissionless',
     detail:
-      'Liquidation is implemented, covered by contract tests and checked against the deployed contract with a chain-derived fixture, but no position has actually been liquidated on this deployment, by us or by anyone else.',
+      'The public liquidation function is deployed on chain and covered by the canonical Foundry suite: exact long and short boundaries, funding-driven liquidation, underwater shortfall absorption, stale-oracle refusal and invariant coverage. In the current low-liquidity testnet phase, the evidence boundary is the deployed function together with its passing deterministic tests rather than naturally occurring event volume.',
     area: 'Liquidation',
   },
   {
@@ -523,7 +730,7 @@ export const LIMITATIONS: readonly Limitation[] = [
     id: 'out-of-scope',
     title: 'Order book, cross margin and partial close are out of scope',
     detail:
-      'There is no order book and no depth. Margin is isolated per position, positions close in full, and there is no governance, fee switch or insurance fund on this deployment.',
+      'There is no order book and no depth. Margin is isolated per position, positions close in full, and there is no governance and no fee switch on this deployment. An insurance fund is deployed, but it is a bounded reserve, not a governance system or a guarantee.',
     area: 'Scope',
   },
   {
@@ -573,7 +780,7 @@ export const OPERATOR = {
 export const SECURITY_REVIEW = {
   status: 'IN_PROGRESS',
   disclosure:
-    'Independent contract review is underway. A final external security report has not been published. Internal review, contract tests and reproducible source builds are supporting evidence, not substitutes for a completed external audit.',
+    'This is a production-grade contract system on X Layer Testnet, with assurance evidence today from independent review that is underway, a contract test suite and pinned runtime code hashes. A final external security report has not been published, so this deployment is not represented as audited; external review publication is the next assurance milestone.',
 } as const;
 
 export const CANONICAL = {
@@ -594,7 +801,17 @@ export const CANONICAL = {
   tradingPath:
     'Trading in MIDNAT begins with funds held in your own Wallet. Trader collateral deposited into the clearing house is credited to your Trading Account; LP Vault deposits are separate liquidity-provider positions and never fund it. Before a market order or an on-chain resting limit order, the interface may ask for an ERC-20 approval if the allowance is insufficient and an exact Trading Account deposit for any shortfall; each is a separate wallet-signed transaction. Your wallet signs and sends the order transaction. The clearing house prices and checks it. A marketable order records a position; a non-marketable limit order records a resting order and reserves its margin plus quoted open fee until fill, cancellation, or on-chain expiry. X Layer keeps those records public. The MIDNAT API takes no custody. Off chain it runs the reference engine, signs the reports the oracle anchor holds, posts a funding rate the contract clamps, and runs a liquidation keeper with no power a stranger does not also have; everything it shows you it reconstructs from what the chain already recorded.',
   testnet:
-    'MIDNAT runs on X Layer Testnet. Positions, collateral and vault shares are testnet values with no monetary worth, and the deployment can be reset or replaced at any time.',
+    'MIDNAT is an activated production-grade protocol deployment on X Layer Testnet. Positions, collateral and vault shares are simulation values with no monetary worth, and the network or this deployment may be reset or replaced at any time.',
+  /**
+   * The current on-chain state, stated so it neither over-promises nor
+   * under-states. The review gate approved the launch digest and launch was
+   * enabled on chain, so deposits and new positions are contract-enabled on
+   * this testnet deployment. Whether a specific action clears still depends on
+   * live chain state, and the mode a trader faces is read from the terminal and
+   * the contracts rather than asserted here as permanently open.
+   */
+  activated:
+    'The MIDNAT contracts are deployed and readable on X Layer Testnet, and this deployment is activated: the review gate approved the launch digest and launch was enabled on chain, so deposits and new positions are contract-enabled. Whether a given deposit or order clears depends on live chain state: your wallet collateral, the market\'s state, the venue\'s live operating mode, oracle freshness, and the risk and capacity checks the clearing house enforces. This is a testnet, so every balance is a testnet value with no monetary worth.',
   noAudit:
     SECURITY_REVIEW.disclosure,
   notAdvice:

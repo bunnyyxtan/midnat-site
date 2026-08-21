@@ -5,9 +5,10 @@ import { useReducedMotion } from 'framer-motion';
 
 /**
  * Vault ledger. Every line here is checked against what the product can
- * actually do today: the vault contract is deployed, the interface has no
- * deposit path, and no vault figure has a settled source yet. Do not write
- * a deposit, yield or withdrawal promise into this file.
+ * actually do today: the deployment is activated on X Layer Testnet, so LP
+ * deposits into the vault are contract-enabled, but whether a specific deposit
+ * clears still depends on live chain state. Do not write a yield promise or an
+ * APR into this file, and do not imply insurance.
  */
 const steps = [
   {
@@ -22,8 +23,8 @@ const steps = [
   },
   {
     index: '03',
-    label: 'Deposits are open',
-    copy: 'Deposit and withdraw from your own wallet. Shares are an ERC-20 the contract holds.',
+    label: 'Activated on testnet',
+    copy: 'The vault is activated on X Layer Testnet. LP deposits are contract-enabled and clear subject to live chain state.',
   },
 ];
 
@@ -68,7 +69,7 @@ export function VaultsTeaser() {
                     data-testid="badge-vaults-status"
                     className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded-full border border-[color:var(--ln-glass-border)] opacity-70"
                   >
-                    Deployed, deposits open
+                    Activated on testnet
                   </span>
                 </div>
 
@@ -77,7 +78,7 @@ export function VaultsTeaser() {
                 </h2>
 
                 <p className="text-[1.1rem] opacity-[0.85] font-normal leading-relaxed mb-12 max-w-md">
-                  MIDNAT has one counterparty. Traders do not trade against each other, they trade against vault capital, which earns the protocol fees and absorbs the losses. The vault contract is deployed on X Layer Testnet. Deposits and withdrawals are direct wallet transactions.
+                  MIDNAT has one counterparty. Traders do not trade against each other, they trade against vault capital, which earns the protocol fees and absorbs the losses. The vault is activated on X Layer Testnet, so LP deposits are contract-enabled and clear subject to live chain state.
                 </p>
 
                 <Link href="/docs/vault" data-testid="link-vaults-teaser" className="landing-primary-btn w-fit whitespace-nowrap">

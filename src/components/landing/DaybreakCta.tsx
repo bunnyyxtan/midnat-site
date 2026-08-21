@@ -105,7 +105,7 @@ export function DaybreakCta() {
               data-testid="cta-start-trading"
               className="landing-primary-btn"
             >
-              Start trading
+              Open the app
               <ArrowRight size={18} className="landing-primary-btn-arrow" />
             </a>
           </Reveal>

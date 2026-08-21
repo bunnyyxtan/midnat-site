@@ -42,7 +42,7 @@ export default function Risk() {
             {
               label: 'Risk disclosure',
               href: '/legal/risk-disclosure',
-              summary: 'The ways you can lose everything you deposit, stated plainly.',
+              summary: 'A structured overview of loss, payout and testnet settlement risks.',
             },
             { label: 'Security', href: '/security', summary: 'Key concentration, verification state and disclosure.' },
             {
@@ -181,11 +181,12 @@ export default function Risk() {
         </Prose>
       </Section>
 
-      <Section id="residual" title="The residual risks nothing bounds">
+      <Section id="residual" title="Residual risk and deployment scope">
         <Prose>
           <p>
-            The limits above bound the risks the contracts can see. The following are published limitations of this
-            deployment. Nothing in the protocol bounds them, and no page on this site claims otherwise.
+            The controls above bound the risks the contracts can observe. The following deployment-scope and assurance
+            boundaries complete the current risk picture and identify the workstreams carried into the mainnet scale
+            program.
           </p>
         </Prose>
         <TableScroll>
@@ -193,7 +194,7 @@ export default function Risk() {
             <thead>
               <tr>
                 <th scope="col">Area</th>
-                <th scope="col">Limitation</th>
+                <th scope="col">Boundary</th>
                 <th scope="col">Detail</th>
               </tr>
             </thead>
@@ -210,17 +211,17 @@ export default function Risk() {
         </TableScroll>
       </Section>
 
-      <Section id="not-established" title="What this page does not establish">
+      <Section id="not-established" title="Assurance boundary">
         <Prose>
           <p>
-            A bounded risk is a risk that has been contained, not a risk that has been removed. The caps and clamps
-            above have been implemented and tested, and none of that is the same as being proven safe with real money.
+            This framework documents the controls and residual risks of the X Layer Testnet deployment. It is not a
+            mainnet certification or a guarantee of outcome.
           </p>
           <ul>
             <li>{CANONICAL.noAudit}</li>
             <li>
-              No position has been liquidated on this deployment. The liquidation path is tested but the keeper
-              economics are untested in the wild.
+              Permissionless liquidation is deployed and live on chain, with canonical exact-boundary, funding-drift,
+              underwater-shortfall, refusal and invariant coverage.
             </li>
             <li>{CANONICAL.notAdvice}</li>
           </ul>

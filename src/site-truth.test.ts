@@ -17,7 +17,19 @@ import {
   footerGroups,
   legalHref,
 } from '@/lib/site-map';
-import { CANONICAL, LIMITATIONS, MARKETS, SECURITY_REVIEW } from '@/lib/protocol-registry';
+import {
+  ACTIVATION,
+  CANONICAL,
+  CONTRACTS,
+  LAUNCH,
+  LIMITATIONS,
+  MARKETS,
+  ORACLE_SIGNER_SET,
+  PUBLIC_REPOSITORY_URL,
+  REVIEW_GATE,
+  SECURITY_REVIEW,
+  contractByKey,
+} from '@/lib/protocol-registry';
 import { CONTACT_CHANNELS, HAS_EMAIL_CHANNEL, PRIMARY_CONTACT, X_HANDLE } from '@/lib/contact';
 import { APP_URL, appHref } from '@/lib/config';
 import { API_BASE } from '@/lib/api';
@@ -124,7 +136,8 @@ describe('the footer follows the active deployment and product surfaces', () => 
     readFileSync(join(SRC, 'deployments', '1952.json'), 'utf8'),
   ) as {
     readonly completedAt: string;
-    readonly supersedes: {
+    /** Present only on a deployment that superseded an earlier one with state left behind. */
+    readonly supersedes?: {
       readonly vault: string;
       readonly clearingHouse: string;
     };
@@ -137,7 +150,11 @@ describe('the footer follows the active deployment and product surfaces', () => 
   });
 
   it('matches the canonical protocol manifest when this site is checked out inside the protocol workspace', () => {
-    const canonicalPath = join(SRC, '..', '..', '..', 'lib', 'protocol', 'deployments', '1952.json');
+    const deploymentsPath = join(SRC, '..', '..', '..', 'lib', 'protocol', 'deployments');
+    const selectorPath = join(deploymentsPath, '1952-release.json');
+    if (!existsSync(selectorPath)) return;
+    const selector = JSON.parse(readFileSync(selectorPath, 'utf8')) as { manifest: string };
+    const canonicalPath = join(deploymentsPath, selector.manifest);
     if (!existsSync(canonicalPath)) return;
     const canonical = JSON.parse(readFileSync(canonicalPath, 'utf8')) as unknown;
     expect(manifest, 'the public-site manifest drifted from the protocol manifest').toEqual(canonical);
@@ -167,7 +184,12 @@ describe('the footer follows the active deployment and product surfaces', () => 
     const renderedSources = SOURCES.filter(
       (source) => source.rel.startsWith('pages/') || source.rel.startsWith('components/'),
     );
-    const staleAddresses = [manifest.supersedes.vault, manifest.supersedes.clearingHouse];
+    /* Only a deployment that superseded an earlier one carries stale addresses
+       to guard against. The current deployment does not, so this becomes a
+       no-op list rather than a crash on a missing field. */
+    const staleAddresses = manifest.supersedes
+      ? [manifest.supersedes.vault, manifest.supersedes.clearingHouse]
+      : [];
     const staleAddressOffenders = renderedSources.flatMap((source) =>
       staleAddresses
         .filter((address) => source.text.toLowerCase().includes(address.toLowerCase()))
@@ -179,6 +201,22 @@ describe('the footer follows the active deployment and product surfaces', () => 
       .filter((source) => /20\d{2}-\d{2}-\d{2}/.test(source.text))
       .map((source) => source.rel);
     expect(hardCodedDateOffenders, 'rendered deployment dates must come from the manifest').toEqual([]);
+  });
+});
+
+describe('contract source provenance', () => {
+  const registry = SOURCES.find((source) => source.rel === 'lib/protocol-registry.ts')!.text;
+  const page = SOURCES.find((source) => source.rel === 'pages/contracts.tsx')!.text;
+
+  it('publishes repository paths rather than internal workspace paths', () => {
+    expect(registry).toMatch(/contracts\/src\/MidnatVault\.sol/);
+    expect(registry).not.toMatch(/sourcePath:\s*['"]lib\/protocol\//);
+  });
+
+  it('renders each source as a real external repository link', () => {
+    expect(registry).toMatch(/https:\/\/github\.com\/bunnyyxtan\/MIDNAT/);
+    expect(page).toMatch(/href=\{c\.sourceUrl\}/);
+    expect(page).toMatch(/View \{c\.sourcePath\}/);
   });
 });
 
@@ -229,42 +267,27 @@ describe('published URLs are real', () => {
   });
 });
 
-describe('the site never points a reader at the code host', () => {
-  /**
-   * Owner law: the repository is not part of the public surface. It may be
-   * public, but nothing here links it, names it or offers it as a channel --
-   * a link that survives in one legal page is the whole leak. The scan is on
-   * raw source, comments included, so a stray URL in a code comment fails
-   * too; the phrase list is what the pages used to say.
-   */
-  const BANNED: ReadonlyArray<readonly [RegExp, string]> = [
-    [/github/i, 'the site names no code host'],
-    [/\bgitlab|bitbucket\b/i, 'the site names no code host'],
-    [/\brepositor(?:y|ies)\b/i, 'public prose says "the project source", never "the repository"'],
-    [/\bopen an issue\b/i, 'there is no issue tracker to send a reader to'],
-    [/\bpull request\b/i, 'the site offers no contribution channel'],
-  ];
+describe('the site points source claims only at the canonical repository', () => {
+  it('allows only the one public MIDNAT repository URL', () => {
+    const offenders: string[] = [];
+    for (const source of SOURCES) {
+      if (source.rel === 'site-truth.test.ts') continue;
+      for (const match of source.text.matchAll(/https:\/\/github\.com\/[^"'`\s)]+/g)) {
+        if (!match[0].startsWith('https://github.com/bunnyyxtan/MIDNAT')) {
+          offenders.push(`${source.rel}: ${match[0]}`);
+        }
+      }
+    }
+    expect(offenders, 'a source link points outside the canonical repository').toEqual([]);
+  });
 
-  for (const [pattern, why] of BANNED) {
-    it(`never says: ${pattern.source} (${why})`, () => {
-      const offenders = SOURCES.filter((f) => f.rel !== 'site-truth.test.ts' && pattern.test(f.text)).map((f) => f.rel);
-      expect(offenders, why).toEqual([]);
-    });
-  }
-
-  it('publishes no code host in a static file either', () => {
-    /* The src scan above cannot see what Vite copies verbatim. A
-       .well-known/security.txt naming a code host as the disclosure route
-       outlived the pages that used to name one, and contradicted them. */
-    const staticRoot = join(SRC, '..', 'public');
-    const statics = [...walkEveryFile(staticRoot), join(SRC, '..', 'index.html')];
-    expect(statics.length, 'the static scan found no files to read').toBeGreaterThan(0);
-    const offenders = statics
-      /* latin1 never throws on a binary file and leaves ASCII byte-for-byte,
-         so a code host embedded in a font or an image is still caught. */
-      .filter((full) => /github|gitlab|bitbucket|repositor(?:y|ies)/i.test(readFileSync(full).toString('latin1')))
-      .map((full) => relative(join(SRC, '..'), full));
-    expect(offenders, 'a static file names a code host').toEqual([]);
+  it('never names an alternate code host', () => {
+    const offenders = SOURCES.filter(
+      (source) =>
+        source.rel !== 'site-truth.test.ts' &&
+        /\bgitlab|bitbucket\b/i.test(source.text),
+    ).map((source) => source.rel);
+    expect(offenders, 'a non-canonical code host is published').toEqual([]);
   });
 });
 
@@ -672,20 +695,157 @@ describe('market claims match the deployment', () => {
   });
 });
 
-describe('vault copy matches what the interface can do', () => {
-  const CLOSED = /deposits?\s+(?:are\s+)?(?:not\s+open|closed)|does not accept deposits|no deposit path|deposits are not accepted/i;
+describe('actionable guidance matches the activated deployment', () => {
+  /**
+   * The venue is activated on chain: the review gate approved the launch digest
+   * (ACTIVATION) and launch is enabled, so deposits and new positions are
+   * contract-enabled. The actionable guides describe how to deposit and trade,
+   * and each must carry the shared activated-testnet disclosure that states the
+   * dependence on live chain state.
+   *
+   * Stale pre-launch phrasing is forbidden: nothing may claim launch is
+   * disabled, the review is unapproved, the reviewer is burn-locked, or LP
+   * deposits are unavailable. Price-free custody exits remain available, so
+   * nothing may claim a global halt blocks withdrawals.
+   */
 
-  it('does not claim deposits are closed', () => {
-    const offenders = SOURCES.filter((f) => f.rel !== 'site-truth.test.ts' && CLOSED.test(proseOf(f.text))).map(
-      (f) => f.rel,
-    );
-    expect(offenders, 'the LP panel deposits and withdraws today').toEqual([]);
+  // The registry, read once, must actually describe an activated venue. If
+  // launch is ever disabled again, these truth tests should be revisited.
+  it('confirms the venue is activated in the registry the tests read', () => {
+    expect(LAUNCH.enabled, 'launch is enabled on this deployment').toBe(true);
+    expect(REVIEW_GATE.approvedAtActivation, 'the review gate approved the activation digest').toBe(true);
+    expect(REVIEW_GATE.approvedDigest, 'the approved launch digest is recorded').toMatch(/^0x[0-9a-fA-F]{64}$/);
+    expect(ACTIVATION.activated).toBe(true);
+    expect(ACTIVATION.reviewDigest).toBe(REVIEW_GATE.approvedDigest);
+    expect(ACTIVATION.reviewer).toBe('0xcc00f7029582386c28E8E8306E769eEe5e33d309');
+    expect(ACTIVATION.reviewer.toLowerCase()).not.toBe(ACTIVATION.authority.toLowerCase());
+    expect(ACTIVATION.ownershipAcceptanceTx).toMatch(/^0x[0-9a-fA-F]{64}$/);
+    expect(ACTIVATION.enableLaunchTx).toMatch(/^0x[0-9a-fA-F]{64}$/);
+    expect(ACTIVATION.reviewApprovalTx).toMatch(/^0x[0-9a-fA-F]{64}$/);
+    expect(ACTIVATION.normalTransitionTx).toMatch(/^0x[0-9a-fA-F]{64}$/);
   });
 
-  it('says on the landing page that the vault is open', () => {
+  // Stale pre-launch claims. None of these may survive in prose or JSX strings.
+  const STALE_PRELAUNCH: readonly RegExp[] = [
+    /\bnot\s+launched\b/i,
+    /\bhas\s+not\s+launched\b/i,
+    /\bdeployed,?\s+not\s+launched\b/i,
+    /\blaunch\s+is\s+disabled\b/i,
+    /\blaunch\s+(?:remains|stays)\s+disabled\b/i,
+    /\breview\s+(?:is\s+)?not\s+(?:yet\s+)?approved\b/i,
+    /\bno\s+(?:approved\s+)?review\s+digest\b/i,
+    /\bburn\s+address\b/i,
+    /\bburn-?locked\b/i,
+    /\bLP\s+deposits\s+are\s+not\s+(?:open|available)\b/i,
+    /\bdeposits\s+are\s+not\s+open\b/i,
+    /\bcannot\s+open\s+a\s+new\s+position\b/i,
+    /\bnot\s+something\s+you\s+can\s+trade\b/i,
+    /\bnot\s+actionable\b/i,
+    /\bgated\s+off\b/i,
+    /\bawaiting\s+review\b/i,
+  ];
+
+  it('forbids stale pre-launch phrasing in the public site', () => {
+    const offenders: string[] = [];
+    for (const file of SOURCES) {
+      if (file.rel === 'site-truth.test.ts') continue;
+      // Whole-file text minus comments: the VaultsTeaser badge and step labels
+      // are JSX strings. A guard comment ("do not write X") is not an offence.
+      const text = file.text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+      for (const re of STALE_PRELAUNCH) {
+        const m = re.exec(text);
+        if (m) offenders.push(`${file.rel}: "${m[0]}"`);
+      }
+    }
+    expect(offenders, 'the venue is activated: no stale pre-launch claim may remain').toEqual([]);
+  });
+
+  it('states the activated status on the landing vault teaser', () => {
     const teaser = SOURCES.find((f) => f.rel.endsWith('landing/VaultsTeaser.tsx'))!;
-    expect(teaser.text).toMatch(/deposits open/i);
-    expect(teaser.text).toMatch(/withdraw/i);
+    // Strip comments: a guard note ("do not write an APR") is not a claim.
+    const body = teaser.text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+    expect(body).not.toMatch(/not launched/i);
+    expect(body, 'the teaser must state the activated-testnet status').toMatch(/activated on testnet/i);
+    // No yield or APR promise may creep into the teaser.
+    expect(body).not.toMatch(/\bAPR\b|guaranteed\s+yield/i);
+  });
+
+  it('does not hardcode the current operating mode as permanently NORMAL', () => {
+    // Activation to NORMAL is historical. No public prose may *assert* the
+    // venue's current mode is permanently normal; the live mode is read from the
+    // chain. Negated forms ("not a claim that the mode is permanently NORMAL")
+    // are allowed, so a "not"/"never"/"nor" within the preceding clause is
+    // excluded, and comments are stripped first.
+    const AFFIRM_NORMAL =
+      /(?:current|live|now)\s+(?:operating\s+)?mode\s+is\s+(?:permanently\s+)?normal|permanently\s+in\s+normal|always\s+in\s+normal/i;
+    const offenders: string[] = [];
+    for (const file of SOURCES) {
+      if (file.rel === 'site-truth.test.ts') continue;
+      const prose = proseOf(file.text)
+        .replace(/\/\*[\s\S]*?\*\//g, ' ')
+        .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+      const m = AFFIRM_NORMAL.exec(prose);
+      if (!m) continue;
+      // Allow a negation in the same sentence: it is a caveat, not a claim.
+      const clause = prose.slice(Math.max(0, m.index - 60), m.index);
+      if (/\b(not|never|nor|isn't|rather than)\b/i.test(clause)) continue;
+      offenders.push(`${file.rel}: "${m[0]}"`);
+    }
+    expect(offenders, 'the live mode must be described as chain state, not hardcoded NORMAL').toEqual([]);
+  });
+
+  it('never says withdrawals are blocked by a global halt', () => {
+    // Price-free custody exits stay available. This guards a *global* halt claim
+    // ("withdrawals are blocked/disabled/paused"), not the seniority truth that
+    // an LP cannot withdraw value owed to a claimant ahead of them.
+    const HALTED_WITHDRAW =
+      /withdrawals?\s+(?:are\s+|have\s+been\s+)?(?:blocked|disabled|paused|frozen|halted|suspended|not\s+available|unavailable)\b|global\s+halt[^.]{0,40}withdraw/i;
+    const offenders = SOURCES.filter(
+      (f) => f.rel !== 'site-truth.test.ts' && HALTED_WITHDRAW.test(proseOf(f.text)),
+    ).map((f) => f.rel);
+    expect(offenders, 'price-free withdrawals stay available').toEqual([]);
+  });
+
+  it('carries the shared activated-testnet disclosure on every actionable guide', () => {
+    // Actionable guides give present-tense deposit/first-trade instructions.
+    // Each must render the single shared ActivatedTestnetNotice, not ad hoc text.
+    const ACTIONABLE = [
+      'pages/docs/getting-started.tsx',
+      'pages/docs/first-trade.tsx',
+      'pages/docs/vault.tsx',
+    ] as const;
+    for (const rel of ACTIONABLE) {
+      const file = SOURCES.find((f) => f.rel === rel);
+      expect(file, `${rel} is listed as an actionable guide but does not exist`).toBeDefined();
+      expect(file!.text, `${rel} must render <ActivatedTestnetNotice />`).toMatch(/<ActivatedTestnetNotice\s*\/>/);
+      expect(file!.text, `${rel} must import the shared disclosure`).toMatch(
+        /import\s*\{\s*ActivatedTestnetNotice\s*\}\s*from\s*'@\/components\/public\/ActivatedTestnetNotice'/,
+      );
+    }
+  });
+
+  it('routes the shared disclosure through the activation registry facts', () => {
+    const notice = SOURCES.find((f) => f.rel === 'components/public/ActivatedTestnetNotice.tsx');
+    expect(notice, 'the shared ActivatedTestnetNotice component exists').toBeDefined();
+    expect(notice!.text, 'the notice must read the launch state, not hard-code it').toMatch(/LAUNCH\.enabled/);
+    expect(
+      notice!.text,
+      'the notice must not derive irreversible launch state from the review gate current approval bit',
+    ).not.toMatch(/REVIEW_GATE\.approved/);
+    expect(notice!.text, 'the notice must surface the canonical activated fact').toMatch(/CANONICAL\.activated/);
+    expect(notice!.text, 'the notice must surface the activation digest').toMatch(/ACTIVATION\.reviewDigest/);
+  });
+
+  it('states the dependence on live chain state where deposits and trading are described', () => {
+    // The activated disclosure must not read as an unconditional "open" claim:
+    // clearing depends on wallet collateral, market state, live mode, oracle
+    // freshness and risk/capacity checks.
+    const notice = SOURCES.find((f) => f.rel === 'components/public/ActivatedTestnetNotice.tsx')!;
+    expect(notice.text).toMatch(/wallet collateral/i);
+    expect(notice.text).toMatch(/oracle freshness/i);
+    expect(notice.text).toMatch(/live operating mode|live chain state/i);
+    expect(CANONICAL.activated).toMatch(/contract-enabled/i);
+    expect(CANONICAL.activated).toMatch(/live chain state|market's state|oracle freshness/i);
   });
 });
 
@@ -1033,17 +1193,28 @@ describe('a link into the app opens the app, not over the page you were reading'
   });
 
   it('holds the footer app links to the same rule, which reach appHref indirectly', () => {
-    // The footer never names appHref. It renders whatever site-map marked
-    // external, and site-map marks exactly the app routes that way. The first
-    // assertion is what keeps the second one meaningful.
-    const siteMap = SOURCES.find((s) => s.rel.endsWith(join('lib', 'site-map.ts')))!.text;
-    const externals = siteMap.match(/^.*external: true.*$/gm) ?? ([] as string[]);
-    expect(externals.length).toBeGreaterThan(0);
-    for (const line of externals) expect(line).toContain('appHref(');
+    const appLinks = footerGroups()
+      .flatMap((group) => group.links)
+      .filter((link) => link.href.startsWith(APP_URL));
+    expect(appLinks.length).toBeGreaterThan(0);
+    for (const link of appLinks) expect(link.external).toBe(true);
 
     const footer = SOURCES.find((s) => s.rel.endsWith('PublicFooter.tsx'))!.text;
     const branch = footer.slice(footer.indexOf('{link.external ? ('));
     opensSafely((branch.match(/<a\b[\s\S]*?>/) ?? [''])[0]);
+  });
+
+  it('keeps the canonical public source repository reachable from the footer', () => {
+    const sourceLink = footerGroups()
+      .flatMap((group) => group.links)
+      .find((link) => link.label === 'Source code');
+
+    expect(sourceLink).toEqual({
+      label: 'Source code',
+      href: PUBLIC_REPOSITORY_URL,
+      external: true,
+    });
+    expect(PUBLIC_REPOSITORY_URL).toBe('https://github.com/bunnyyxtan/MIDNAT');
   });
 });
 
@@ -1271,5 +1442,126 @@ describe('the site never says trading is free', () => {
       /\bprotocol fee\b[^.]*\bvault\b/i,
     );
     expect(unnarrowedDenials(desc!), 'the card must not deny the fee it states').toEqual([]);
+  });
+});
+
+describe('the site manifest is a generated copy of the canonical protocol manifest', () => {
+  /**
+   * The public site cannot import a file outside its own root, so it keeps a
+   * copy of the deployment manifest at src/deployments/1952.json. The copy must
+   * never be hand-maintained: scripts/sync-deployment.mjs writes it
+   * deterministically from the manifest selected by
+   * lib/protocol/deployments/1952-release.json, and this test is
+   * the drift check. If the canonical manifest changed and the sync script was
+   * not run, this fails.
+   */
+  const copyPath = join(SRC, 'deployments', '1952.json');
+  const deploymentsPath = join(SRC, '..', '..', '..', 'lib', 'protocol', 'deployments');
+  const selectorPath = join(deploymentsPath, '1952-release.json');
+  const selectedManifest = existsSync(selectorPath)
+    ? (JSON.parse(readFileSync(selectorPath, 'utf8')) as { manifest: string }).manifest
+    : '1952.json';
+  const canonicalPath = join(deploymentsPath, selectedManifest);
+
+  it('re-serialises byte-for-byte to the same file (deterministic copy)', () => {
+    const copy = readFileSync(copyPath, 'utf8');
+    const reRendered = `${JSON.stringify(JSON.parse(copy), null, 2)}\n`;
+    expect(copy, 'the copy is not the deterministic 2-space render the sync script writes').toBe(reRendered);
+  });
+
+  it('matches the canonical manifest byte-for-byte when checked out in the protocol workspace', () => {
+    if (!existsSync(canonicalPath)) return;
+    const canonical = `${JSON.stringify(JSON.parse(readFileSync(canonicalPath, 'utf8')), null, 2)}\n`;
+    expect(readFileSync(copyPath, 'utf8'), 'run: node scripts/sync-deployment.mjs').toBe(canonical);
+  });
+
+  it('provides a sync script and no hand-authored second manifest', () => {
+    expect(existsSync(join(SRC, '..', 'scripts', 'sync-deployment.mjs')), 'the sync script exists').toBe(true);
+    // The registry is the only module allowed to import the manifest JSON.
+    const importers = SOURCES.filter(
+      (f) => f.rel !== 'lib/protocol-registry.ts' && /from ['"][^'"]*deployments\/1952\.json['"]/.test(f.text),
+    ).map((f) => f.rel);
+    expect(importers, 'only the registry may import the manifest').toEqual([]);
+  });
+});
+
+describe('the registry represents the V2 deployment honestly', () => {
+  it('carries the five deployed contracts including the insurance fund and review gate', () => {
+    const keys = CONTRACTS.map((c) => c.key).sort();
+    expect(keys).toEqual(['clearingHouse', 'insuranceFund', 'oracleAnchor', 'reviewGate', 'vault']);
+  });
+
+  it('describes Oracle Anchor V2 as a signer set with a threshold, not a single signer', () => {
+    expect(ORACLE_SIGNER_SET.version).toBe('v2');
+    expect(ORACLE_SIGNER_SET.threshold).toBeGreaterThan(1);
+    expect(ORACLE_SIGNER_SET.signers.length).toBeGreaterThan(ORACLE_SIGNER_SET.threshold - 1);
+    // No public prose may still describe a lone oracle signer key.
+    const offenders = SOURCES.filter(
+      (f) => f.rel !== 'site-truth.test.ts' && /\bthe oracle signer is a distinct privileged role\b/i.test(f.text),
+    ).map((f) => f.rel);
+    expect(offenders, 'a page still describes a single oracle signer').toEqual([]);
+  });
+
+  it('states launch is enabled and the launch digest is approved', () => {
+    expect(LAUNCH.enabled).toBe(true);
+    expect(LAUNCH.authority).toBe(ACTIVATION.authority);
+    expect(LAUNCH.reviewDigest).toBe(ACTIVATION.reviewDigest);
+    expect(REVIEW_GATE.approvedAtActivation).toBe(true);
+    expect(REVIEW_GATE.createdByClearingHouse).toBe(true);
+    expect(REVIEW_GATE.approvedDigest).toBe(ACTIVATION.reviewDigest);
+    // Launch was NOT enabled at the moment of deployment: that historical fact
+    // stays true and comes from the immutable launch-time manifest.
+    expect(LAUNCH.enabledAtDeployment).toBe(false);
+  });
+
+  it('publishes the activated fact as a limitation and states its live-state dependence', () => {
+    const activated = LIMITATIONS.find((l) => l.id === 'activated-testnet');
+    expect(activated, 'the activated-testnet limitation exists').toBeDefined();
+    expect(CANONICAL.activated).toMatch(/activated|launch was enabled|contract-enabled/i);
+    expect(CANONICAL.activated).toMatch(/live chain state|market's state|oracle freshness/i);
+    // The trust pages that describe the deployment must surface the activation.
+    for (const rel of ['pages/contracts.tsx', 'pages/verify.tsx', 'pages/security.tsx']) {
+      const file = SOURCES.find((f) => f.rel === rel);
+      expect(file, `${rel} exists`).toBeDefined();
+      expect(file!.text, `${rel} surfaces the activated fact`).toMatch(/activated-testnet|activation|Activated on testnet/i);
+    }
+  });
+
+  it('makes no false byte-for-byte reproduction claim in public prose', () => {
+    /**
+     * The manifest records a pinned runtime code hash for every contract, not a
+     * local rebuild from source. No page may claim the deployed code was
+     * reproduced byte-for-byte from source, because that is not what happened.
+     * A page may still say a hash pin is NOT a byte-for-byte rebuild.
+     */
+    const CLAIMS: readonly RegExp[] = [
+      // Affirmative reproduction claim, but not a negation ("not/never/is/than
+      // reproduced byte for byte from source", which are honest disclaimers).
+      /(?<!\b(?:not|never|no|is|than)\s)reproduced byte[- ]for[- ]byte from (?:the |project )?source/i,
+      /rebuilt from (?:the )?(?:project )?source[^.]{0,60}\bidentical to the deployed code\b/i,
+      /runtime bytecode reproduced/i,
+      /\breproduce byte for byte once immutables are pinned\b/i,
+    ];
+    const offenders = SOURCES.filter(
+      (f) => f.rel !== 'site-truth.test.ts' && CLAIMS.some((re) => re.test(proseOf(f.text))),
+    ).map((f) => f.rel);
+    expect(offenders, 'a page claims a byte-for-byte reproduction the manifest does not support').toEqual([]);
+  });
+
+  it('no longer claims there is no insurance fund on this deployment', () => {
+    const insurance = contractByKey('insuranceFund');
+    expect(insurance.name).toBe('MidnatInsuranceFund');
+    const NO_FUND = /there is no insurance fund|no insurance fund and no (?:external )?backstop on this deployment/i;
+    const offenders = SOURCES.filter(
+      (f) => f.rel !== 'site-truth.test.ts' && NO_FUND.test(proseOf(f.text)),
+    ).map((f) => f.rel);
+    expect(offenders, 'a page denies the deployed insurance fund').toEqual([]);
+  });
+
+  it('every contract is hash-pinned, none claims a stronger verification state', () => {
+    for (const c of CONTRACTS) {
+      expect(c.verification, `${c.name} verification state`).toBe('HASH_PINNED');
+      expect(c.runtimeCodeHash, `${c.name} has a pinned runtime code hash`).toMatch(/^0x[0-9a-f]{64}$/i);
+    }
   });
 });

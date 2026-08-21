@@ -59,8 +59,9 @@ export default function AcceptableUse() {
               your own legal position, and MIDNAT is not a route around it.
             </li>
             <li>
-              Run automated use that misrepresents the protocol as something it is not. Do not present MIDNAT as
-              audited, insured, regulated, endorsed, or as a live-money venue, and do not impersonate the project.
+              Run automated use that misrepresents the protocol as something it is not. Do not make representations
+              beyond the published evidence: MIDNAT is testnet software and is not presented as audited, insured,
+              regulated, endorsed, or as a live-money venue. Do not impersonate the project.
             </li>
           </ul>
         </Prose>

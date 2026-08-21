@@ -94,8 +94,10 @@ export default function DeferredPayouts() {
               secured obligation.
             </li>
             <li>
-              The claim is not insured. There is no insurance fund and no external backstop on this deployment. If the
-              vault cannot generate the cash, no other party is obligated to.
+              The claim is not insured. An insurance fund is deployed as a bounded reserve that can be drawn on before a
+              shortfall reaches this stage, but it can be empty and it does not guarantee the claim. Beyond it there is no
+              external backstop on this deployment: if the vault and the reserve cannot generate the cash, no other party
+              is obligated to.
             </li>
             <li>
               Seniority orders who is paid first from what the vault has. It does not create cash that is not there.

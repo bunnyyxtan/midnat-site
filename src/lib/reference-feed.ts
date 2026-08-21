@@ -77,7 +77,7 @@ export interface FeedResult {
 /**
  * The market the hero shows. Chain-listed only: an unlisted symbol is priced
  * by the reference engine but cannot be traded, and the hero sits directly
- * above a "Start trading" button.
+ * above the primary app call to action.
  *
  * Sorted before choosing so the hero does not change market because the API
  * changed its ordering.

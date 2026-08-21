@@ -116,7 +116,7 @@ export function HeroSection() {
             data-testid="hero-start-trading"
             className="landing-primary-btn"
           >
-            Start trading
+            Open the app
             <ArrowRight size={18} className="landing-primary-btn-arrow" />
           </a>
         </Reveal>

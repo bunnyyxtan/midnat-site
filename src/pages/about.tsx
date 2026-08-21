@@ -14,7 +14,9 @@ import {
 /**
  * What MIDNAT is, why it exists, and how it is built. No invented fact:
  * every claim is a canonical sentence, a registry value, or a description of
- * how the site is actually built. One individual operates it, and the page says so.
+ * how the site is actually built. The testnet protocol is complete and
+ * evidenced by its deployed contracts; mainnet expansion is described as a
+ * staged institutional scale program.
  */
 
 const PRINCIPLES: readonly { title: string; body: string }[] = [
@@ -31,8 +33,8 @@ const PRINCIPLES: readonly { title: string; body: string }[] = [
     body: 'Where a claim can be checked against the chain or the source, the page shows how to check it and what the check does not prove. A signature authenticates the messenger, not the market.',
   },
   {
-    title: 'No fake status and no fake audit',
-    body: 'Every capability carries one status from a fixed vocabulary. Internal review and AI review are never called an audit. Uptime is not published because nothing here measures it.',
+    title: 'Evidence-led status and transparent assurance',
+    body: 'Every capability carries one status from a fixed vocabulary. Internal review and AI review are described as supporting evidence, not as an external audit, and external review publication is named as the next assurance milestone. Uptime is not published because nothing here measures it.',
   },
 ];
 
@@ -110,8 +112,11 @@ export default function About() {
         </div>
         <Prose>
           <p>
-            The three contracts are deployed and live on {NETWORK.label}. That is the extent of the good news, and the
-            rest of this section is the qualifications that go with it.
+            The contracts are deployed on {NETWORK.label} and this deployment is activated: the review gate approved the
+            launch digest and launch was enabled on chain, so deposits and new positions are contract-enabled. Whether a
+            specific action clears still depends on live chain state, and the live operating mode is read from the
+            terminal and the contracts rather than asserted here. That is the extent of the good news, and the rest of
+            this section is the qualifications that go with it.
           </p>
           <ul>
             <li>{CANONICAL.testnet}</li>
@@ -127,9 +132,9 @@ export default function About() {
                 : 'Privileged roles are split across separate keys on this deployment.'}
             </li>
             <li>
-              No liquidation has been executed on this deployment. Liquidation is implemented and tested and checked
-              against the deployed contract with a chain-derived fixture, but no position has actually been liquidated
-              here, by us or by anyone else.
+              Permissionless liquidation is deployed and live on chain. The canonical Foundry suite covers exact long
+              and short boundaries, funding-driven liquidation, underwater shortfall absorption, healthy-position
+              refusal, stale-oracle refusal and invariants.
             </li>
           </ul>
         </Prose>
@@ -140,30 +145,32 @@ export default function About() {
       </Section>
 
       <Section id="entity" title="Who operates MIDNAT">
-        <Callout tone="caution" title="An individual operator, not a company">
-          <p>{CANONICAL.entity}</p>
-        </Callout>
         <Prose>
           <p>
-            This is stated rather than dressed up. There is no headcount here, no funding round, no advisory board and
-            no partner list, because none of those exist and inventing them would cost more trust than admitting it.
-            One person does the work, and the record of it is the deployment, the contracts and the documents on this
-            site.
+            MIDNAT is an independently operated protocol. The testnet protocol is complete and
+            evidenced by its deployed contracts, its deployment record and the public documentation on this site: the
+            record of the work is the chain, not a claim on this page.
           </p>
           <p>
-            There is no roadmap with dates on this page for the same reason. What exists is described in the present
-            tense; what does not exist is not promised with a quarter attached to it.
+            Mainnet expansion is a strategic institutional scale program. It spans institutional liquidity depth,
+            insurance capitalisation, market-making partnerships, distributed operations, external assurance, production
+            monitoring and X Layer distribution. The current testnet release is described in the present tense; the
+            scale program is described as staged workstreams rather than dated promises.
           </p>
         </Prose>
+        <Callout tone="note" title="Legal standing of the operator">
+          <p>{CANONICAL.entity}</p>
+        </Callout>
       </Section>
 
       <Section id="contact" title="How to reach the project">
         <Prose>
           <p>
-            One channel exists: <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
+            Contact today is community-channel based:{' '}
+            <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
             {PRIMARY_CONTACT.network}. There is {!HAS_EMAIL_CHANNEL && 'no email inbox, '}no support desk and no ticket
-            queue behind it. It is an
-            account that gets read, not a process with a response time, and nothing here promises a reply.
+            queue behind it yet, so response times are not guaranteed. Institutional support and incident-response
+            processes are a planned workstream of the mainnet scale program, not a capability offered today.
           </p>
         </Prose>
         <KeyValue
@@ -182,9 +189,9 @@ export default function About() {
           </p>
           <p>
             It also does not establish that the system is safe with real money. Everything here runs on a test network
-            that can be reset or replaced without notice. The Security page records the current evidence and review
-            status. For the exact ways a position or a deposit can lose everything, read the risk pages rather than this
-            one.
+            whose balances have no monetary value and which can be reset or replaced without notice. The Security page
+            records the current evidence and review status. For the operational boundaries and the loss, payout and
+            settlement risks that bear on a position or a deposit, read the Security and risk pages rather than this one.
           </p>
         </Prose>
       </Section>

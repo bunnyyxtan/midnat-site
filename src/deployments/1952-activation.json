@@ -1,0 +1,15 @@
+{
+  "_comment": "Post-activation chain facts, proven on X Layer Testnet AFTER the launch-time deployment manifest (1952.json) was frozen. The manifest records the venue as it was born: launch disabled, review not yet approved. This file records what has since been proven on chain and is the authority for LAUNCH/current public semantics. It is authored once and immutable; it never mutates the launch-time deployment evidence in 1952.json, which stays exactly as recorded at deploy time. Current operating mode is NOT recorded here: activation to NORMAL is historical, and the live mode must be read from the terminal/contracts, not hardcoded.",
+  "chainId": 1952,
+  "activated": true,
+  "launchEnabled": true,
+  "authority": "0x214690679fF22aec8d63BB82349c6560d9580155",
+  "reviewer": "0xcc00f7029582386c28E8E8306E769eEe5e33d309",
+  "reviewDigest": "0x8cb4a4e39abbea842168078b59e13830c989661f49c7a5d0b69fb24f84c13474",
+  "transactions": {
+    "ownershipAcceptance": "0x27d3eb4cc4f5d556972eca3df9a6b94accdd25418104375ffd7624970dc609d0",
+    "reviewApproval": "0xbde4f8ccf76e0384ba15ee2e229feae65d309fc375259236f5578136d16b160a",
+    "enableLaunch": "0xe94aa2c72db146cd32f5b13fb9b2ec99b90546645ce09b9bcb9b2e8f85e9d1cb",
+    "normalTransition": "0xae43eedf0f423ff3e1a1da87a81bfb63eed4bb3fb0f6757364b4a122eaac9921"
+  }
+}

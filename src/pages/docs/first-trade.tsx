@@ -1,6 +1,7 @@
 import { Link } from 'wouter';
 import { DocsLayout } from '@/components/public/DocsLayout';
 import { ExternalLink, Prose, Section } from '@/components/public/primitives';
+import { ActivatedTestnetNotice } from '@/components/public/ActivatedTestnetNotice';
 import { docBySlug, docHref } from '@/lib/site-map';
 import { LEVERAGE_RANGE, NETWORK } from '@/lib/protocol-registry';
 
@@ -11,46 +12,48 @@ export default function FirstTrade() {
     <DocsLayout
       slug={DOC.slug}
       title={DOC.title}
-      standfirst="Placing, reading and closing a position once your wallet is connected and holds USD₮0. MIDNAT can move the required amount into the Trading Account before it submits the order."
+      standfirst="How a position is placed, read and closed once your wallet is connected and holds USD₮0. This deployment is activated on testnet, so opening a position is contract-enabled; the steps below execute against the deployed contracts, and whether a given order clears still depends on live chain state."
       meta={{ title: DOC.title, description: DOC.summary, path: docHref(DOC.slug), type: 'article' }}
     >
       <Section id="place" title="Open a position">
+        <ActivatedTestnetNotice />
         <Prose>
           <p>
             This picks up where{' '}
             <Link href={docHref('getting-started')} className="pub-link">
               getting started
             </Link>{' '}
-            left off: a wallet on {NETWORK.label} holding USD₮0. Your Wallet and Trading Account are separate. You can
-            deposit first from Trade or Portfolio, or let the order ticket stage the exact shortfall before it submits
-            the order. LP Vault deposits do not fund the Trading Account.
+            left off: a wallet on {NETWORK.label} holding USD₮0. The flow is as follows. Your Wallet and Trading Account
+            are separate. You deposit first from Trade or Portfolio, or let the order ticket stage the exact shortfall
+            before it submits the order. LP Vault deposits do not fund the Trading Account. Opening a position and the
+            deposit that funds it are contract-enabled; each call clears subject to wallet collateral, market state, the
+            venue's live operating mode, oracle freshness and the clearing house's risk and capacity checks.
           </p>
           <p>
-            Choose a market, a side and a margin amount. Position size is notional, not the margin you post. Your
-            leverage is size divided by the margin assigned to the position, and it must sit inside the tier's maximum, which runs
-            from {LEVERAGE_RANGE.min}x to {LEVERAGE_RANGE.max}x depending on the market. The{' '}
+            You choose a market, a side and a margin amount. Position size is notional, not the margin you post.
+            Leverage is size divided by the margin assigned to the position, and it must sit inside the tier's maximum,
+            which runs from {LEVERAGE_RANGE.min}x to {LEVERAGE_RANGE.max}x depending on the market. The{' '}
             <Link href={docHref('markets-and-tiers')} className="pub-link">
               markets and risk tiers
             </Link>{' '}
             page lists the limit for every market.
           </p>
           <p>
-            When you fill in the ticket, the app asks the clearing house what the trade would cost. It quotes the fill
+            When the ticket is filled in, the app asks the clearing house what the trade would cost. It quotes the fill
             against the contract's own pricing view and simulates the call, so the execution price, the fees and the
-            liquidation price you are shown before you sign are the contract's numbers rather than a second opinion.
-            Nothing has been sent at that point, and nothing is recorded anywhere.
+            liquidation price shown before signing are the contract's numbers rather than a second opinion. Nothing is
+            sent at that point, and nothing is recorded anywhere.
           </p>
           <p>
-            When you accept, the ticket shows every wallet step before anything is signed. If the Trading Account
-            already has enough available balance, only the order transaction is needed. If it is short, the sequence can
-            also include an ERC-20 approval when allowance is insufficient and an exact deposit for the shortfall; each
-            step must confirm before the next is prepared. The
-            clearing house then reads the anchored price and refuses a stale one, builds the fill from the tier's base
-            spread and an impact term, checks the open-interest caps, the minimums and the tier's leverage limit,
-            and enforces the slippage bound the call carries. A marketable order writes the position. A non-marketable
-            limit order writes a resting on-chain order and reserves its margin plus quoted open fee until fill,
-            cancellation, or on-chain expiry. If the order call fails, no position or resting order is written; any
-            earlier confirmed approval or Trading Account deposit remains on chain.{' '}
+            On acceptance, the ticket shows every wallet step before anything is signed. If the Trading Account already
+            has enough available balance, only the order transaction is needed. If it is short, the sequence can also
+            include an ERC-20 approval when allowance is insufficient and an exact deposit for the shortfall; each step
+            must confirm before the next is prepared. The clearing house then reads the anchored price and refuses a
+            stale one, builds the fill from the tier's base spread and an impact term, checks the open-interest caps, the
+            minimums and the tier's leverage limit, and enforces the slippage bound the call carries. A marketable order
+            writes the position. A non-marketable limit order writes a resting on-chain order and reserves its margin
+            plus quoted open fee until fill, cancellation, or on-chain expiry. If the order call fails a check no position
+            or resting order is written, and any earlier confirmed approval or Trading Account deposit remains on chain.{' '}
             <Link href={docHref('positions-and-margin')} className="pub-link">
               Positions and margin
             </Link>{' '}

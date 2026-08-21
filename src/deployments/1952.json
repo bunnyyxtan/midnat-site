@@ -2,12 +2,12 @@
   "status": "complete",
   "chainId": 1952,
   "rpcUrl": "https://testrpc.xlayer.tech/terigon",
-  "startedAt": "2026-08-20T13:21:01.788Z",
-  "completedAt": "2026-08-20T13:22:53.192Z",
-  "deployer": "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
+  "startedAt": "2026-08-21T10:03:33.622Z",
+  "completedAt": "2026-08-21T10:04:57.621Z",
+  "deployer": "0x8aa94E26A369b844cADa4d46F47f189415312556",
   "local": false,
   "collateral": {
-    "address": "0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c",
+    "address": "0x9e29b3aada05bf2d2c827af80bd28dc0b9b4fb0c",
     "symbol": "USD₮0",
     "name": "USD₮0",
     "decimals": 6,
@@ -15,48 +15,102 @@
   },
   "contracts": {
     "oracleAnchor": {
-      "address": "0xD2D95fC530b579ae63Ea1E16c8a247a611859Cdb",
+      "address": "0xBFC74097D7A356410281e281223D30d362fBdA23",
       "reused": true,
-      "deploymentBlock": null,
+      "deploymentBlock": 38816472,
       "txHash": null,
       "constructorArgs": null,
-      "signer": "0xd40196c1b4AC8BD14A00c685E00c9A7B63e62d55",
-      "runtimeCodeHash": "0xc261055f7ec286377bbe401ad146e3d72a03d771bf6373c92fe764c495a0e1b5",
-      "runtimeCodeBytes": 3146,
-      "solcVersion": "0.8.36",
-      "provenance": "Deployed in P0 with solc 0.8.36 (standard pipeline, recorded in its own metadata trailer). This repo pins 0.8.26 with via-IR, so byte equality is not expected: a standard-pipeline rebuild of src/MidnatOracleAnchor.sol from this repo produces the identical 3093-byte body and differs only in 35 zero-push opcodes (PUSH0 vs DUP1), a compiler-patch encoding difference. runtimeCodeHash was pinned at first verification on 2026-08-17, not at deploy time."
+      "version": "v2",
+      "signer": null,
+      "signerSetHash": "0xb46e92591aaf656f606f597383d52d12143aa30b0b5930346d3b92b1cb3dd1fa",
+      "threshold": 2,
+      "signers": [
+        "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
+        "0x0cA83f84F3CfDdc88F54be44e8464abEB6A9CFcF",
+        "0xd40196c1b4AC8BD14A00c685E00c9A7B63e62d55"
+      ],
+      "runtimeCodeHash": "0xb47b0c2e90ddc2bebac9268c9039ccd627a949d482b221760b36ac41eb68fa1d",
+      "runtimeCodeBytes": 3668,
+      "compilerVersion": "0.8.26+commit.8a97fa7a"
     },
     "vault": {
-      "address": "0x93C2dF60560f00FfdcA0F4c845B6c37344361b18",
-      "deploymentBlock": 38773235,
-      "txHash": "0xe1cb7f95d42e14bbeb1ea697a12944d4c4d8f52f7c2dab62090a0b39c8e07af2",
+      "address": "0xF0e82D9E18FF5874A063DE40Dc95Ad7D757F8b3C",
+      "deploymentBlock": 38847789,
+      "txHash": "0x32fd3de89fa082d3bc752e7dc12548d81b73b0c017f796be73e0f83b1694e25d",
       "constructorArgs": [
-        "0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c"
-      ]
+        "0x9e29b3aada05bf2d2c827af80bd28dc0b9b4fb0c"
+      ],
+      "runtimeCodeHash": "0x43aa9f9828b18f1ab4d5b4fc941000e6c3abe0f697928f03818b5ee259bd410c",
+      "runtimeCodeBytes": 6364,
+      "compilerVersion": "0.8.26+commit.8a97fa7a"
+    },
+    "insuranceFund": {
+      "address": "0x0022B508a454a86496C5862638AD34563537D6B2",
+      "deploymentBlock": 38847794,
+      "txHash": "0x7ed64602659299b613a12d44ff6c758952728500d1d1bed106ed993d5d384907",
+      "constructorArgs": [
+        "0x9e29b3aada05bf2d2c827af80bd28dc0b9b4fb0c"
+      ],
+      "runtimeCodeHash": "0xf44865ba67a437d423e73a0dac2015284f96169705576761ce4b9b8a6faf26ce",
+      "runtimeCodeBytes": 4134,
+      "compilerVersion": "0.8.26+commit.8a97fa7a"
+    },
+    "reviewGate": {
+      "address": "0x2EAA5a3347021A48714D1Fe1ea49fE7820adB04b",
+      "deploymentBlock": 38847800,
+      "txHash": "0xc5f177281a09f8d0fefa3ae4307261f50a1e02ca4511bb21a823a024e36ac95d",
+      "constructorArgs": [
+        "0xcc00f7029582386c28E8E8306E769eEe5e33d309"
+      ],
+      "reviewer": "0xcc00f7029582386c28E8E8306E769eEe5e33d309",
+      "createdByClearingHouse": true,
+      "runtimeCodeHash": "0x79dbedb087dd00afdb978ded9bd0204c361c3693b4b1f46bfc53a355a3c798e3",
+      "runtimeCodeBytes": 414,
+      "compilerVersion": "0.8.26+commit.8a97fa7a"
     },
     "clearingHouse": {
-      "address": "0x256CF2fBaF0ad5412f8ac8aB405D2af8834Bf8D5",
-      "deploymentBlock": 38773245,
-      "txHash": "0x66e67e55b1f8586f02ab7b900e4c7a19c9127f6a220f15ebfa30041650890b7b",
+      "address": "0x4cF606A1f6866AbC0c40ED1B22e8691c8F7D852d",
+      "deploymentBlock": 38847800,
+      "txHash": "0xc5f177281a09f8d0fefa3ae4307261f50a1e02ca4511bb21a823a024e36ac95d",
       "constructorArgs": [
-        "0x9e29b3AaDa05Bf2D2c827Af80Bd28Dc0b9b4FB0c",
-        "0xD2D95fC530b579ae63Ea1E16c8a247a611859Cdb",
-        "0x93C2dF60560f00FfdcA0F4c845B6c37344361b18",
-        "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
-        "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
+        "0x9e29b3aada05bf2d2c827af80bd28dc0b9b4fb0c",
+        "0xBFC74097D7A356410281e281223D30d362fBdA23",
+        "0xF0e82D9E18FF5874A063DE40Dc95Ad7D757F8b3C",
+        "0x0022B508a454a86496C5862638AD34563537D6B2",
+        "0xcc00f7029582386c28E8E8306E769eEe5e33d309",
+        "0xdCd93F9BAa03172121640DFfF32498f9cbD3a683",
+        "0x0A8E72BFF3b6f5Fd8805753a28F3e2675772a415",
         8000,
         "1000000",
-        "1000000"
-      ]
+        "1000000",
+        "0x214690679fF22aec8d63BB82349c6560d9580155"
+      ],
+      "runtimeCodeHash": "0xa8f092ffad4bb703647e2ded00ee259e797c3065436f0713de1e479babc36128",
+      "runtimeCodeBytes": 24297,
+      "compilerVersion": "0.8.26+commit.8a97fa7a"
     }
   },
   "pending": null,
   "wired": true,
   "roles": {
-    "owner": "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
-    "riskKeeper": "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
-    "fundingKeeper": "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
-    "oracleSigner": "0xd40196c1b4AC8BD14A00c685E00c9A7B63e62d55"
+    "owner": "0x8aa94E26A369b844cADa4d46F47f189415312556",
+    "pendingOwner": "0x214690679fF22aec8d63BB82349c6560d9580155",
+    "riskKeeper": "0xdCd93F9BAa03172121640DFfF32498f9cbD3a683",
+    "fundingKeeper": "0x0A8E72BFF3b6f5Fd8805753a28F3e2675772a415",
+    "oracleSigner": null,
+    "oracleSignerSet": [
+      "0x034fb31F3FC6B2aC5aF977D407B3ba390D04B3F0",
+      "0x0cA83f84F3CfDdc88F54be44e8464abEB6A9CFcF",
+      "0xd40196c1b4AC8BD14A00c685E00c9A7B63e62d55"
+    ],
+    "launchAuthority": "0x214690679fF22aec8d63BB82349c6560d9580155",
+    "reviewAuthority": "0xcc00f7029582386c28E8E8306E769eEe5e33d309"
+  },
+  "launch": {
+    "enabledAtDeployment": false,
+    "authority": "0x214690679fF22aec8d63BB82349c6560d9580155",
+    "enabled": false,
+    "reviewDigest": "0x0000000000000000000000000000000000000000000000000000000000000000"
   },
   "globals": {
     "globalOiFactorBps": 8000,
@@ -80,10 +134,12 @@
         "marketOiFactorBps": 4000,
         "sideOiFactorBps": 6000,
         "maxConfidenceBps": 500,
-        "maxPriceAgeSec": 120
+        "maxPriceAgeSec": 120,
+        "stressMoveBps": 3000,
+        "stressFundingBps": 100
       },
-      "txHash": "0x460e787a0dd1dbbbdff68e21a29dd859ee3d2ef6ec96d4923466305522b46f0f",
-      "block": 38773310
+      "txHash": "0x2cd913242031cb0232761beee7d582fa91d96e014273294b14e03a69a71422bf",
+      "block": 38847822
     },
     {
       "symbol": "GOOGL",
@@ -101,10 +157,12 @@
         "marketOiFactorBps": 4000,
         "sideOiFactorBps": 6000,
         "maxConfidenceBps": 500,
-        "maxPriceAgeSec": 120
+        "maxPriceAgeSec": 120,
+        "stressMoveBps": 3000,
+        "stressFundingBps": 100
       },
-      "txHash": "0x1286298def6fc65012ef6fab442f7fc497478e1ca7bf080a8b1377835a9801bd",
-      "block": 38773316
+      "txHash": "0xdb36b93be6481ed21fabfde752637772a6b3fc0ccc71a4f36c95bdfeab1ded95",
+      "block": 38847827
     },
     {
       "symbol": "NVDA",
@@ -122,10 +180,12 @@
         "marketOiFactorBps": 3000,
         "sideOiFactorBps": 6000,
         "maxConfidenceBps": 400,
-        "maxPriceAgeSec": 120
+        "maxPriceAgeSec": 120,
+        "stressMoveBps": 4000,
+        "stressFundingBps": 150
       },
-      "txHash": "0x62d76dd7c467ce4bcf1b702fc2cc5b85fb88b44b783c17e1d8c862c99b342c8a",
-      "block": 38773322
+      "txHash": "0xb4906adbe7c6b92f9a0c83443df82c54f06ca36061f05f62315f60563bf4121e",
+      "block": 38847832
     },
     {
       "symbol": "TSLA",
@@ -143,10 +203,12 @@
         "marketOiFactorBps": 3000,
         "sideOiFactorBps": 6000,
         "maxConfidenceBps": 400,
-        "maxPriceAgeSec": 120
+        "maxPriceAgeSec": 120,
+        "stressMoveBps": 4000,
+        "stressFundingBps": 150
       },
-      "txHash": "0x8b7ecb794166632b170a1c8faa308963849739dbfd7e058936036f9a09dc0308",
-      "block": 38773327
+      "txHash": "0xf120e9b46c29666b7f7ea8eb5f09dfa8cc62213564f23d1069afc2abb7bc53fe",
+      "block": 38847836
     },
     {
       "symbol": "HOOD",
@@ -164,73 +226,120 @@
         "marketOiFactorBps": 2000,
         "sideOiFactorBps": 6000,
         "maxConfidenceBps": 300,
-        "maxPriceAgeSec": 120
+        "maxPriceAgeSec": 120,
+        "stressMoveBps": 5000,
+        "stressFundingBps": 200
       },
-      "txHash": "0x2bc432262234ed444a6568e7f57af20a5b4413823dd7bdf747748d8b4d63c823",
-      "block": 38773333
+      "txHash": "0xeca0afdb41ee6d745eca93afecef09ca3e50ede93e558042ebc97bcb492dfd84",
+      "block": 38847841
     }
   ],
   "gas": {
-    "totalGasUsed": "7267466",
+    "totalGasUsed": "9250011",
     "gasPriceWei": "20000001",
-    "estimatedCostWei": "145349327267466",
-    "estimatedCost": "0.000145349327267466"
+    "estimatedCostWei": "185000229250011",
+    "estimatedCost": "0.000185000229250011"
   },
   "receipts": [
     {
       "step": "deploy MidnatVault",
-      "txHash": "0xe1cb7f95d42e14bbeb1ea697a12944d4c4d8f52f7c2dab62090a0b39c8e07af2",
-      "block": 38773235,
-      "gasUsed": "1526178"
+      "txHash": "0x32fd3de89fa082d3bc752e7dc12548d81b73b0c017f796be73e0f83b1694e25d",
+      "block": 38847789,
+      "gasUsed": "1554510"
+    },
+    {
+      "step": "deploy MidnatInsuranceFund",
+      "txHash": "0x7ed64602659299b613a12d44ff6c758952728500d1d1bed106ed993d5d384907",
+      "block": 38847794,
+      "gasUsed": "1010414"
     },
     {
       "step": "deploy MidnatClearingHouse",
-      "txHash": "0x66e67e55b1f8586f02ab7b900e4c7a19c9127f6a220f15ebfa30041650890b7b",
-      "block": 38773245,
-      "gasUsed": "4941472"
+      "txHash": "0xc5f177281a09f8d0fefa3ae4307261f50a1e02ca4511bb21a823a024e36ac95d",
+      "block": 38847800,
+      "gasUsed": "5686602"
     },
     {
       "step": "wireClearingHouse",
-      "txHash": "0x0a90302b29e0b118260b583fcf2d78e1cf1a4eaa3790b057ee03c419c24fcbc6",
-      "block": 38773305,
+      "txHash": "0xb815794b344a03582874be7ef0ca53a9aff61193afbbde8ee7cc1a500ea1230c",
+      "block": 38847808,
       "gasUsed": "47419"
     },
     {
+      "step": "wireInsuranceFund",
+      "txHash": "0x82d017b1db18dc86f9a67c8c009d5097ee3b2afeac12ef64b3845b3c1e3ee7d4",
+      "block": 38847812,
+      "gasUsed": "47264"
+    },
+    {
+      "step": "wireInsuranceVault",
+      "txHash": "0x8eb188b3afedb4f4c978d72fd7bf49c01f4623ca6f425e21e0258942f1aad739",
+      "block": 38847817,
+      "gasUsed": "47330"
+    },
+    {
       "step": "listMarket AAPL",
-      "txHash": "0x460e787a0dd1dbbbdff68e21a29dd859ee3d2ef6ec96d4923466305522b46f0f",
-      "block": 38773310,
-      "gasUsed": "164157"
+      "txHash": "0x2cd913242031cb0232761beee7d582fa91d96e014273294b14e03a69a71422bf",
+      "block": 38847822,
+      "gasUsed": "164873"
     },
     {
       "step": "listMarket GOOGL",
-      "txHash": "0x1286298def6fc65012ef6fab442f7fc497478e1ca7bf080a8b1377835a9801bd",
-      "block": 38773316,
-      "gasUsed": "147069"
+      "txHash": "0xdb36b93be6481ed21fabfde752637772a6b3fc0ccc71a4f36c95bdfeab1ded95",
+      "block": 38847827,
+      "gasUsed": "147785"
     },
     {
       "step": "listMarket NVDA",
-      "txHash": "0x62d76dd7c467ce4bcf1b702fc2cc5b85fb88b44b783c17e1d8c862c99b342c8a",
-      "block": 38773322,
-      "gasUsed": "147057"
+      "txHash": "0xb4906adbe7c6b92f9a0c83443df82c54f06ca36061f05f62315f60563bf4121e",
+      "block": 38847832,
+      "gasUsed": "147773"
     },
     {
       "step": "listMarket TSLA",
-      "txHash": "0x8b7ecb794166632b170a1c8faa308963849739dbfd7e058936036f9a09dc0308",
-      "block": 38773327,
-      "gasUsed": "147057"
+      "txHash": "0xf120e9b46c29666b7f7ea8eb5f09dfa8cc62213564f23d1069afc2abb7bc53fe",
+      "block": 38847836,
+      "gasUsed": "147773"
     },
     {
       "step": "listMarket HOOD",
-      "txHash": "0x2bc432262234ed444a6568e7f57af20a5b4413823dd7bdf747748d8b4d63c823",
-      "block": 38773333,
-      "gasUsed": "147057"
+      "txHash": "0xeca0afdb41ee6d745eca93afecef09ca3e50ede93e558042ebc97bcb492dfd84",
+      "block": 38847841,
+      "gasUsed": "147773"
+    },
+    {
+      "step": "transfer clearing ownership",
+      "txHash": "0x934050ad9bfcc10cd835b765eec14f748923ff41a92bb095ca3a27dda4ce7942",
+      "block": 38847846,
+      "gasUsed": "49255"
+    },
+    {
+      "step": "renounce vault setup ownership",
+      "txHash": "0xf09f8fa1ae5975c9dfea7633c9018a2752129a169ce70ff1fe2b6919853cf040",
+      "block": 38847851,
+      "gasUsed": "25721"
+    },
+    {
+      "step": "renounce insurance setup ownership",
+      "txHash": "0xc1eb7452380c1a795cd948beea6abd6dc5ce2b6e5cb4609e9a7317926b7d129e",
+      "block": 38847856,
+      "gasUsed": "25519"
     }
   ],
-  "operations": [],
-  "supersedes": {
-    "vault": "0xdef6c364C2446894C622107223aa4AaA08bd74b5",
-    "clearingHouse": "0x4F470bb282f4d31c8071D6Ec05C6bfE47E79181C",
-    "snapshotBlock": 38773143,
-    "note": "State was not migrated. The superseded contracts remain deployed and callable so LP shares and open positions stay redeemable there. See evidence/migration/pre-migration-snapshot.json."
-  }
+  "compilerProfile": {
+    "solcVersion": "0.8.26+commit.8a97fa7a",
+    "optimizer": {
+      "enabled": true,
+      "runs": 1
+    },
+    "viaIR": true,
+    "evmVersion": "cancun"
+  },
+  "reviewAuthorization": {
+    "gate": "0x2EAA5a3347021A48714D1Fe1ea49fE7820adB04b",
+    "reviewer": "0xcc00f7029582386c28E8E8306E769eEe5e33d309",
+    "mode": "independent-reviewer",
+    "approvedDigest": null
+  },
+  "operations": []
 }

@@ -1,4 +1,5 @@
 import { appHref } from './config';
+import { PUBLIC_REPOSITORY_URL } from './protocol-registry';
 /**
  * The public site map: every route, the navigation that exposes it, and the
  * docs registry that drives the sidebar, the search index and the breadcrumbs.
@@ -209,7 +210,7 @@ export const LEGAL: readonly LegalMeta[] = [
   {
     slug: 'risk-disclosure',
     title: 'Risk disclosure',
-    summary: 'The ways you can lose everything you deposit, stated plainly and without softening.',
+    summary: 'A structured overview of loss, payout and testnet settlement risks.',
     updated: '2026-08-21',
   },
   {
@@ -344,6 +345,7 @@ export function footerGroups(): readonly FooterGroup[] {
         { label: 'Contracts', href: '/contracts' },
         { label: 'Deployments', href: '/deployments' },
         { label: 'Verify', href: '/verify' },
+        { label: 'Source code', href: PUBLIC_REPOSITORY_URL, external: true },
         { label: 'Security', href: '/security' },
         { label: 'Status', href: '/status' },
         { label: 'Changelog', href: '/changelog' },

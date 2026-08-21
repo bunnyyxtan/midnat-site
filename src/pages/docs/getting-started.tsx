@@ -1,6 +1,7 @@
 import { Link } from 'wouter';
 import { DocsLayout } from '@/components/public/DocsLayout';
 import { Callout, ExternalLink, KeyValue, Prose, Section } from '@/components/public/primitives';
+import { ActivatedTestnetNotice } from '@/components/public/ActivatedTestnetNotice';
 import { docBySlug, docHref } from '@/lib/site-map';
 import { PRIMARY_CONTACT } from '@/lib/contact';
 import {
@@ -20,10 +21,11 @@ export default function GettingStarted() {
     <DocsLayout
       slug={DOC.slug}
       title={DOC.title}
-      standfirst="Setup, and only setup: a wallet, the network, collateral, and a first look at the terminal. When your wallet is connected and funded, your first trade is the next page. It also says plainly which of this happens in the app and which happens on chain."
+      standfirst="Setup, then trading: a wallet, the network, collateral, and a first look at the terminal. This deployment is activated on testnet, so depositing collateral and opening positions are contract-enabled; whether a given action clears still depends on live chain state. The steps below say plainly which of this happens in the app and which happens on chain."
       meta={{ title: DOC.title, description: DOC.summary, path: docHref(DOC.slug), type: 'article' }}
     >
       <Section id="before-you-start" title="Before you start">
+        <ActivatedTestnetNotice />
         <Prose>
           <p>{CANONICAL.testnet}</p>
           <p>
@@ -63,7 +65,9 @@ export default function GettingStarted() {
       <Section id="what-you-need" title="What you need">
         <Prose>
           <p>
-            All three are required, because trading here is signing transactions and paying for them.
+            All three are required for trading, because trading here is signing transactions and paying for them. With
+            them you complete the setup, connect, read the venue, and deposit and open positions against the activated
+            contracts.
           </p>
           <ol>
             <li>
@@ -77,9 +81,11 @@ export default function GettingStarted() {
               {' '}{NETWORK.gasCurrency} per claim.
             </li>
             <li>
-              <strong>Testnet {COLLATERAL.symbol}.</strong> Deposit trader collateral into the Trading Account before
-              the order. A market order assigns its margin to a position. A resting limit order reserves its margin plus
-              quoted open fee until fill, cancellation, or on-chain expiry. Collateral below covers where it comes from.
+              <strong>Testnet {COLLATERAL.symbol}.</strong> Trader collateral is deposited into the Trading Account
+              before the order: a market order assigns its margin to a position, and a resting limit order reserves its
+              margin plus quoted open fee until fill, cancellation, or on-chain expiry. The deposit and order calls are
+              contract-enabled; a specific call still clears only if wallet collateral, market state, live mode, oracle
+              freshness and the risk checks allow it. Collateral below covers where it comes from.
             </li>
           </ol>
           <p>
@@ -133,17 +139,18 @@ export default function GettingStarted() {
           <p>
             Funds begin in your Wallet. A deposit moves trader collateral into the clearing house and credits it to your
             Trading Account, where available balance can fund a position or order. LP Vault deposits are separate
-            liquidity-provider positions and never fund your Trading Account.
+            liquidity-provider positions and never fund your Trading Account. The deposit call is contract-enabled; it
+            clears subject to your wallet collateral and the contract's checks.
           </p>
           <p>
             The order ticket handles the transfer when it has to. It asks for an ERC-20 approval only if the clearing
-            house allowance is insufficient, then deposits exactly the Trading Account shortfall, then submits the
-            market order or on-chain resting limit order. Each step is its own wallet-signed transaction and costs{' '}
+            house allowance is insufficient, then deposits exactly the Trading Account shortfall, then submits the market
+            order or on-chain resting limit order. Each step is its own wallet-signed transaction and costs{' '}
             {NETWORK.gasCurrency}. With enough available Trading Account balance, only the order transaction is needed.
           </p>
           <p>
             This deployment does not publish a collateral faucet. You need testnet {COLLATERAL.symbol} in the connected
-            Wallet before you can deposit or trade. The project contact,{' '}
+            Wallet before a deposit or trade. The project contact,{' '}
             <ExternalLink href={PRIMARY_CONTACT.href}>{PRIMARY_CONTACT.display}</ExternalLink> on{' '}
             {PRIMARY_CONTACT.network}, is not a faucet.
           </p>
@@ -167,7 +174,7 @@ export default function GettingStarted() {
             rather than from any ledger MIDNAT keeps. You can read all of it before you open anything.
           </p>
           <p>
-            When you are ready to place one,{' '}
+            For how a position is placed,{' '}
             <Link href={docHref('first-trade')} className="pub-link">
               your first trade
             </Link>{' '}

@@ -11,8 +11,10 @@ import {
   TableScroll,
 } from '@/components/public/primitives';
 import {
+  ACTIVATION,
   CANONICAL,
   DEPLOYMENT,
+  LAUNCH,
   LIMITATIONS,
   MARKETS,
   NETWORK,
@@ -121,6 +123,37 @@ export default function Deployments() {
             </tbody>
           </table>
         </TableScroll>
+      </Section>
+
+      <Section id="activation" title="Activation">
+        <Prose>
+          <p>
+            The deployment window above records the venue as it was born: launch disabled, its review gate created but no
+            launch digest yet approved. That launch-time evidence is immutable and is not rewritten. The transactions
+            below are a separate, later record of the venue being activated on chain: the review gate approved the launch
+            digest, the launch authority enabled launch, and the venue transitioned into live operation. Since then,
+            deposits and new positions are contract-enabled.
+          </p>
+        </Prose>
+        <KeyValue
+          items={[
+            { key: 'Launch enabled', value: LAUNCH.enabled ? 'Yes' : 'No' },
+            { key: 'Launch authority', value: <AddressDisplay value={LAUNCH.authority} /> },
+            { key: 'Reviewer', value: <AddressDisplay value={ACTIVATION.reviewer} /> },
+            { key: 'Approved launch digest', value: <AddressDisplay value={ACTIVATION.reviewDigest} /> },
+            { key: 'Ownership accepted', value: <AddressDisplay value={ACTIVATION.ownershipAcceptanceTx} kind="tx" /> },
+            { key: 'Review approval', value: <AddressDisplay value={ACTIVATION.reviewApprovalTx} kind="tx" /> },
+            { key: 'Enable launch', value: <AddressDisplay value={ACTIVATION.enableLaunchTx} kind="tx" /> },
+            { key: 'First NORMAL transition', value: <AddressDisplay value={ACTIVATION.normalTransitionTx} kind="tx" /> },
+          ]}
+        />
+        <Callout tone="note" title="The NORMAL transition is historical, not the current mode">
+          <p>
+            The transition transaction records the first move into NORMAL. It is a historical event, not a claim that the
+            venue's mode is permanently NORMAL. The live operating mode, normal, close only or halted per market and
+            venue-wide, is chain state read from the terminal and the contracts.
+          </p>
+        </Callout>
       </Section>
 
       <Section id="markets" title="Market listings">

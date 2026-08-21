@@ -18,21 +18,20 @@ import {
   KEY_CONCENTRATION,
   LIMITATIONS,
   NETWORK,
-  ORACLE_RUNTIME_CODE_HASH,
   ROLES,
   SOURCES,
   blockNumber,
 } from '@/lib/protocol-registry';
 
 const VERIFICATION_LABEL: Record<string, string> = {
-  REPRODUCED: 'Runtime bytecode reproduced',
   HASH_PINNED: 'Runtime code hash pinned',
   NOT_VERIFIED: 'Not verified',
 };
 
 const explorerLimit = LIMITATIONS.find((l) => l.id === 'explorer-verification')!;
-const singleKey = LIMITATIONS.find((l) => l.id === 'single-key')!;
+const ownerKeyLimit = LIMITATIONS.find((l) => l.id === 'owner-not-timelocked')!;
 const anchorLimit = LIMITATIONS.find((l) => l.id === 'anchor-provenance')!;
+const activationLimit = LIMITATIONS.find((l) => l.id === 'activated-testnet')!;
 
 export default function Contracts() {
   return (
@@ -45,7 +44,7 @@ export default function Contracts() {
       }}
       eyebrow="Trust"
       title="Contracts"
-      standfirst="The address book for this deployment. Three contracts, one collateral token, four privileged roles, and an honest account of what verification here does and does not mean."
+      standfirst="The address book for this deployment. The deployed contracts, one collateral token, the privileged roles, and an honest account of what verification here does and does not mean."
       breadcrumbs={[{ label: 'MIDNAT', href: '/' }, { label: 'Contracts' }]}
       headerMeta={[
         { label: 'Network', value: `${NETWORK.label}, chain ${NETWORK.chainId}` },
@@ -65,12 +64,16 @@ export default function Contracts() {
       }
     >
       <Section id="overview" title="What is deployed">
+        <Callout tone="note" title="Activated on testnet">
+          {activationLimit.detail}
+        </Callout>
         <Prose>
           <p>
-            MIDNAT is three contracts on {NETWORK.label}, chain {NETWORK.chainId}. The vault and the clearing house were
-            deployed by this run and reproduced from source. The oracle anchor was reused from an earlier run, so it is
-            handled differently, as its own block below explains. Collateral is {COLLATERAL.name}, a token this project
-            did not deploy.
+            MIDNAT is {CONTRACTS.length} contracts on {NETWORK.label}, chain {NETWORK.chainId}. The vault, the insurance
+            fund, the review gate and the clearing house were deployed by this run; the clearing house created the review
+            gate in its own constructor, and that gate has since approved the launch digest that lifted the launch gate.
+            The oracle anchor was reused from an earlier run, so it is handled differently, as its own block below
+            explains. Collateral is {COLLATERAL.name}, a token this project did not deploy.
           </p>
           <p>
             These addresses are the authority for the state they hold. What the app records for itself is a separate
@@ -78,7 +81,7 @@ export default function Contracts() {
             <Link href="/docs/getting-started" className="pub-link">
               getting started
             </Link>{' '}
-            and in the limitations the whitepaper publishes.
+            and in the deployment-scope record the whitepaper publishes.
           </p>
         </Prose>
         <KeyValue
@@ -118,13 +121,20 @@ export default function Contracts() {
               },
               { key: 'Compiler', value: `solc ${c.solc}` },
               { key: 'Pipeline', value: c.pipeline },
-              { key: 'Source', value: c.sourcePath },
-              ...(c.key === 'oracleAnchor'
-                ? [{ key: 'Runtime code hash', value: <AddressDisplay value={ORACLE_RUNTIME_CODE_HASH} /> }]
+              {
+                key: 'Source',
+                value: (
+                  <a className="pub-link" href={c.sourceUrl} target="_blank" rel="noreferrer">
+                    View {c.sourcePath}
+                  </a>
+                ),
+              },
+              ...(c.runtimeCodeHash
+                ? [{ key: 'Runtime code hash', value: <AddressDisplay value={c.runtimeCodeHash} /> }]
                 : []),
             ]}
           />
-          <Callout tone={c.verification === 'REPRODUCED' ? 'note' : 'caution'} title="Verification note">
+          <Callout tone="caution" title="Verification note">
             {c.verificationNote}
           </Callout>
         </Section>
@@ -154,9 +164,11 @@ export default function Contracts() {
       <Section id="roles" title="Privileged roles">
         <Prose>
           <p>
-            Four roles can change the state of the protocol. Read the addresses before reading anything else on this
-            site, because they decide what the numbers elsewhere are worth. The powers listed are the ones the contracts
-            actually grant.
+            {ROLES.length} privileged roles can change the state of the protocol. Read the addresses before reading
+            anything else on this site, because they decide what the numbers elsewhere are worth. The powers listed are
+            the ones the contracts actually grant. Oracle prices are not a single-key role: the anchor accepts a report
+            only when a threshold of {KEY_CONCENTRATION.oracleSignerThreshold} of{' '}
+            {KEY_CONCENTRATION.oracleSignerCount} signing keys has signed it.
           </p>
         </Prose>
         <TableScroll>
@@ -190,22 +202,22 @@ export default function Contracts() {
       </Section>
 
       <Section id="concentration" title="Key concentration">
-        <Callout tone="caution" title="One key holds three roles">
-          <p>{singleKey.detail}</p>
+        <Callout tone="caution" title="The owner is a single key">
+          <p>{ownerKeyLimit.detail}</p>
         </Callout>
         <Prose>
           <p>
-            The role table above resolves to {KEY_CONCENTRATION.distinctAddresses} distinct addresses.
-            {KEY_CONCENTRATION.ownerAlsoKeeper
-              ? ' The owner, the risk keeper and the funding keeper are the same key, so one signer can change risk parameters, halt markets and post funding. The oracle signer is a separate key, which is the one useful separation in the current layout.'
-              : ' The keeper roles are held by different keys.'}
+            The roles above resolve to {KEY_CONCENTRATION.distinctAddresses} distinct addresses.
+            {KEY_CONCENTRATION.keepersSeparated
+              ? ' The risk keeper and the funding keeper are held by keys distinct from the owner, and oracle prices need a threshold of signatures rather than one signer.'
+              : ' The owner also holds the keeper roles, so one signer can change risk parameters, halt markets and post funding.'}
           </p>
           <p>
             There is {KEY_CONCENTRATION.multisig ? 'a multisig' : 'no multisig'} and{' '}
-            {KEY_CONCENTRATION.timelock ? 'a timelock' : 'no timelock'} on this deployment. A single compromised owner
-            key can act immediately, with no second signature and no delay. This is a real centralisation fact for a
-            testnet operated by one person, and a mainnet deployment would need separated keeper keys and a timelocked or
-            multisig owner.
+            {KEY_CONCENTRATION.timelock ? 'a timelock' : 'no timelock'} on this deployment. The owner is still a single
+            externally owned key, so a compromise of it acts immediately, with no second signature and no delay. This
+            testnet uses concentrated administrative roles, and the mainnet expansion program distributes governance and
+            operations through institutional controls, including a timelocked or multisig owner.
           </p>
         </Prose>
       </Section>
@@ -213,18 +225,17 @@ export default function Contracts() {
       <Section id="verification" title="What verification means here">
         <Prose>
           <p>
-            Two of the three contracts carry the state "runtime bytecode reproduced". That means a local rebuild from
-            the project source, compiled with the pinned profile, produced runtime bytecode byte for byte identical to the
-            code deployed at the address, with every immutable value pinned to the deployed value before the comparison.
-            It proves the deployed code is this source tree, compiled as claimed, with the constructor values it claims.
+            Every contract here carries the state "runtime code hash pinned". The deployed runtime code hash was recorded
+            in the manifest at deploy time, so any later substitution of the code at an address is caught. This is not a
+            byte-for-byte rebuild from source: it proves the code has not changed since deploy, not that it matches this
+            source tree or that it is correct.
           </p>
           <p>
-            A local rebuild is not the same as verification on the block explorer. {explorerLimit.detail}
+            A hash pin is not the same as verification on the block explorer. {explorerLimit.detail}
           </p>
           <p>
-            The oracle anchor is the exception. {anchorLimit.detail} For it, the runtime code hash is pinned instead, so
-            any later substitution is caught, and the live signer and the signing domain were checked against the
-            deployment.
+            The oracle anchor is handled a little differently. {anchorLimit.detail} Its runtime code hash is pinned like
+            the rest, and its signer set, threshold and signing domain were checked against the deployment.
           </p>
         </Prose>
         <Prose>
@@ -245,8 +256,9 @@ export default function Contracts() {
       <Section id="limits" title="What this page does not establish">
         <Prose>
           <p>
-            A reproduced build proves the deployed code matches this source. It does not prove the source is correct, and
-            it is not a security audit. {CANONICAL.noAudit}
+            A pinned runtime code hash proves the deployed code has not changed since deploy. It does not prove the code
+            matches this source tree, it does not prove the source is correct, and it is not a security audit.{' '}
+            {CANONICAL.noAudit}
           </p>
           <p>
             The addresses here are the current deployment. {CANONICAL.testnet} If the contracts are redeployed, every

@@ -161,8 +161,8 @@ export default function Protocol() {
       <Section id="mechanism" title="The mechanism">
         <Prose>
           <p>
-            The protocol has four moving parts. Each is live on the testnet deployment, and each has a documentation
-            page that goes through it in detail.
+            The protocol has four moving parts. Each is deployed and activated on the testnet deployment, and each has a
+            documentation page that goes through it in detail.
           </p>
         </Prose>
         <div className="flex flex-col gap-4">
@@ -215,8 +215,8 @@ export default function Protocol() {
               until they recover.
             </li>
             <li>
-              Liquidation is implemented and tested, but no position has been liquidated on this deployment, by us or by
-              anyone else. Treat the keeper economics as untested in the wild.
+              Permissionless liquidation is deployed and live on chain, with canonical exact-boundary, funding-drift,
+              underwater-shortfall, refusal and invariant coverage.
             </li>
           </ul>
           <p>

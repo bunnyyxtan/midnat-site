@@ -10,6 +10,7 @@
     "build": "npm run typecheck && npm run test && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "sync-deployment": "node scripts/sync-deployment.mjs",
     "test": "vitest run"
   },
   "dependencies": {

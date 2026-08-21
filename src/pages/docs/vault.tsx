@@ -1,6 +1,7 @@
 import { Link } from 'wouter';
 import { DocsLayout } from '@/components/public/DocsLayout';
 import { AddressDisplay, Callout, H3, KeyValue, Prose, Section, StatusBadge } from '@/components/public/primitives';
+import { ActivatedTestnetNotice } from '@/components/public/ActivatedTestnetNotice';
 import { docBySlug, docHref } from '@/lib/site-map';
 import { CANONICAL, COLLATERAL, GLOBALS, LIMITATIONS, bpsToPercent, contractByKey } from '@/lib/protocol-registry';
 
@@ -17,6 +18,7 @@ export default function Vault() {
       meta={{ title: DOC.title, description: DOC.summary, path: docHref(DOC.slug), type: 'article' }}
     >
       <Section id="what" title="What the vault is">
+        <ActivatedTestnetNotice />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="pub-h4">{VAULT.name}</span>
           <StatusBadge status={VAULT.status} />
@@ -122,12 +124,12 @@ export default function Vault() {
               neither of which is guaranteed and neither of which is shown here as a rate.
             </li>
             <li>
-              There is no insurance fund. Nothing backstops the vault if trader profit exceeds what fees and prior
-              trader losses have accumulated.
+              An insurance fund is deployed as a bounded reserve that can be drawn on before a shortfall reaches LP
+              equity. It is a buffer, not a guarantee: it can be empty, and it does not promise to make the vault whole.
             </li>
             <li>
-              A payout the vault cannot fund becomes a claim that ranks ahead of LP equity and is paid from later vault
-              cash. It is unsecured, it is not insured and it can remain unpaid. See{' '}
+              A payout that neither the vault nor the reserve can fund becomes a claim that ranks ahead of LP equity and
+              is paid from later vault cash. It is unsecured and it can remain unpaid. See{' '}
               <Link href={docHref('deferred-payouts')} className="pub-link">
                 deferred payouts
               </Link>{' '}

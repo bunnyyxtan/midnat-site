@@ -30,13 +30,14 @@ export default function LegalIndex() {
       }
     >
       <Section id="entity" title="Entity and governing law">
-        <Callout tone="caution" title="An individual operator, not a company">
+        <Callout tone="note" title="Legal standing of the operator">
           <p>{CANONICAL.entity}</p>
           <p>
-            The practical consequence is worth stating before you read further. There is no corporate counterparty to
-            contract with, no registered office to serve notice on and no company balance sheet standing behind this
-            interface. What exists is a named operator, a stated governing law, and the documents below, which are
-            written to be read literally rather than skimmed.
+            The practical consequence is worth stating before you read further. Because no company is yet incorporated,
+            there is no registered corporate counterparty to contract with and no registered office to serve notice on;
+            an operating entity and custody framework is a mainnet expansion workstream. What exists today is a named
+            operator, a stated governing law, and the documents below, which are written to be read literally rather
+            than skimmed.
           </p>
         </Callout>
         <Prose>
@@ -80,9 +81,10 @@ export default function LegalIndex() {
             <li>{CANONICAL.noAudit}</li>
           </ul>
           <p>
-            The current deployment completed {utcDate(DEPLOYMENT.completedAt)}. It supersedes prior contracts without
-            migrating their state. Old positions and LP shares remain on the old contracts described in the deployment
-            record.
+            The current deployment completed {utcDate(DEPLOYMENT.completedAt)}. Its contracts are on chain and readable,
+            and the deployment is activated: the review gate approved the launch digest and launch was enabled on chain,
+            so deposits and new positions are contract-enabled. These documents describe how the venue behaves, and
+            whether a specific action clears still depends on live chain state.
           </p>
           <p>
             Where a document states a technical fact, that fact is taken from the deployment manifest or from the code,

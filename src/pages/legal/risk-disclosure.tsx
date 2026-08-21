@@ -21,7 +21,7 @@ export default function RiskDisclosure() {
       meta={{ title: DOC.title, description: DOC.summary, path: legalHref(DOC.slug), type: 'article' }}
       eyebrow="Legal"
       title={DOC.title}
-      standfirst="The ways you can lose everything you put in, stated without softening. Read this before you open a position."
+      standfirst="A structured overview of loss, payout and testnet settlement risks. Read this before you open a position."
       breadcrumbs={[{ label: 'MIDNAT', href: '/' }, { label: 'Legal', href: '/legal' }, { label: DOC.title }]}
       headerMeta={[{ label: 'Updated', value: utcDate(DOC.updated) }]}
       actions={<PrintButton />}
@@ -86,8 +86,9 @@ export default function RiskDisclosure() {
           <p>
             If you provide liquidity, the vault is the counterparty to every position the clearing house opens. When traders win,
             the vault pays them, and its net asset value falls. A skewed book means the vault carries directional
-            exposure it did not choose, and your shares can be worth less than you deposited. There is no insurance fund
-            and no guarantee of return.
+            exposure it did not choose, and your shares can be worth less than you deposited. An insurance fund is
+            deployed as a bounded reserve that can absorb some shortfall before it reaches LP equity, but it can be empty
+            and it is no guarantee of return.
           </p>
         </Prose>
       </Section>
@@ -142,9 +143,9 @@ export default function RiskDisclosure() {
         </Prose>
       </Section>
 
-      <Section id="untested" title="Mechanics that have never run on this deployment">
+      <Section id="untested" title="Operational evidence and infrastructure">
         <Prose>
-          <H3 id="untested-liquidation">Liquidation has not been executed here</H3>
+          <H3 id="untested-liquidation">Liquidation is live and permissionless</H3>
           <p>{limitation('no-live-liquidation').detail}</p>
           <p>{limitation('no-liquidation-incentive').detail}</p>
           <H3 id="untested-infra">The public RPC can lag</H3>
