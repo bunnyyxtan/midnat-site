@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync } from 'node:fs';
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Plugin } from 'vite';
 
@@ -43,6 +43,39 @@ export function spa404(): Plugin {
         );
       }
       copyFileSync(indexPath, notFoundPath);
+      const shell = readFileSync(notFoundPath, 'utf8')
+        .replace(/<title>[^<]*<\/title>/, '<title>Page not found · MIDNAT</title>')
+        .replace(
+          /<meta name="description" content="[^"]*"\s*\/?>/,
+          '<meta name="description" content="That page does not exist on this site." />',
+        )
+        .replace(
+          /<meta name="robots" content="[^"]*"\s*\/?>/,
+          '<meta name="robots" content="noindex, nofollow" />',
+        )
+        .replace(
+          /<meta property="og:title" content="[^"]*"\s*\/?>/,
+          '<meta property="og:title" content="Page not found · MIDNAT" />',
+        )
+        .replace(
+          /<meta property="og:description" content="[^"]*"\s*\/?>/,
+          '<meta property="og:description" content="That page does not exist on this site." />',
+        )
+        .replace(
+          /<meta name="twitter:title" content="[^"]*"\s*\/?>/,
+          '<meta name="twitter:title" content="Page not found · MIDNAT" />',
+        )
+        .replace(
+          /<meta name="twitter:description" content="[^"]*"\s*\/?>/,
+          '<meta name="twitter:description" content="That page does not exist on this site." />',
+        )
+        .replace(/<meta property="og:url" content="[^"]*"\s*\/?>/, '')
+        .replace(/<link rel="canonical" href="[^"]*"\s*\/?>/, '')
+        .replace(
+          '<div id="root"></div>',
+          '<div id="root"><main data-static-404><h1>Error 404</h1><p>Nothing is listed at this address.</p></main></div>',
+        );
+      writeFileSync(notFoundPath, shell);
     },
   };
 }

@@ -6,6 +6,7 @@ import { PublicNav } from './PublicNav';
 import { PublicFooter } from './PublicFooter';
 import { useTheme } from './theme';
 import { usePageMeta, type PageMeta } from '@/lib/use-page-meta';
+import { STATIC_ROUTE_META } from '@/lib/route-meta';
 
 /**
  * The shell every public document page renders inside.
@@ -39,7 +40,17 @@ export function PublicPage({
 }) {
   const { theme } = useTheme();
   const [location] = useLocation();
-  usePageMeta(meta);
+  const staticMeta = STATIC_ROUTE_META[meta.path];
+  usePageMeta(
+    staticMeta
+      ? {
+          ...meta,
+          title: staticMeta.title,
+          description: staticMeta.description,
+          type: staticMeta.type,
+        }
+      : meta,
+  );
 
   /* A router that keeps scroll position drops you into the middle of the next
      document. Honour an explicit fragment, otherwise start at the top. */

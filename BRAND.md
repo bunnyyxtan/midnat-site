@@ -16,7 +16,7 @@ Status: binding for every MIDNAT surface, repository, release, social card and g
 - Never imply guaranteed returns, guaranteed safety, a completed audit, real-money readiness or capabilities that have not been verified.
 - Keep review and audit status on the dedicated Security surface. Global navigation, footers and landing chrome carry only stable operational facts.
 - Do not use em dashes or en dashes in public copy.
-- Do not publish Replit, agent, scaffold, starter-template or platform attribution in product copy, social metadata or public assets.
+- Do not publish agent, scaffold, starter-template or development-platform attribution in product copy, social metadata or public assets.
 
 ## Technical exceptions
 

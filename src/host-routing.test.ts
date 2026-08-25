@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { routeOutputPath } from '../vite-plugins/static-routes';
 
 /**
  * Host routing: what the CDN answers before React ever runs.
@@ -74,9 +75,9 @@ describe('the rewrite table and the router agree', () => {
     ).toEqual([]);
   });
 
-  it('sends every rewrite to the built shell', () => {
-    const wrong = REWRITES.filter((r) => r.destination !== '/index.html');
-    expect(wrong, 'a rewrite points somewhere other than /index.html').toEqual([]);
+  it('sends every rewrite to its matching static document', () => {
+    const wrong = REWRITES.filter((r) => r.destination !== `/${routeOutputPath(r.source)}`);
+    expect(wrong, 'a rewrite points to another route’s HTML').toEqual([]);
   });
 
   it('has no catch-all rewrite (the shape that made invented paths answer 200)', () => {
@@ -115,6 +116,14 @@ describe('the 404 shell is actually produced', () => {
 
   it('fails the build instead of silently skipping the copy', () => {
     expect(SPA_404, 'a missing index.html must throw, not warn').toMatch(/throw new Error/);
+  });
+
+  it('turns the copied shell into an honest noindex 404 identity', () => {
+    expect(SPA_404).toContain('Page not found · MIDNAT');
+    expect(SPA_404).toContain('noindex, nofollow');
+    expect(SPA_404).toContain('data-static-404');
+    expect(SPA_404).toMatch(/replace\(\/<meta property="og:url"/);
+    expect(SPA_404).toMatch(/replace\(\/<link rel="canonical"/);
   });
 });
 

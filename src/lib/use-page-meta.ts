@@ -49,7 +49,7 @@ export function usePageMeta(meta: PageMeta): void {
   useEffect(() => {
     const fullTitle = path === '/' ? title : `${title} \u00b7 MIDNAT`;
     const url = `${SITE_URL}${path}`;
-    const social = image ?? `${SITE_URL}/og-default.png`;
+    const social = image ?? `${SITE_URL}/og-preview.png`;
 
     document.title = fullTitle;
     setMeta('meta[name="description"]', 'name', 'description', description);

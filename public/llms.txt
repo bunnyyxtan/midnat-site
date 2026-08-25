@@ -1,0 +1,59 @@
+# MIDNAT
+
+> Public documentation for MIDNAT, a synthetic equity perpetuals protocol on X Layer Testnet. This index describes public information only; the trading application is on a separate origin.
+
+Canonical site: https://midnat.xyz/
+Sitemap: https://midnat.xyz/sitemap.xml
+
+## Protocol
+
+- [Protocol overview](https://midnat.xyz/protocol): What MIDNAT is, in one page.
+- [Markets](https://midnat.xyz/markets): Listed markets and their live parameter sets.
+- [Fees](https://midnat.xyz/fees): The costs of a round trip.
+- [Risk framework](https://midnat.xyz/risk): Protocol, trader and liquidity-provider risks.
+- [Whitepaper](https://midnat.xyz/whitepaper): The canonical design document.
+- [Contracts](https://midnat.xyz/contracts): Deployed addresses, roles and verification state.
+- [Deployments](https://midnat.xyz/deployments): Deployment and owner-operation records.
+- [Verify](https://midnat.xyz/verify): Independent verification steps and their limits.
+- [Security](https://midnat.xyz/security): Security posture, key concentration and disclosure.
+- [Status](https://midnat.xyz/status): Observable system status.
+- [Changelog](https://midnat.xyz/changelog): Recorded protocol changes.
+
+## Documentation
+
+- [Documentation index](https://midnat.xyz/docs): Reading paths for traders, liquidity providers and developers.
+- [How MIDNAT works](https://midnat.xyz/docs/how-it-works)
+- [Getting started](https://midnat.xyz/docs/getting-started)
+- [Your first trade](https://midnat.xyz/docs/first-trade)
+- [When the protocol refuses](https://midnat.xyz/docs/refusal-rules)
+- [Glossary](https://midnat.xyz/docs/glossary)
+- [Markets and risk tiers](https://midnat.xyz/docs/markets-and-tiers)
+- [Positions and margin](https://midnat.xyz/docs/positions-and-margin)
+- [Execution and pricing](https://midnat.xyz/docs/execution-and-pricing)
+- [Funding](https://midnat.xyz/docs/funding)
+- [Liquidation](https://midnat.xyz/docs/liquidation)
+- [The liquidity vault](https://midnat.xyz/docs/vault)
+- [Deferred payouts](https://midnat.xyz/docs/deferred-payouts)
+- [The reference engine](https://midnat.xyz/docs/reference-engine)
+- [The oracle anchor](https://midnat.xyz/docs/oracle-anchor)
+- [Market hours and 24/7 trading](https://midnat.xyz/docs/market-hours)
+- [MIDNAT Intelligence](https://midnat.xyz/docs/intelligence)
+- [HTTP API](https://midnat.xyz/docs/api)
+
+## Legal
+
+- [Legal index](https://midnat.xyz/legal)
+- [Terms of use](https://midnat.xyz/legal/terms)
+- [Privacy notice](https://midnat.xyz/legal/privacy)
+- [Risk disclosure](https://midnat.xyz/legal/risk-disclosure)
+- [Testnet disclosure](https://midnat.xyz/legal/testnet)
+- [AI disclosure](https://midnat.xyz/legal/ai-disclosure)
+- [Market data disclosure](https://midnat.xyz/legal/market-data)
+- [Acceptable use](https://midnat.xyz/legal/acceptable-use)
+- [Cookies and local storage](https://midnat.xyz/legal/cookies)
+- [Licences and attributions](https://midnat.xyz/legal/licenses)
+
+## Project
+
+- [About](https://midnat.xyz/about)
+- [Brand](https://midnat.xyz/brand)

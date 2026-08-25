@@ -13,8 +13,11 @@ import { PublicFooter } from '../components/public/PublicFooter';
 import { useTheme } from '../components/public/theme';
 import { useReducedMotion } from 'framer-motion';
 import { useEffect } from 'react';
+import { usePageMeta } from '../lib/use-page-meta';
+import { STATIC_ROUTE_META } from '../lib/route-meta';
 
 export default function Home() {
+  usePageMeta({ ...STATIC_ROUTE_META['/'], path: '/' });
   const { scrollYProgress } = useScroll();
   const smoothScaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
   const shouldReduceMotion = useReducedMotion();
