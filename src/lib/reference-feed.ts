@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { getJson } from './api';
+import { provenanceOf, type Provenance } from './provenance';
+
+export type { Provenance };
 
 /**
  * The reference feed behind the landing hero.
@@ -33,6 +36,12 @@ const CANDLE_LIMIT = 24;
  */
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
+export interface ReferenceSource {
+  readonly provider?: string;
+  readonly feedSymbol?: string;
+  readonly feedKind?: string;
+}
+
 export interface MarketRow {
   readonly symbol: string;
   readonly name?: string;
@@ -42,6 +51,18 @@ export interface MarketRow {
   readonly referenceQuality?: string;
   readonly change24h?: number;
   readonly chainListed?: boolean;
+  readonly dataState?: string;
+  readonly referenceSource?: ReferenceSource;
+}
+
+/**
+ * A market row's provenance, unwrapped from where that endpoint nests the two
+ * markers. The rule itself lives in lib/provenance so the status page, which
+ * spells the simulated data state differently, cannot drift from it.
+ */
+export function rowProvenance(row: MarketRow | null | undefined): Provenance {
+  if (!row) return 'unknown';
+  return provenanceOf({ dataState: row.dataState, feedKind: row.referenceSource?.feedKind });
 }
 
 interface Candle {
@@ -64,6 +85,11 @@ export interface ReferenceFeed {
   readonly referenceState: string;
   readonly referenceAgeSec: number | null;
   readonly referenceQuality: string | null;
+  /**
+   * What the engine says these numbers are. The hero may only use the word
+   * "signed" while this is 'signed'.
+   */
+  readonly provenance: Provenance;
   readonly points: readonly FeedPoint[];
 }
 
@@ -120,6 +146,7 @@ export function buildFeed(featured: MarketRow | null, candles: unknown): Referen
     referenceState: featured.referenceState ?? 'UNKNOWN',
     referenceAgeSec: finite(featured.referenceAgeSec) ? featured.referenceAgeSec : null,
     referenceQuality: featured.referenceQuality ?? null,
+    provenance: rowProvenance(featured),
     points,
   };
 }

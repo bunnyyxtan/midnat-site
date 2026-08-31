@@ -3,7 +3,14 @@ import { ArrowRight } from 'lucide-react';
 import { appHref } from '@/lib/config';
 import { useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
-import { axisTicks, feedGeometry, useReferenceFeed } from '@/lib/reference-feed';
+import { axisTicks, feedGeometry, useReferenceFeed, type Provenance } from '@/lib/reference-feed';
+
+/** Only a positively signed reading is described as one. */
+const PROVENANCE_LABEL: Record<Provenance, string> = {
+  signed: 'signed reference',
+  simulated: 'simulated reference',
+  unknown: 'reference',
+};
 
 /** The reference is only described as live while the feed says it is current. */
 function freshnessLabel(state: string, ageSec: number | null): string {
@@ -126,8 +133,14 @@ export function HeroSection() {
         <div className="landing-glass-tier-2 w-full p-8 flex flex-col justify-between group min-h-[300px]">
           
           <div className="flex justify-between items-start gap-4 text-[10px] md:text-xs font-mono font-medium tracking-widest uppercase">
+            {/* The engine says whether it is signing or simulating, and the
+                label follows it. Calling a simulated print a signed reference
+                is the one thing this card must never do -- so an unrecognised
+                provenance drops the adjective rather than guessing "signed",
+                and the heading before any feed has loaded names the card
+                instead of asserting what the card will contain. */}
             <span className="opacity-60" data-testid="hero-feed-symbol">
-              {feed ? `${feed.symbol} signed reference` : 'Signed reference'}
+              {feed ? `${feed.symbol} ${PROVENANCE_LABEL[feed.provenance]}` : 'Reference feed'}
             </span>
             <span
               className="tabular-nums tracking-tighter flex items-center gap-2 opacity-60"
@@ -262,6 +275,18 @@ export function HeroSection() {
                 <span key={label}>{label}</span>
               ))}
             </div>
+          )}
+
+          {/* One statement, in the card that carries the numbers, rather than a
+              banner repeated down the page. It renders only while the engine
+              reports a simulation, so the live build is untouched. */}
+          {feed?.provenance === 'simulated' && (
+            <p
+              className="pt-3 font-mono text-[9px] md:text-[10px] uppercase tracking-widest opacity-40"
+              data-testid="hero-feed-provenance"
+            >
+              Simulated market data. Nothing here was signed or settled on chain.
+            </p>
           )}
         </div>
       </Reveal>

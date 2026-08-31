@@ -5,6 +5,7 @@ import {
   feedGeometry,
   pickFeatured,
   PLOT_RIGHT,
+  rowProvenance,
   type FeedPoint,
   type MarketRow,
 } from './reference-feed';
@@ -238,5 +239,75 @@ describe('a malformed payload is not a reading', () => {
     const rows = [row({ symbol: 'TSLA' }), row({ symbol: 'AAPL' }), row({ symbol: 'NVDA' })];
     expect(pickFeatured(rows)?.symbol).toBe('AAPL');
     expect(pickFeatured([...rows].reverse())?.symbol).toBe('AAPL');
+  });
+});
+
+/**
+ * A simulated print rendered under the words "signed reference" is a lie about
+ * provenance, and it is the exact shape the hero takes when the engine runs in
+ * demo mode: the payload still carries a price, a 24h change and an age of a
+ * couple of seconds, so nothing about the numbers themselves gives it away.
+ *
+ * The engine labels its own output. These tests pin that this site reads the
+ * label instead of assuming a signed feed, in both directions -- a live payload
+ * must not be downgraded to simulated either, or the site understates a real
+ * deployment.
+ */
+describe('the hero reports the provenance the engine declares', () => {
+  const row = (over: Partial<MarketRow> = {}): MarketRow =>
+    ({ symbol: 'AAPL', chainListed: true, markPrice: 310.5, ...over }) as MarketRow;
+
+  const candles = [
+    { t: 1_700_000_000, c: 300 },
+    { t: 1_700_003_600, c: 301 },
+  ];
+
+  const signed = {
+    dataState: 'REAL',
+    referenceSource: { provider: 'PYTH', feedSymbol: 'Equity.US.NVDA/USD', feedKind: 'EQUITY_SESSION' },
+  } as Partial<MarketRow>;
+
+  it('reads a DEMO data state as simulated', () => {
+    expect(rowProvenance(row({ dataState: 'DEMO' }))).toBe('simulated');
+  });
+
+  it('reads a SIMULATED feed kind as simulated even when the data state looks real', () => {
+    expect(
+      rowProvenance(
+        row({
+          dataState: 'REAL',
+          referenceSource: { provider: 'MIDNAT_DEMO', feedSymbol: 'x', feedKind: 'SIMULATED' },
+        }),
+      ),
+    ).toBe('simulated');
+  });
+
+  it('calls a real anchor on a real market feed signed', () => {
+    expect(rowProvenance(row(signed))).toBe('signed');
+  });
+
+  it('refuses to call anything else signed', () => {
+    // An unlabelled payload is the one that used to read as signed by default.
+    expect(rowProvenance(row())).toBe('unknown');
+    expect(rowProvenance(null)).toBe('unknown');
+    // No anchor read yet.
+    expect(rowProvenance(row({ ...signed, dataState: 'BOOT' }))).toBe('unknown');
+    // Real anchor, but the feed behind it is gone.
+    expect(
+      rowProvenance(
+        row({
+          dataState: 'REAL',
+          referenceSource: { provider: 'PYTH', feedSymbol: 'x', feedKind: 'UNAVAILABLE' },
+        }),
+      ),
+    ).toBe('unknown');
+    // Half a payload is not a signature.
+    expect(rowProvenance(row({ dataState: 'REAL' }))).toBe('unknown');
+  });
+
+  it('carries the provenance onto the feed the hero renders', () => {
+    expect(buildFeed(row({ dataState: 'DEMO' }), candles)?.provenance).toBe('simulated');
+    expect(buildFeed(row(signed), candles)?.provenance).toBe('signed');
+    expect(buildFeed(row(), candles)?.provenance).toBe('unknown');
   });
 });

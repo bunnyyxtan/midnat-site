@@ -4,6 +4,7 @@ import { DocumentLayout } from '@/components/public/DocumentLayout';
 import { Callout, KeyValue, Prose, Section, TableScroll } from '@/components/public/primitives';
 import { getJson } from '@/lib/api';
 import { CANONICAL, MARKETS, NETWORK, ORACLE_POLICY, REFERENCE_ENGINE, utcDateTime } from '@/lib/protocol-registry';
+import { collectiveProvenance } from '@/lib/provenance';
 
 /**
  * Live status page. It reports only what it can observe over the read API and
@@ -25,6 +26,13 @@ interface ReferenceMarket {
   referenceState: string;
   quality?: { state?: string };
   ageSec: number | null;
+  /**
+   * The engine's own account of what these readings are. Without these the page
+   * cannot tell a signed anchor from a simulation, and every number below reads
+   * as an on-chain fact.
+   */
+  feedKind?: string;
+  dataState?: string;
 }
 
 interface ReferenceHealth {
@@ -152,6 +160,11 @@ export default function Status() {
   const allReferenceMarkets = snap.reference?.markets ?? [];
   const referenceMarkets = allReferenceMarkets.filter((m) => listedSymbols.has(m.symbol));
   const unlistedTracked = allReferenceMarkets.length - referenceMarkets.length;
+  // Everything in the reference section below talks about anchored prices and
+  // exposure refused on chain. None of that is true when the engine is running
+  // a simulation, so those claims are gated on what the engine says it is --
+  // not merely on whether it answered the request.
+  const referenceSimulated = collectiveProvenance(referenceMarkets) === 'simulated';
   const anchorAgeSec =
     typeof snap.reference?.updatedAt === 'number' && snap.attemptedAtMs
       ? Math.max(0, Math.floor(snap.attemptedAtMs / 1000) - snap.reference.updatedAt)
@@ -220,7 +233,11 @@ export default function Status() {
             Reference feed {probeLabel(snap.referenceState).toLowerCase()}
           </span>
           {snap.referenceState === 'ok' ? (
-            <span className="pub-small">Anchored price {ageLabel(anchorAgeSec)}, policy ceiling {ORACLE_POLICY.maxPriceAgeSec}s</span>
+            <span className="pub-small">
+              {referenceSimulated
+                ? `Simulated reference ${ageLabel(anchorAgeSec)}. No price was anchored on chain.`
+                : `Anchored price ${ageLabel(anchorAgeSec)}, policy ceiling ${ORACLE_POLICY.maxPriceAgeSec}s`}
+            </span>
           ) : null}
         </div>
 
@@ -266,9 +283,19 @@ export default function Status() {
 
         <Prose>
           <p>
-            The reference state moves through {REFERENCE_ENGINE.states.join(', ').toLowerCase()} as a feed ages. The
-            clearing house rejects an anchored price older than {ORACLE_POLICY.maxPriceAgeSec} seconds, so a market that
-            reads stale here is a market where new exposure is refused on chain.{' '}
+            The reference state moves through {REFERENCE_ENGINE.states.join(', ').toLowerCase()} as a feed ages.{' '}
+            {referenceSimulated ? (
+              <>
+                This engine is deriving those states from simulated market data, so the table above describes the
+                simulation rather than a signed feed. Nothing in it was anchored on chain, and no exposure was allowed
+                or refused on the strength of it.{' '}
+              </>
+            ) : (
+              <>
+                The clearing house rejects an anchored price older than {ORACLE_POLICY.maxPriceAgeSec} seconds, so a
+                market that reads stale here is a market where new exposure is refused on chain.{' '}
+              </>
+            )}
             {unlistedTracked > 0
               ? `The engine also tracks ${unlistedTracked} ${unlistedTracked === 1 ? 'symbol' : 'symbols'} that this venue does not list, and those are left out of the table above because they are not tradeable here. `
               : ''}
@@ -286,7 +313,11 @@ export default function Status() {
           <ul>
             <li>Whether the read API responded to the most recent request.</li>
             <li>The reference engine state and freshness per market, as the engine reports it.</li>
-            <li>The anchored price age against the {ORACLE_POLICY.maxPriceAgeSec} second on-chain ceiling.</li>
+            <li>
+              {referenceSimulated
+                ? 'The age of the simulated reference. No on-chain ceiling is being applied to it.'
+                : `The anchored price age against the ${ORACLE_POLICY.maxPriceAgeSec} second on-chain ceiling.`}
+            </li>
           </ul>
           <p>It does not publish, and you should not read into its absence:</p>
           <ul>
